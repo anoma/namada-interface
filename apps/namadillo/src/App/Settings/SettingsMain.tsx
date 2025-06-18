@@ -18,13 +18,6 @@ import { version as sdkVersion } from "../../../../../packages/sdk/package.json"
 import { version } from "../../../package.json";
 import { SettingsPanelMenuItem } from "./SettingsPanelMenuItem";
 
-const { VITE_REVISION: revision = "" } = import.meta.env;
-
-// GitHub raw URL for the default infrastructure providers JSON
-const DEFAULT_INFRA_PROVIDERS_URL =
-  "https://raw.githubusercontent.com/anoma/namada-chain-registry/main/default_infra_providers.json";
-
-// Type definition for the default infrastructure providers
 type DefaultInfraProviders = {
   housefire: {
     rpc: string;
@@ -37,6 +30,10 @@ type DefaultInfraProviders = {
     masp: string;
   };
 };
+
+const { VITE_REVISION: revision = "" } = import.meta.env;
+const DEFAULT_INFRA_PROVIDERS_URL =
+  "https://raw.githubusercontent.com/anoma/namada-chain-registry/main/default_infra_providers.json";
 
 export const SettingsMain = (): JSX.Element => {
   const indexerHealth = useAtomValue(indexerHeartbeatAtom);
