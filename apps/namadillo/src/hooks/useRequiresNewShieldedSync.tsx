@@ -20,7 +20,6 @@ export const useRequiresNewShieldedSync = ({
   if (!account?.data) {
     return false;
   }
-
   const lastSync = syncPerAccount[account.data.address];
   const requiresNewSync =
     lastSync === undefined ||
