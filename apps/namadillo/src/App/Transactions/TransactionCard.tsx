@@ -227,7 +227,7 @@ export const TransactionCard = ({
     return "Transfer";
   };
 
-  const amount = getDisplayAmount();
+  const displayAmount = getDisplayAmount();
 
   return (
     <article
@@ -301,7 +301,7 @@ export const TransactionCard = ({
         </div>
         <TokenCurrency
           className="font-semibold text-white mt-1 ml-2"
-          amount={amount}
+          amount={displayAmount}
           symbol={asset?.symbol ?? ""}
         />
       </div>
