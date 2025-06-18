@@ -94,7 +94,7 @@ export const ShieldedFungibleTable = ({
             size="xs"
             outlineColor="white"
             className="w-fit ml-auto mr-10"
-            onClick={() => navigate(routes.maspUnshield)}
+            onClick={() => navigate(routes.unshield)}
           >
             Unshield
           </ActionButton>

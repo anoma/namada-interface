@@ -25,7 +25,6 @@ import { IbcTransfer } from "./Ibc/IbcTransfer";
 import { IbcTransfersLayout } from "./Ibc/IbcTransfersLayout";
 import { IbcWithdraw } from "./Ibc/IbcWithdraw";
 import { MaspLayout } from "./Masp/MaspLayout";
-import { MaspOverview } from "./Masp/MaspOverview";
 import { MaspShield } from "./Masp/MaspShield";
 import { MaspUnshield } from "./Masp/MaspUnshield";
 import { NamadaTransfer } from "./NamadaTransfer/NamadaTransfer";
@@ -95,9 +94,8 @@ export const MainRoutes = (): JSX.Element => {
           {/* Masp */}
           {features.maspEnabled && (
             <Route element={<MaspLayout />}>
-              <Route path={routes.masp} element={<MaspOverview />} />
-              <Route path={routes.maspShield} element={<MaspShield />} />
-              <Route path={routes.maspUnshield} element={<MaspUnshield />} />
+              <Route path={routes.shield} element={<MaspShield />} />
+              <Route path={routes.unshield} element={<MaspUnshield />} />
             </Route>
           )}
 

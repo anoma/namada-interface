@@ -89,7 +89,7 @@ const TransparentTokensTable = ({
             <div className="relative group/tooltip">
               <ActionButton
                 size="xs"
-                href={`${routes.maspShield}?${params.asset}=${originalAddress}`}
+                href={`${routes.shield}?${params.asset}=${originalAddress}`}
               >
                 Shield
               </ActionButton>
