@@ -33,6 +33,7 @@ use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::ShieldedContext;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
 use namada_sdk::masp_primitives::transaction::components::amount::I128Sum;
+use namada_sdk::masp_primitives::transaction::TxId;
 use namada_sdk::masp_primitives::zip32::{ExtendedFullViewingKey, ExtendedKey};
 use namada_sdk::rpc::{self, query_denom, query_epoch, InnerTxResult, TxAppliedEvents, TxResponse};
 use namada_sdk::signing::SigningTxData;
@@ -223,12 +224,40 @@ impl Sdk {
         to_js_result(borsh::to_vec(&namada_tx)?)
     }
 
+    pub fn get_descriptor_map(
+        &self,
+        tx: Vec<u8>,
+        shielded_hash: Vec<u8>,
+    ) -> Result<JsValue, JsError> {
+        // TODO: map expect
+        let masp_tx_id: MaspTxId =
+            TxId::from_bytes(shielded_hash.try_into().expect("TxId should be 32 bytes")).into();
+
+        let namada_tx: Tx = borsh::from_slice(&tx)?;
+        // TODO: map expect
+        let masp_builder = namada_tx
+            .get_masp_builder(&masp_tx_id)
+            .expect("Expected to find the MASP Transaction");
+
+        let sapling_inputs = masp_builder.builder.sapling_inputs();
+        let mut descriptor_map = vec![0; sapling_inputs.len()];
+        for i in 0.. {
+            if let Some(pos) = masp_builder.metadata.spend_index(i) {
+                descriptor_map[pos] = i;
+            } else {
+                break;
+            };
+        }
+
+        to_js_result(descriptor_map)
+    }
+
     // TODO: this should be unified with sign_masp somehow
     pub fn sign_masp_ledger(
         &self,
         tx: Vec<u8>,
         signing_data: Vec<Uint8Array>,
-        signature: Vec<u8>,
+        signatures: Vec<Uint8Array>,
     ) -> Result<JsValue, JsError> {
         let mut namada_tx: Tx = borsh::from_slice(&tx)?;
         let signing_data = signing_data
@@ -248,13 +277,13 @@ impl Sdk {
 
                 let mut authorizations = HashMap::new();
 
-                let signature =
-                    namada_sdk::masp_primitives::sapling::redjubjub::Signature::try_from_slice(
-                        &signature.to_vec(),
-                    )?;
-                // TODO: this works only if we assume that we do one
-                // shielded transfer in the transaction
-                authorizations.insert(0_usize, signature);
+                for (sig_idx, sig) in signatures.iter().enumerate() {
+                    let signature =
+                        namada_sdk::masp_primitives::sapling::redjubjub::Signature::try_from_slice(
+                            &sig.to_vec(),
+                        )?;
+                    authorizations.insert(sig_idx, signature);
+                }
 
                 masp_tx = (*masp_tx)
                     .clone()
@@ -399,7 +428,7 @@ impl Sdk {
                     return Err(JsValue::from(
                         &serde_json::to_string(&TxErrResponse {
                             code: res.code.into(),
-                            info: res.log
+                            info: res.log,
                         })
                         .map_err(|e| JsValue::from_str(&e.to_string()))?,
                     ));

@@ -311,7 +311,9 @@ export class QueryTxDetailsMsg extends Message<TxDetails[]> {
   }
 }
 
-export class QueryPendingTxBytesMsg extends Message<string[] | undefined> {
+export class QueryPendingTxBytesMsg extends Message<
+  { tx: string; shieldedHash?: string }[] | undefined
+> {
   public static type(): MessageType {
     return MessageType.QueryPendingTxBytes;
   }
