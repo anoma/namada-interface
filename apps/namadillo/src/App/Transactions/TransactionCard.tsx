@@ -173,6 +173,8 @@ export const TransactionCard = ({
 
   // This is a temporary hack b/c some NAM amounts are in micro units for 3.0.2 and beyond
   // Whenever the migrations are run and all transactions are in micro units we need to remove this
+  // before 3.2.0 -> mixed
+  // after 3.2.0 -> unam
   const baseAmount = getBaseAmount();
   const amount =
     asset?.symbol === "NAM" && baseAmount?.gte(1_000_000) ?
