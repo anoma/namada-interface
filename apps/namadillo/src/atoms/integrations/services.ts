@@ -353,7 +353,7 @@ export const simulateIbcTransferGas = async (
 ): Promise<number> => {
   try {
     const estimatedGas = await stargateClient.simulate(
-      sourceAddress!,
+      sourceAddress,
       [transferMsg],
       undefined
     );
