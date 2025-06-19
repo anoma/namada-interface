@@ -10,6 +10,20 @@ export class Masp {
   constructor(protected readonly sdk: SdkWasm) {}
 
   /**
+   * Get spend notes descriptor map
+   * @async
+   * @param tx - tx bytes
+   * @param shieldedHash - bytes of the shielded hash
+   * @returns - Promise resolving to an array of numbers representing the descriptor map
+   */
+  async getDescriptorMap(
+    tx: Uint8Array,
+    shieldedHash: Uint8Array
+  ): Promise<number[]> {
+    return await this.sdk.get_descriptor_map(tx, shieldedHash);
+  }
+
+  /**
    * Check if SDK has MASP parameters loaded
    * @async
    * @returns True if MASP parameters are loaded

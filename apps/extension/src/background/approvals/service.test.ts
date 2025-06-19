@@ -224,7 +224,7 @@ describe("approvals service", () => {
       // tx bytes expected to be base64-encoded
       const bytes = "dHhEYXRh"; // "txData"
 
-      (keyRingService.queryAccountDetails as any).mockResolvedValue(() => ({}));
+      (keyRingService.queryAccountDetails as any).mockResolvedValue([{}, {}]);
 
       const signaturePromise = service.approveSignTx(
         signer,

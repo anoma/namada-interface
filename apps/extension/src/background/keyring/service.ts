@@ -254,7 +254,7 @@ export class KeyRingService {
 
   async queryAccountDetails(
     address: string
-  ): Promise<DerivedAccount | undefined> {
+  ): Promise<[DerivedAccount, DerivedAccount | undefined] | undefined> {
     if (await this.vaultService.isLocked()) {
       throw new Error(ApprovalErrors.KeychainLocked());
     }
