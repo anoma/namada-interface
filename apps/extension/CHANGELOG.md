@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1](https://github.com/anoma/namada-interface/compare/extension@v0.8.0...extension@v0.8.1) (2025-06-19)
+
+
+### Bug Fixes
+
+* Extension sliced address ([#2169](https://github.com/anoma/namada-interface/issues/2169)) ([901cdfa](https://github.com/anoma/namada-interface/commit/901cdfaab5bf496537a69ee96cfe4fb7c69cb5a8))
+* Use correct derivation path for masp signs using ledger AND sign all sapling inputs ([#2163](https://github.com/anoma/namada-interface/issues/2163)) ([96539ed](https://github.com/anoma/namada-interface/commit/96539ed2f9e06752e7cb595ab9029e5237c46c1b))
+
 ## [0.8.0](https://github.com/anoma/namada-interface/compare/extension@v0.7.0...extension@v0.8.0) (2025-06-10)
 
 
