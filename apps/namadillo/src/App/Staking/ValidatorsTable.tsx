@@ -24,7 +24,7 @@ export const ValidatorsTable = ({
   headers,
   renderRow,
   validatorList,
-  resultsPerPage = 100,
+  resultsPerPage = 10,
   initialPage = 0,
   tableClassName,
 }: ValidatorsTableProps): JSX.Element => {
