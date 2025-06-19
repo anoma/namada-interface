@@ -21,16 +21,23 @@ export const useOptimisticTransferUpdate = () => {
     if (!viewingKey) {
       return;
     }
-    setStorageShieldedBalance((storage) => ({
-      ...storage,
-      [viewingKey]: storage[viewingKey].map((item) =>
-        item.address === token ?
-          {
-            ...item,
-            minDenomAmount: sum(item.minDenomAmount, incrementBaseDenomAmount),
-          }
-        : item
-      ),
-    }));
+    setStorageShieldedBalance((storage) => {
+      return storage[viewingKey] === undefined ?
+          storage
+        : {
+            ...storage,
+            [viewingKey]: storage[viewingKey].map((item) =>
+              item.address === token ?
+                {
+                  ...item,
+                  minDenomAmount: sum(
+                    item.minDenomAmount,
+                    incrementBaseDenomAmount
+                  ),
+                }
+              : item
+            ),
+          };
+    });
   };
 };
