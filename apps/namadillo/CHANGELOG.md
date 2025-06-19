@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.27.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.26.0...namadillo@v1.27.0) (2025-06-19)
+
+
+### Features
+
+* Add preferred infra button to settings ([#2162](https://github.com/anoma/namada-interface/issues/2162)) ([75a30b9](https://github.com/anoma/namada-interface/commit/75a30b94e3e6e87cd9bc319bd9208f19917c9adb))
+* Remove masp page ([#2171](https://github.com/anoma/namada-interface/issues/2171)) ([51ac42f](https://github.com/anoma/namada-interface/commit/51ac42fae332525c7ea349012746e0e8a1d211ca))
+
+
+### Bug Fixes
+
+* Add /1000000 check to history ([#2164](https://github.com/anoma/namada-interface/issues/2164)) ([451ec43](https://github.com/anoma/namada-interface/commit/451ec43fe4e9a97b6815c74971223f494ddf5920))
+* Add skeleton for better loading state ([#2063](https://github.com/anoma/namada-interface/issues/2063)) ([a29a73d](https://github.com/anoma/namada-interface/commit/a29a73de691b486a7becffe576904bf791bd6394))
+* Hide masp rewards box until phase 4 ([#2172](https://github.com/anoma/namada-interface/issues/2172)) ([5595dc2](https://github.com/anoma/namada-interface/commit/5595dc2f167d27c99093985fce920c82652bef83))
+* Parse and display tx fee error ([#2156](https://github.com/anoma/namada-interface/issues/2156)) ([539d45f](https://github.com/anoma/namada-interface/commit/539d45f3cc6412c7555262be7cd7b03ffd500a5d))
+* Proposal statuses filters ([#2148](https://github.com/anoma/namada-interface/issues/2148)) ([6271ab3](https://github.com/anoma/namada-interface/commit/6271ab3e9c4bbafc851d2f41c7fc399c5d0f8ba4))
+* Shielded balance comma separator ([#2170](https://github.com/anoma/namada-interface/issues/2170)) ([01e5d49](https://github.com/anoma/namada-interface/commit/01e5d49c640396014d09d72cb689efb878458827))
+* Unshielding Transfer showing wrong amount in History ([#2155](https://github.com/anoma/namada-interface/issues/2155)) ([2348d03](https://github.com/anoma/namada-interface/commit/2348d037c36243830ef62629a22ad14fe8188f77))
+* Update decimal places for 0 shielded rewards ([#2143](https://github.com/anoma/namada-interface/issues/2143)) ([75b24cb](https://github.com/anoma/namada-interface/commit/75b24cb82ce307994cfc6323f11310d2b6f85e8a))
+
 ## [1.26.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.25.0...namadillo@v1.26.0) (2025-06-13)
 
 
