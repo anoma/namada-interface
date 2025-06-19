@@ -1,10 +1,14 @@
-import { ToggleButton } from "@namada/components";
+import { ActionButton, ToggleButton } from "@namada/components";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { routes } from "App/routes";
+import { chainParametersAtom } from "atoms/chain";
 import {
   indexerHeartbeatAtom,
   maspIndexerHeartbeatAtom,
   settingsAtom,
+  updateIndexerUrlAtom,
+  updateMaspIndexerUrlAtom,
+  updateRpcUrlAtom,
   updateSettingsProps,
 } from "atoms/settings";
 import { useAtomValue } from "jotai";
@@ -14,13 +18,75 @@ import { version as sdkVersion } from "../../../../../packages/sdk/package.json"
 import { version } from "../../../package.json";
 import { SettingsPanelMenuItem } from "./SettingsPanelMenuItem";
 
+type DefaultInfraProviders = {
+  housefire: {
+    rpc: string;
+    indexer: string;
+    masp: string;
+  };
+  mainnet: {
+    rpc: string;
+    indexer: string;
+    masp: string;
+  };
+};
+
 const { VITE_REVISION: revision = "" } = import.meta.env;
+const DEFAULT_INFRA_PROVIDERS_URL =
+  "https://raw.githubusercontent.com/anoma/namada-chain-registry/main/default_infra_providers.json";
 
 export const SettingsMain = (): JSX.Element => {
   const indexerHealth = useAtomValue(indexerHeartbeatAtom);
   const maspIndexerHealth = useAtomValue(maspIndexerHeartbeatAtom);
   const settingsMutation = useAtomValue(updateSettingsProps);
   const settings = useAtomValue(settingsAtom);
+  const { data: chainParameters } = useAtomValue(chainParametersAtom);
+  const rpcMutation = useAtomValue(updateRpcUrlAtom);
+  const indexerMutation = useAtomValue(updateIndexerUrlAtom);
+  const maspIndexerMutation = useAtomValue(updateMaspIndexerUrlAtom);
+
+  const handleUseDefaultInfra = async (): Promise<void> => {
+    try {
+      // Fetch the default infrastructure providers from GitHub
+      const response = await fetch(DEFAULT_INFRA_PROVIDERS_URL);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch default infrastructure providers: ${response.statusText}`
+        );
+      }
+
+      const providers: DefaultInfraProviders = await response.json();
+
+      // Determine which network we're on based on chainId
+      const chainId = chainParameters?.chainId;
+
+      if (!chainId) {
+        throw new Error("Chain parameters not loaded");
+      }
+
+      let networkProviders;
+
+      if (chainId.includes("housefire")) {
+        networkProviders = providers.housefire;
+      } else if (chainId === "namada.5f5de2dd1b88cba30586420") {
+        // This is the mainnet chain ID based on the useRegistryFeatures mapping
+        networkProviders = providers.mainnet;
+      }
+
+      if (!networkProviders) {
+        throw new Error("No network providers found");
+      }
+
+      await Promise.all([
+        rpcMutation.mutateAsync(networkProviders.rpc),
+        indexerMutation.mutateAsync(networkProviders.indexer),
+        maspIndexerMutation.mutateAsync(networkProviders.masp),
+      ]);
+    } catch (error) {
+      console.error("Failed to set default infrastructure:", error);
+    }
+  };
 
   return (
     <div className="flex flex-1 justify-between flex-col w-full">
@@ -39,6 +105,23 @@ export const SettingsMain = (): JSX.Element => {
         )}
         <SettingsPanelMenuItem url={routes.settingsMASP} text="MASP" />
         <SettingsPanelMenuItem url={routes.settingsLedger} text="Ledger" />
+        <ActionButton
+          onClick={handleUseDefaultInfra}
+          className="my-2 cursor-pointer"
+          disabled={
+            rpcMutation.isPending ||
+            indexerMutation.isPending ||
+            maspIndexerMutation.isPending
+          }
+        >
+          {(
+            rpcMutation.isPending ||
+            indexerMutation.isPending ||
+            maspIndexerMutation.isPending
+          ) ?
+            "Setting Default Infra..."
+          : "Use Alternate Infra"}
+        </ActionButton>
       </ul>
       <div className="text-xs">
         <div className="relative mb-4 flex items-center gap-2 max-w-full">
