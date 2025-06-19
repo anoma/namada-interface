@@ -28,6 +28,7 @@ import {
   persistDisposableSigner,
 } from "atoms/transfer/services";
 import BigNumber from "bignumber.js";
+import * as osmosis from "chain-registry/mainnet/osmosis";
 import { useFathomTracker } from "hooks/useFathomTracker";
 import { useRequiresNewShieldedSync } from "hooks/useRequiresNewShieldedSync";
 import { useTransaction } from "hooks/useTransaction";
@@ -44,6 +45,7 @@ import { generatePath, useNavigate } from "react-router-dom";
 import namadaChainRegistry from "registry/namada.json";
 import { IbcTransferTransactionData, TransferStep } from "types";
 import {
+  isNamadaAsset,
   toBaseAmount,
   toDisplayAmount,
   useTransactionEventListener,
@@ -177,14 +179,15 @@ export const IbcWithdraw = (): JSX.Element => {
         (token) => token.address === selectedAsset.originalAddress
       );
 
-      if (token && "trace" in token) {
+      let chain: Chain | undefined;
+      if (isNamadaAsset(selectedAsset.asset)) {
+        chain = osmosis.chain; // for now, NAM uses the osmosis chain
+      } else if (token && "trace" in token) {
         const denom = getDenomFromIbcTrace(token.trace);
-        const chain = searchChainByDenom(denom);
-        await updateDestinationChainAndAddress(chain);
-        return;
+        chain = searchChainByDenom(denom);
       }
 
-      await updateDestinationChainAndAddress(undefined);
+      await updateDestinationChainAndAddress(chain);
     })();
   }, [selectedAsset, chainTokens.data]);
 
