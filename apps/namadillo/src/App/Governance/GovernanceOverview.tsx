@@ -70,7 +70,7 @@ export const GovernanceOverview: React.FC = () => {
           className="flex-1"
           title="All Proposals"
           errorText="Unable to load the list of proposals"
-          atoms={activeAtoms}
+          atoms={[]}
         >
           <AllProposalsTable
             votedProposalIds={(votedProposals.data || []).map(
