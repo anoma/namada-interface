@@ -42,6 +42,7 @@ import internalDevnetCosmosTestnetIbc from "@namada/chain-registry/_testnets/_IB
 // TODO: this causes a big increase on bundle size. See #1224.
 import registry from "chain-registry";
 import { searchNamadaTestnetByChainId } from "lib/chain";
+import { mainnetNamAssetOnOsmosis } from "./temp-assets";
 
 export const namadaTestnetChainList = [
   internalDevnetChain,
@@ -76,6 +77,15 @@ const testnetChains: ChainRegistryEntry[] = [
 ];
 
 const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
+
+// Terrible hack to inject nam asset in osmosis so we can show them as a token for ibc.
+// We should update the chain-registry and later remove this hack!
+// Please note that this is only a fix for mainnet nam, not housefire
+registry.assets
+  .find((chain) => chain.chain_name === "osmosis")
+  ?.assets.push(mainnetNamAssetOnOsmosis);
+osmosis.assets.assets.push(mainnetNamAssetOnOsmosis);
+// End of the hack
 
 export const getKnownChains = (
   includeTestnets?: boolean
@@ -162,8 +172,7 @@ const findCounterpartChainName = (
 const tryDenomToIbcAsset = async (
   denom: string,
   ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>,
-  chainName: string,
-  namadaChainName: string
+  chainName: string
 ): Promise<Asset | undefined> => {
   const denomTrace = await ibcAddressToDenomTrace(denom);
   if (typeof denomTrace === "undefined") {
@@ -172,14 +181,10 @@ const tryDenomToIbcAsset = async (
 
   const { path, baseDenom } = denomTrace;
 
-  // We only check assets for the selected chain i.e. osmosis and current namada chain,
-  // this prevents displaying housefire produced nam on mainnet namada
-  const assets = assetLookup(chainName) || [];
-  const namadaAssets = assetLookup(namadaChainName) || [];
-  const assetOnRegistry = tryDenomToRegistryAsset(baseDenom, [
-    ...assets,
-    ...namadaAssets,
-  ]);
+  const assetOnRegistry = tryDenomToRegistryAsset(
+    baseDenom,
+    registry.assets.map((assetListEl) => assetListEl.assets).flat()
+  );
 
   if (assetOnRegistry) {
     return assetOnRegistry;
@@ -225,7 +230,6 @@ const findOriginalAsset = async (
   coin: Coin,
   assets: Asset[],
   ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>,
-  namadaChainName: string,
   chainName?: string
 ): Promise<AddressWithAssetAndAmount> => {
   const { minDenomAmount, denom } = coin;
@@ -236,12 +240,7 @@ const findOriginalAsset = async (
   }
 
   if (!asset && chainName) {
-    asset = await tryDenomToIbcAsset(
-      denom,
-      ibcAddressToDenomTrace,
-      chainName,
-      namadaChainName
-    );
+    asset = await tryDenomToIbcAsset(denom, ibcAddressToDenomTrace, chainName);
   }
 
   if (!asset) {
@@ -268,12 +267,9 @@ export const findChainById = (chainId: string): Chain | undefined => {
 export const mapCoinsToAssets = async (
   coins: Coin[],
   chainId: string,
-  namadaChainId: string,
   ibcAddressToDenomTrace: (address: string) => Promise<DenomTrace | undefined>
 ): Promise<AddressWithAssetAndAmountMap> => {
   const chainName = findChainById(chainId)?.chain_name;
-  // Namada chain name should be always available
-  const namadaChainName = findChainById(namadaChainId)?.chain_name as string;
   const assets = mapUndefined(assetLookup, chainName);
   const results = await Promise.allSettled(
     coins.map(
@@ -282,7 +278,6 @@ export const mapCoinsToAssets = async (
           coin,
           assets || [],
           ibcAddressToDenomTrace,
-          namadaChainName,
           chainName
         )
     )
