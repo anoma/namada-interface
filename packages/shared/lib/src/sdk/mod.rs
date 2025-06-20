@@ -752,7 +752,7 @@ impl Sdk {
         ibc_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let (args, bparams) = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg)?;
+        let (args, bparams) = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg, self.namada.native_token())?;
 
         let bparams = if let Some(bparams) = bparams {
             BuildParams::StoredBuildParams(bparams)

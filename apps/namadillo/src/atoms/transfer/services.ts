@@ -42,11 +42,11 @@ export type WorkerTransferParams = {
 
 const workerBuildTxPair = async <T>({
   rpcUrl,
-  token,
+  nativeToken,
   buildTxFn,
 }: {
   rpcUrl: string;
-  token: Address;
+  nativeToken: Address;
   buildTxFn: (
     workerLink: Comlink.Remote<MaspTxWorkerApi>
   ) => Promise<EncodedTxData<T>>;
@@ -56,7 +56,7 @@ const workerBuildTxPair = async <T>({
   const workerLink = Comlink.wrap<MaspTxWorkerApi>(worker);
   await workerLink.init({
     type: "init",
-    payload: { rpcUrl, token, maspIndexerUrl: "" },
+    payload: { rpcUrl, token: nativeToken, maspIndexerUrl: "" },
   });
   const encodedTxData = await buildTxFn(workerLink);
   worker.terminate();
@@ -133,7 +133,7 @@ export const createShieldedTransferTx = async (
 
   return await workerBuildTxPair({
     rpcUrl,
-    token,
+    nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
       const msgValue = new ShieldedTransferMsgValue({
         gasSpendingKey: source,
@@ -185,7 +185,7 @@ export const createShieldingTransferTx = async (
 
   return await workerBuildTxPair({
     rpcUrl,
-    token,
+    nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
       const publicKeyRevealed = await isPublicKeyRevealed(account.address);
       const msgValue = new ShieldingTransferMsgValue({
@@ -239,7 +239,7 @@ export const createUnshieldingTransferTx = async (
 
   return await workerBuildTxPair({
     rpcUrl,
-    token,
+    nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
       const msgValue = new UnshieldingTransferMsgValue({
         source,
@@ -284,7 +284,7 @@ export const createIbcTx = async (
 
   return await workerBuildTxPair({
     rpcUrl,
-    token: props[0].token,
+    nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
       const msgValue = new IbcTransferMsgValue({
         ...props[0],
