@@ -860,6 +860,7 @@ impl IbcTransferMsg {
 pub fn ibc_transfer_tx_args(
     ibc_transfer_msg: &[u8],
     tx_msg: &[u8],
+    native_token: Address,
 ) -> Result<(args::TxIbcTransfer, Option<StoredBuildParams>), JsError> {
     let ibc_transfer_msg = IbcTransferMsg::try_from_slice(ibc_transfer_msg)?;
     let IbcTransferMsg {
@@ -887,11 +888,21 @@ pub fn ibc_transfer_tx_args(
     }?;
 
     let token = Address::from_str(&token)?;
-    let amount = Amount::from_str(&amount_in_base_denom, 0u8).expect("Amount to be valid.");
+
+    // As the value we get is always in the base denom, we can use from_string_precise to get the
+    // amount and drop denom info
+    let amount = Amount::from_string_precise(&amount_in_base_denom).expect("Amount to be valid.");
+
+    let denominated_amount = if token == native_token {
+        DenominatedAmount::native(amount)
+    } else {
+        DenominatedAmount::new(amount, 0u8.into())
+    };
+
     // Using InputAmount::Validated because the amount is already in the base
     // denom. If Unvalidated is used, the SDK will change the denom based on the
     // token address, which complicates knowing which amount to pass to this function.
-    let amount = InputAmount::Validated(amount.into());
+    let amount = InputAmount::Validated(denominated_amount);
     let port_id = PortId::from_str(&port_id).expect("Port id to be valid");
     let channel_id = ChannelId::from_str(&channel_id).expect("Channel id to be valid");
     let ibc_shielding_data = match shielding_data {
