@@ -2,7 +2,7 @@ import { AssetList, Chain } from "@chain-registry/types";
 import { DeliverTxResponse, SigningStargateClient } from "@cosmjs/stargate";
 import { ExtensionKey } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
-import { chainAtom, chainTokensAtom } from "atoms/chain";
+import { chainAtom, chainParametersAtom, chainTokensAtom } from "atoms/chain";
 import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
@@ -79,19 +79,28 @@ export const broadcastIbcTransactionAtom = atomWithMutation(() => {
 
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    return atomWithQuery<AddressWithAssetAndAmountMap>(() => ({
-      queryKey: ["assets", walletAddress, chain?.chain_id, assets],
-      ...queryDependentFn(async () => {
-        return await queryAndStoreRpc(chain!, async (rpc: string) => {
-          const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
-          return await mapCoinsToAssets(
-            assetsBalances,
-            chain!.chain_id,
-            ibcAddressToDenomTrace(rpc)
-          );
-        });
-      }, [!!walletAddress, !!chain]),
-    }));
+    return atomWithQuery<AddressWithAssetAndAmountMap>((get) => {
+      const chainParametersQuery = get(chainParametersAtom);
+
+      return {
+        queryKey: ["assets", walletAddress, chain?.chain_id, assets],
+        ...queryDependentFn(async () => {
+          return await queryAndStoreRpc(chain!, async (rpc: string) => {
+            const assetsBalances = await queryAssetBalances(
+              walletAddress!,
+              rpc
+            );
+
+            return await mapCoinsToAssets(
+              assetsBalances,
+              chain!.chain_id,
+              chainParametersQuery.data!.chainId,
+              ibcAddressToDenomTrace(rpc)
+            );
+          });
+        }, [!!walletAddress, !!chain, chainParametersQuery.isSuccess]),
+      };
+    });
   },
   (prev, current) => {
     return Boolean(
