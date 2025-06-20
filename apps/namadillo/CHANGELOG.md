@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.0...namadillo@v1.28.1) (2025-06-20)
+
+
+### Bug Fixes
+
+* Missing nam on mainnet ibc deposit ([#2185](https://github.com/anoma/namada-interface/issues/2185)) ([f67a12f](https://github.com/anoma/namada-interface/commit/f67a12f5ece1846de3b694fdc784af099ac0605c))
+
 ## [1.28.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.27.0...namadillo@v1.28.0) (2025-06-20)
 
 
