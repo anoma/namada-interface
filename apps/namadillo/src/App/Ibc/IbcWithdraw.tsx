@@ -288,7 +288,7 @@ export const IbcWithdraw = (): JSX.Element => {
       memo: tx.encodedTxData.wrapperTxProps.memo || props.memo,
       displayAmount,
       shielded,
-      sourceAddress: `${alias} - shielded`,
+      sourceAddress: shielded ? `${alias} - shielded` : props.source,
       sourceChannel: props.channelId,
       destinationAddress: props.receiver,
       createdAt: new Date(),
