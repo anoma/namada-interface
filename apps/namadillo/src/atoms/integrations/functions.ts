@@ -42,6 +42,7 @@ import internalDevnetCosmosTestnetIbc from "@namada/chain-registry/_testnets/_IB
 // TODO: this causes a big increase on bundle size. See #1224.
 import registry from "chain-registry";
 import { searchNamadaTestnetByChainId } from "lib/chain";
+import { mainnetNamAssetOnOsmosis } from "./temp-assets";
 
 export const namadaTestnetChainList = [
   internalDevnetChain,
@@ -76,6 +77,15 @@ const testnetChains: ChainRegistryEntry[] = [
 ];
 
 const mainnetAndTestnetChains = [...mainnetChains, ...testnetChains];
+
+// Terrible hack to inject nam asset in osmosis so we can show them as a token for ibc.
+// We should update the chain-registry and later remove this hack!
+// Please note that this is only a fix for mainnet nam, not housefire
+registry.assets
+  .find((chain) => chain.chain_name === "osmosis")
+  ?.assets.push(mainnetNamAssetOnOsmosis);
+osmosis.assets.assets.push(mainnetNamAssetOnOsmosis);
+// End of the hack
 
 export const getKnownChains = (
   includeTestnets?: boolean
