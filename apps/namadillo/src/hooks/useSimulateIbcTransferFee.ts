@@ -6,6 +6,7 @@ import { getIbcGasConfig } from "integrations/utils";
 import invariant from "invariant";
 import { createIbcTransferMessage } from "lib/transactions";
 import { AddressWithAsset, ChainRegistryEntry, GasConfig } from "types";
+import { isNamadaAsset } from "utils";
 import { sanitizeAddress } from "utils/address";
 import { sanitizeChannel } from "utils/ibc";
 
@@ -37,6 +38,18 @@ export const useSimulateIbcTransferFee = ({
     queryFn: async () => {
       try {
         const MASP_MEMO_LENGTH = 2356;
+
+        // while Keplr can't accept NAM for fees, and stargate can't simulate the NAM fee,
+        // we use a hardcoded value of "uosmo"
+        const getToken = (): string => {
+          if (isNamadaAsset(selectedAsset?.asset)) {
+            return "uosmo";
+          }
+          return (
+            selectedAsset?.asset.base || registry?.assets.assets[0].base || ""
+          );
+        };
+
         const transferMsg = createIbcTransferMessage(
           sanitizeChannel(channel!),
           // We can't mock sourceAddress because the simulate function requires
@@ -44,7 +57,7 @@ export const useSimulateIbcTransferFee = ({
           sanitizeAddress(sourceAddress!),
           sanitizeAddress(sourceAddress!),
           new BigNumber(1),
-          selectedAsset?.asset.base || registry?.assets.assets[0].base || "",
+          getToken(),
           isShieldedTransfer ? "0".repeat(MASP_MEMO_LENGTH) : ""
         );
 

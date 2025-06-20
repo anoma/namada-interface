@@ -148,7 +148,7 @@ export const enabledIbcAssetsDenomFamily = atomFamily((ibcChannel?: string) => {
           return false;
         });
 
-        const availableTokens: string[] = ["nam"];
+        const availableTokens: string[] = ["nam", "unam"];
         channelAvailableTokens.forEach((token) => {
           const ibcRateLimit = ibcRateLimits.data?.find(
             (rateLimit) => rateLimit.tokenAddress === token.address
