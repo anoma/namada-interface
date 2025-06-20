@@ -8,6 +8,13 @@
 
 - enable panic hook in Rust SDK ([6393b82](https://github.com/anoma/namada-interface/commit/6393b8263320e0f6d137f4e015b982f17f7e497e))
 
+## [0.19.1](https://github.com/anoma/namada-interface/compare/sdk@v0.19.0...sdk@v0.19.1) (2025-06-20)
+
+
+### Bug Fixes
+
+* Use correct derivation path for masp signs using ledger AND sign all sapling inputs ([#2163](https://github.com/anoma/namada-interface/issues/2163)) ([96539ed](https://github.com/anoma/namada-interface/commit/96539ed2f9e06752e7cb595ab9029e5237c46c1b))
+
 ## [0.19.0](https://github.com/anoma/namada-interface/compare/sdk@v0.18.2...sdk@v0.19.0) (2025-06-06)
 
 
