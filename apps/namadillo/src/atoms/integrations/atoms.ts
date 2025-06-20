@@ -35,6 +35,12 @@ import {
   queryAssetBalances,
 } from "./services";
 
+export const mainnetNamDenomOnOsmosis =
+  "ibc/C7110DEC66869DAE9BE9C3C60F4B5313B16A2204AE020C3B0527DD6B322386A3";
+
+export const housefireNamDenomOnOsmosis =
+  "ibc/48473B990DD70EC30F270727C4FEBA5D49C7D74949498CDE99113B13F9EA5522";
+
 type IBCTransferAtomParams = {
   client: SigningStargateClient;
   tx: TxRaw;
@@ -84,8 +90,20 @@ export const assetBalanceAtomFamily = atomFamily(
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
+
+          // Housefire NAM is still appearing because the function `ibcAddressToDenomTrace`
+          // calls stargate to get the denom based on the `ibc/...` address, and this is
+          // returning the NAM, so we can't filter it without a major assets refactoring.
+          // For now, let's filter it individually while we don't have a good solution
+          // Some solutions:
+          // - Check only the registry and ignore dynamic values from stargate
+          // - Create an allow/blocklist to filter it with more control
+          const allowedBalances = assetsBalances.filter(
+            (i) => i.denom !== housefireNamDenomOnOsmosis
+          );
+
           return await mapCoinsToAssets(
-            assetsBalances,
+            allowedBalances,
             chain!.chain_id,
             ibcAddressToDenomTrace(rpc)
           );
