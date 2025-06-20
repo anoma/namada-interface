@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.2](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.1...namadillo@v1.28.2) (2025-06-20)
+
+
+### Bug Fixes
+
+* Show nam from mainnet instead of housefire ([#2187](https://github.com/anoma/namada-interface/issues/2187)) ([3e2fc90](https://github.com/anoma/namada-interface/commit/3e2fc908c2bc3c78e121240a17d98942d379e1fa))
+
 ## [1.28.1](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.0...namadillo@v1.28.1) (2025-06-20)
 
 
