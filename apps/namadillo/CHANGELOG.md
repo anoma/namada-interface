@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.28.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.27.0...namadillo@v1.28.0) (2025-06-20)
+
+
+### Features
+
+* Enable ibc nam on osmosis ([#2178](https://github.com/anoma/namada-interface/issues/2178)) ([030e4e9](https://github.com/anoma/namada-interface/commit/030e4e9571576e7dc528d94a9abe8036e5bc78f6))
+
+
+### Bug Fixes
+
+* Denominate nam before ibc withdraw ([#2183](https://github.com/anoma/namada-interface/issues/2183)) ([97232e7](https://github.com/anoma/namada-interface/commit/97232e7da04d85c809a0cc367b51ab31e61f5498))
+* Displaying housefire nam in mainnet osmosis assets ([#2182](https://github.com/anoma/namada-interface/issues/2182)) ([2f4f662](https://github.com/anoma/namada-interface/commit/2f4f662566bdf156208d2b8404eb6eb45860fd01))
+* Update shielded txn receipt ([#2181](https://github.com/anoma/namada-interface/issues/2181)) ([095c340](https://github.com/anoma/namada-interface/commit/095c340320e384796d71486348cd0fc3bc498591))
+
 ## [1.27.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.26.0...namadillo@v1.27.0) (2025-06-19)
 
 
