@@ -18,7 +18,7 @@ nodejs = []
 web = []
 
 [build-dependencies]
-namada_tx = { git = "https://github.com/anoma/namada", tag="libs-v0.150.1" }
+namada_tx = { git = "https://github.com/anoma/namada", branch="tiago/indexer-client-backoff-sleep" }
 
 [dependencies]
 async-trait = {version = "0.1.51"}
@@ -27,7 +27,7 @@ chrono = "0.4.22"
 getrandom = { version = "0.3.0", features = [] }
 gloo-utils = { version = "0.1.5", features = ["serde"] }
 js-sys = "0.3.60"
-namada_sdk = { git = "https://github.com/anoma/namada", tag="libs-v0.150.1", default-features = false }
+namada_sdk = { git = "https://github.com/anoma/namada", branch="tiago/indexer-client-backoff-sleep", default-features = false }
 rand = {version = "0.8.5"}
 rayon = { version = "1.8", optional = true }
 rexie = "0.5"
