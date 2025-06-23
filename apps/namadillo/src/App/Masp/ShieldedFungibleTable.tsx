@@ -124,7 +124,18 @@ export const ShieldedFungibleTable = ({
     setPage(0);
   }, [data]);
 
-  const paginatedItems = data.slice(
+  const sortedData = data.sort((a, b) => {
+    const aIsNam = a.asset.symbol === "NAM";
+    const bIsNam = b.asset.symbol === "NAM";
+
+    // NAM always will be shown on top
+    if (aIsNam !== bIsNam) return aIsNam ? -1 : 1;
+    const aValue = BigNumber(a.amount);
+    const bValue = BigNumber(b.amount);
+    return bValue.comparedTo(aValue);
+  });
+
+  const paginatedItems = sortedData.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage
   );
