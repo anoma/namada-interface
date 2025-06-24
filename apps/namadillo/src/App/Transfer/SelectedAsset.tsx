@@ -55,7 +55,10 @@ export const SelectedAsset = ({
       {asset && (
         <span
           className={selectorClassList}
-          style={{ backgroundColor: asset.logo_URIs?.theme }}
+          // TODO: correct?
+          style={{
+            backgroundColor: asset.images?.[0]?.theme?.background_color_hex,
+          }}
         >
           <img
             className={clsx(

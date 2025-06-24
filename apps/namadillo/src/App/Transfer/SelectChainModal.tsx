@@ -1,4 +1,4 @@
-import { Chain, Chains } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
@@ -12,7 +12,7 @@ import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 type SelectChainModalProps = {
   onClose: () => void;
   onSelect: (chain: Chain) => void;
-  chains: Chains;
+  chains: Chain[];
   wallet: WalletProvider;
   walletAddress?: string;
 };
@@ -29,6 +29,7 @@ export const SelectChainModal = ({
   const filteredChains = useMemo(() => {
     return chains.filter(
       (chain) =>
+        chain.pretty_name &&
         chain.pretty_name.toLowerCase().indexOf(filter.toLowerCase()) >= 0
     );
   }, [chains, filter]);

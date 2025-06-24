@@ -1,4 +1,4 @@
-import { Chain, Chains } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
@@ -45,7 +45,7 @@ type TransferModuleConfig = {
   walletAddress?: string;
   availableWallets?: WalletProvider[];
   connected?: boolean;
-  availableChains?: Chains;
+  availableChains?: Chain[];
   chain?: Chain;
   isShieldedAddress?: boolean;
   onChangeWallet?: (wallet: WalletProvider) => void;
@@ -134,7 +134,7 @@ const isValidDestinationAddress = ({
   chain: Chain | undefined;
 }): boolean => {
   // Skip validation if no custom address or chain provided
-  if (!customAddress || !chain) return true;
+  if (!customAddress || !chain || !chain.bech32_prefix) return true;
 
   // Check shielded/transparent address requirements for Namada
   if (chain.bech32_prefix === "nam") {

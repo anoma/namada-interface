@@ -178,8 +178,10 @@ export const basicConvertToKeplrChain = (
     chainName: chain.chain_name,
     rpc: rpc.address,
     rest,
-    bip44: { coinType: chain.slip44 },
-    bech32Config: generateBech32Config(chain.bech32_prefix),
+    // TODO:
+    bip44: { coinType: chain.slip44! },
+    // TODO:
+    bech32Config: generateBech32Config(chain.bech32_prefix!),
     currencies,
     stakeCurrency,
     feeCurrencies: feeCurrencies.length ? feeCurrencies : defaultFeeCurrencies,
