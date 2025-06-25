@@ -1,35 +1,27 @@
-import { AssetList, Chain } from "@chain-registry/types";
+import { Asset, AssetList, Chain } from "@chain-registry/types";
 import { DeliverTxResponse, SigningStargateClient } from "@cosmjs/stargate";
 import { ExtensionKey } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainTokensAtom } from "atoms/chain";
-import { defaultServerConfigAtom, settingsAtom } from "atoms/settings";
+import { defaultServerConfigAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import chainRegistry from "chain-registry";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
+import { ChainId, ChainRegistryEntry, RpcStorage } from "types";
 import {
-  AddressWithAssetAndAmountMap,
-  ChainId,
-  ChainRegistryEntry,
-  RpcStorage,
-} from "types";
-import { githubNamadaChainRegistryBaseUrl } from "urls";
-import {
-  addLocalnetToRegistry,
   getDenomFromIbcTrace,
-  getKnownChains,
   IbcChannels,
-  mapCoinsToAssets,
+  SUPPORTED_CHAINS_MAP,
 } from "./functions";
 import {
   broadcastIbcTransaction,
   fetchIbcChannelFromRegistry,
   fetchIbcRateLimits,
-  fetchLocalnetTomlConfig,
   queryAndStoreRpc,
   queryAssetBalances,
 } from "./services";
@@ -76,15 +68,30 @@ export const broadcastIbcTransactionAtom = atomWithMutation(() => {
   };
 });
 
+/// Balance of KEPLR assets(non NAMADA assets), should be only used in the context of deposits to Namada
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    return atomWithQuery<AddressWithAssetAndAmountMap>(() => ({
+    // TODO: move type
+    return atomWithQuery<{ asset: Asset; minDenomAmount: BigNumber }[]>(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
+          const assetList = chainRegistry.assets.find(
+            (al) => al.chain_name === chain!.chain_name
+          );
+          invariant(assetList, "Asset list not found for chain");
 
-          return await mapCoinsToAssets(assetsBalances, chain!.chain_id);
+          const assetBalance = assetsBalances.flatMap((ab) => {
+            const asset = assetList.assets.find((a) => a.base === ab.denom);
+
+            // Filter out assets that are not in the asset list
+            return asset ?
+                [{ asset, minDenomAmount: BigNumber(ab.minDenomAmount) }]
+              : [];
+          });
+
+          return assetBalance;
         });
       }, [!!walletAddress, !!chain]),
     }));
@@ -101,21 +108,22 @@ export const assetBalanceAtomFamily = atomFamily(
 
 // Every entry contains information about the chain, available assets and IBC channels
 export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
-  (get) => {
-    const settings = get(settingsAtom);
-    const knownChains = getKnownChains(settings.advancedMode);
-    const map: Record<ChainId, ChainRegistryEntry> = {};
-    knownChains.forEach((chain) => {
-      map[chain.chain.chain_id] = chain;
-    });
-    return map;
+  () => {
+    // TODO: maybe not needed
+    return SUPPORTED_CHAINS_MAP.values().reduce(
+      (acc, curr) => {
+        return { ...acc, [curr.chain.chain_id]: curr };
+      },
+      {} as Record<ChainId, ChainRegistryEntry>
+    );
   }
 );
 
 // Lists only the available chain list
-export const availableChainsAtom = atom((get) => {
-  const settings = get(settingsAtom);
-  return getKnownChains(settings.advancedMode).map(({ chain }) => chain);
+export const availableChainsAtom = atom(() => {
+  return SUPPORTED_CHAINS_MAP.values()
+    .map((val) => val.chain)
+    .toArray();
 });
 
 export const ibcRateLimitAtom = atomWithQuery((get) => {
@@ -177,37 +185,8 @@ export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
       ...queryDependentFn(async () => {
         invariant(chainSettings.data, "No chain settings");
         invariant(ibcChainName, "No IBC chain name");
-        return fetchIbcChannelFromRegistry(
-          chainSettings.data.chainId,
-          ibcChainName,
-          githubNamadaChainRegistryBaseUrl
-        );
+        return fetchIbcChannelFromRegistry(ibcChainName);
       }, [chainSettings, config, !!ibcChainName]),
     };
   })
 );
-
-export const localnetConfigAtom = atomWithQuery((get) => {
-  const config = get(defaultServerConfigAtom);
-
-  return {
-    queryKey: ["localnet-config", config],
-    staleTime: Infinity,
-    retry: false,
-
-    ...queryDependentFn(async () => {
-      try {
-        const localnetConfig = await fetchLocalnetTomlConfig();
-        addLocalnetToRegistry(localnetConfig);
-
-        return {
-          chainId: localnetConfig.chain_id,
-          tokenAddress: localnetConfig.token_address,
-        };
-      } catch (_) {
-        // If file not found just ignore
-        return null;
-      }
-    }, [Boolean(config.data?.localnet_enabled)]),
-  };
-});

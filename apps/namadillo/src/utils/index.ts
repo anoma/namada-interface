@@ -1,5 +1,4 @@
 import { Asset, DenomUnit } from "@chain-registry/types";
-import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import {
   BroadcastTxError,
   ProposalStatus,
@@ -7,9 +6,8 @@ import {
   ResultCode,
   TxMsgValue,
 } from "@namada/types";
-import { localnetConfigAtom } from "atoms/integrations/atoms";
 import BigNumber from "bignumber.js";
-import { getDefaultStore } from "jotai";
+import namadaAssets from "chain-registry/mainnet/namada/assets";
 import { useEffect, useRef } from "react";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
@@ -78,23 +76,8 @@ const findDisplayUnit = (asset: Asset): DenomUnit | undefined => {
 };
 
 export const namadaAsset = (): Asset => {
-  const store = getDefaultStore();
-  const config = store.get(localnetConfigAtom);
-
-  const configTokenAddress = config.data?.tokenAddress;
-
-  // TODO we should get this dynamically from the Github like how we do for chains
-  const assets = namadaAssets.assets as Asset[];
-  const registryAsset = assets[0];
-  const asset =
-    configTokenAddress ?
-      {
-        ...registryAsset,
-        address: configTokenAddress,
-      }
-    : registryAsset;
-
-  return asset;
+  // TODO: housefire
+  return namadaAssets.assets[0];
 };
 
 export const isNamadaAsset = (asset?: Asset): boolean =>

@@ -1,3 +1,4 @@
+import { Asset } from "@chain-registry/types";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import {
   useMutation,
@@ -28,7 +29,6 @@ import {
 import { useState } from "react";
 import {
   Address,
-  AddressWithAssetAndAmount,
   ChainRegistryEntry,
   GasConfig,
   IbcTransferStage,
@@ -46,7 +46,7 @@ type useIbcTransactionProps = {
   sourceChannel?: string;
   shielded?: boolean;
   destinationChannel?: Address;
-  selectedAsset?: AddressWithAssetAndAmount;
+  selectedAsset?: { asset: Asset; minDenomAmount: BigNumber };
 };
 
 type useIbcTransactionOutput = {
@@ -194,10 +194,20 @@ export const useIbcTransaction = ({
       const { memo: maspCompatibleMemo, receiver: maspCompatibleReceiver } =
         await (async () => {
           onUpdateStatus?.("Generating MASP parameters...");
+          const assetTrace = selectedAsset.asset.traces?.find(
+            (trace) => trace.type === "ibc"
+          );
+
+          // For genShieldedArgs we have to pass the ibc trace path on destination chain,
+          // for native assets we use the base denom
+          const assetTracePath =
+            assetTrace ? assetTrace.chain.path : selectedAsset.asset.base;
+          invariant(assetTracePath, "Asset trace path is required");
+
           return shielded ?
               await getShieldedArgs(
                 destinationAddress,
-                selectedAsset.originalAddress,
+                assetTracePath,
                 baseAmount,
                 destinationChannel!
               )

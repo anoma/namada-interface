@@ -4,9 +4,11 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
-import { AddressWithAssetAndAmount } from "types";
 
-export type SelectableAddressWithAssetAndAmount = AddressWithAssetAndAmount & {
+export type SelectableAddressWithAssetAndAmount = {
+  asset: Asset;
+  minDenomAmount: BigNumber;
+} & {
   checked: boolean;
 };
 
@@ -54,7 +56,7 @@ export const ShieldAllAssetList = ({
                 <TokenCurrency
                   currencySymbolClassName="hidden"
                   symbol={assetWithBalance.asset.symbol}
-                  amount={assetWithBalance.amount || new BigNumber(0)}
+                  amount={assetWithBalance.minDenomAmount || new BigNumber(0)}
                 />
               </span>
             </li>

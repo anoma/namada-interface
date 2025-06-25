@@ -27,7 +27,8 @@ import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import namadaChain from "registry/namada.json";
+// TODO: housefire?
+import namadaChain from "chain-registry/mainnet/namada/chain";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {

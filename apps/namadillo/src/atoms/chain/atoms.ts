@@ -1,5 +1,4 @@
 import { Asset } from "@chain-registry/types";
-import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
@@ -10,6 +9,8 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import namadaAssets from "chain-registry/mainnet/namada/assets";
+import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import {
@@ -19,7 +20,6 @@ import {
   ChainStatus,
   MaspAssetRewards,
 } from "types";
-import { findAssetByToken } from "utils/assets";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
@@ -80,28 +80,14 @@ export const chainTokensAtom = atomWithQuery<(NativeToken | IbcToken)[]>(
   }
 );
 
-export const chainAssetsMapAtom = atom<Record<Address, Asset | undefined>>(
-  (get) => {
-    const nativeTokenAddress = get(nativeTokenAddressAtom);
-    const chainTokensQuery = get(chainTokensAtom);
+export const chainAssetsMapAtom = atom<Record<Address, Asset>>(() => {
+  return namadaAssets.assets.reduce((acc, curr) => {
+    const address = curr.address;
+    invariant(address, "Asset address is required");
 
-    // TODO we should get this dynamically from the Github like how we do for chains
-    const assets = namadaAssets.assets as Asset[];
-
-    const chainAssetsMap: Record<Address, Asset> = {};
-    if (nativeTokenAddress.data) {
-      // the first asset is the native token asset
-      chainAssetsMap[nativeTokenAddress.data] = assets[0];
-    }
-    chainTokensQuery.data?.forEach((token) => {
-      const asset = findAssetByToken(token, assets);
-      if (asset) {
-        chainAssetsMap[token.address] = asset;
-      }
-    });
-    return chainAssetsMap;
-  }
-);
+    return { ...acc, [address]: curr };
+  }, {});
+});
 
 // Prefer calling settings@rpcUrlAtom instead, because default rpc url might be
 // overrided by the user

@@ -1,4 +1,4 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { AccountType } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { params, routes } from "App/routes";
@@ -14,6 +14,8 @@ import {
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
+// TODO: housefire
+import namadaChain from "chain-registry/mainnet/namada/chain";
 import { useFathomTracker } from "hooks/useFathomTracker";
 import { useIbcTransaction } from "hooks/useIbcTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -25,9 +27,8 @@ import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import namadaChain from "registry/namada.json";
 import { AddressWithAssetAndAmountMap } from "types";
-import { useTransactionEventListener } from "utils";
+import { toDisplayAmount, useTransactionEventListener } from "utils";
 import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
 
@@ -68,9 +69,7 @@ export const IbcTransfer = (): JSX.Element => {
     enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel)
   );
   const [shielded, setShielded] = useState<boolean>(true);
-  const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
-    params.asset
-  );
+  const [selectedAssetBase, setSelectedAssetBase] = useUrlState(params.asset);
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [sourceChannel, setSourceChannel] = useState("");
@@ -79,18 +78,22 @@ export const IbcTransfer = (): JSX.Element => {
   const [txHash, setTxHash] = useState<string | undefined>();
 
   // Derived data
-  const availableAmount = mapUndefined(
-    (address) => userAssets?.[address]?.amount,
-    selectedAssetAddress
-  );
+  const availableDisplayAmount = mapUndefined((base) => {
+    const userAsset = userAssets?.find((asset) => asset.asset.base === base);
+    return userAsset ?
+        toDisplayAmount(userAsset.asset, userAsset.minDenomAmount)
+      : undefined;
+  }, selectedAssetBase);
 
   const selectedAsset =
-    selectedAssetAddress ? userAssets?.[selectedAssetAddress] : undefined;
+    selectedAssetBase ?
+      userAssets?.find((asset) => asset.asset.base === selectedAssetBase)
+    : undefined;
 
   const availableAssets = useMemo(() => {
     if (!enabledAssets || !userAssets) return undefined;
 
-    const output: AddressWithAssetAndAmountMap = {};
+    const output: { asset: Asset; minDenomAmount: BigNumber }[] = [];
     for (const key in userAssets) {
       const counterpartyBaseDenom =
         userAssets[key].asset.traces?.[0].counterparty.base_denom || "";
@@ -136,7 +139,7 @@ export const IbcTransfer = (): JSX.Element => {
         (shielded && ibcChannels && !ibcChannels?.namadaChannel))
   );
 
-  useEffect(() => setSelectedAssetAddress(undefined), [registry]);
+  useEffect(() => setSelectedAssetBase(undefined), [registry]);
 
   // Set source and destination channels based on IBC channels data
   useEffect(() => {
@@ -165,7 +168,6 @@ export const IbcTransfer = (): JSX.Element => {
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
-      invariant(selectedAsset?.originalAddress, "Error: Asset not selected");
       invariant(registry?.chain, "Error: Chain not selected");
       setGeneralErrorMessage("");
       setCurrentProgress("Submitting...");
@@ -197,6 +199,17 @@ export const IbcTransfer = (): JSX.Element => {
   const onChangeChain = (chain: Chain): void => {
     connectToChainId(chain.chain_id);
   };
+  // TODO:
+  const aa = availableAssets?.reduce((acc, curr) => {
+    return {
+      ...acc,
+      [curr.asset.base]: {
+        asset: curr.asset,
+        amount: curr.minDenomAmount,
+        originalAddress: curr.asset.base,
+      },
+    };
+  }, {} as AddressWithAssetAndAmountMap);
 
   return (
     <div className="relative min-h-[600px]">
@@ -208,10 +221,10 @@ export const IbcTransfer = (): JSX.Element => {
       </div>
       <TransferModule
         source={{
-          isLoadingAssets: isLoadingBalances,
-          availableAssets,
-          selectedAssetAddress,
-          availableAmount,
+          isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
+          availableAssets: aa,
+          selectedAssetAddress: selectedAssetBase,
+          availableAmount: availableDisplayAmount,
           availableChains,
           onChangeChain,
           chain: registry?.chain,
@@ -219,7 +232,7 @@ export const IbcTransfer = (): JSX.Element => {
           wallet: wallets.keplr,
           walletAddress: sourceAddress,
           onChangeWallet,
-          onChangeSelectedAsset: setSelectedAssetAddress,
+          onChangeSelectedAsset: setSelectedAssetBase,
           amount,
           onChangeAmount: setAmount,
         }}

@@ -19,7 +19,7 @@ import { chainAtom, chainTokensAtom } from "atoms/chain";
 import {
   getDenomFromIbcTrace,
   ibcChannelsFamily,
-  searchChainByDenom,
+  SUPPORTED_CHAINS_MAP,
 } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
@@ -42,7 +42,10 @@ import { useAtom, useAtomValue } from "jotai";
 import { TransactionPair } from "lib/query";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import namadaChainRegistry from "registry/namada.json";
+// TODO: housefire?
+import { IbcTransition } from "@chain-registry/types/assetlist.schema";
+import namadaAssets from "chain-registry/mainnet/namada/assets";
+import namadaChainRegistry from "chain-registry/mainnet/namada/chain";
 import { IbcTransferTransactionData, TransferStep } from "types";
 import {
   isNamadaAsset,
@@ -175,16 +178,34 @@ export const IbcWithdraw = (): JSX.Element => {
         return;
       }
 
+      // TODO: not sure if we should use tokens from the indexer
       const token = chainTokens.data.find(
         (token) => token.address === selectedAsset.originalAddress
       );
 
       let chain: Chain | undefined;
+
+      // TODO: why?
       if (isNamadaAsset(selectedAsset.asset)) {
         chain = osmosis.chain; // for now, NAM uses the osmosis chain
       } else if (token && "trace" in token) {
         const denom = getDenomFromIbcTrace(token.trace);
-        chain = searchChainByDenom(denom);
+
+        // TODO: this kind of sucks, can be improved and moved to some utility
+        let chainName;
+        for (const asset of namadaAssets.assets) {
+          const trace = asset.traces?.find(
+            (trace) =>
+              trace.type === "ibc" && trace.counterparty.base_denom === denom
+          ) as IbcTransition | undefined;
+          if (trace) {
+            chainName = trace.counterparty.chain_name;
+            break;
+          }
+        }
+        invariant(chainName, "Chain name not found for the asset");
+
+        chain = SUPPORTED_CHAINS_MAP.get(chainName)?.chain;
       }
 
       await updateDestinationChainAndAddress(chain);
@@ -367,9 +388,9 @@ export const IbcWithdraw = (): JSX.Element => {
             shielded ?
               shieldedAccount?.address
             : transparentAccount.data?.address,
-          chain: namadaChainRegistry as Chain,
+          chain: namadaChainRegistry,
           isShieldedAddress: shielded,
-          availableChains: [namadaChainRegistry as Chain],
+          availableChains: [namadaChainRegistry],
           availableAssets,
           availableAmount,
           selectedAssetAddress,

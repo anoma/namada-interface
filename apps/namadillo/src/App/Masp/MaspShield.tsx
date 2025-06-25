@@ -21,7 +21,8 @@ import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
-import namadaChain from "registry/namada.json";
+// TODO: housefire?
+import namadaChain from "chain-registry/mainnet/namada/chain";
 
 export const MaspShield: React.FC = () => {
   const { storeTransaction } = useTransactionActions();

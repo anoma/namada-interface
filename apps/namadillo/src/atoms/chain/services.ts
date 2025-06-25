@@ -6,7 +6,7 @@ import {
 } from "@namada/indexer-client";
 import { getDenomFromIbcTrace } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import { findAssetByDenom } from "integrations/utils";
+import namadaAssets from "chain-registry/mainnet/namada/assets";
 import { MaspAssetRewards } from "types";
 import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
@@ -50,7 +50,10 @@ export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
     .filter((r) => r.maxRewardRate > 0)
     .map((r) => {
       const denom = getDenomFromIbcTrace(r.name);
-      const asset = findAssetByDenom(denom) ?? unknownAsset(denom);
+      const asset =
+        // TODO: housefire
+        namadaAssets.assets.find((asset) => asset.base === denom) ??
+        unknownAsset(denom);
       return {
         asset,
         address: r.address,
