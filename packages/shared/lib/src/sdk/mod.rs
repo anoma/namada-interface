@@ -752,7 +752,11 @@ impl Sdk {
         ibc_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
     ) -> Result<JsValue, JsError> {
-        let (args, bparams) = args::ibc_transfer_tx_args(ibc_transfer_msg, wrapper_tx_msg, self.namada.native_token())?;
+        let (args, bparams) = args::ibc_transfer_tx_args(
+            ibc_transfer_msg,
+            wrapper_tx_msg,
+            self.namada.native_token(),
+        )?;
 
         let bparams = if let Some(bparams) = bparams {
             BuildParams::StoredBuildParams(bparams)
@@ -909,8 +913,18 @@ impl Sdk {
         let target = TransferTarget::PaymentAddress(
             PaymentAddress::from_str(target).expect("target is a valid shielded address"),
         );
-        let amount =
-            InputAmount::Unvalidated(DenominatedAmount::from_str(amount).expect("amount is valid"));
+
+        // As the value we get is always in the base denom, we can use from_string_precise to get the
+        // amount and drop denom info
+        let amount = Amount::from_string_precise(amount).expect("Amount to be valid.");
+
+        let denominated_amount = if token.contains(&self.namada.native_token().to_string()) {
+            DenominatedAmount::native(amount)
+        } else {
+            DenominatedAmount::new(amount, 0u8.into())
+        };
+        let amount = InputAmount::Validated(denominated_amount);
+
         let channel_id = ChannelId::from_str(channel_id).expect("channel ID is valid");
 
         let args = GenIbcShieldingTransfer {

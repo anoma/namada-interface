@@ -211,7 +211,7 @@ export const useIbcTransaction = ({
         sanitizeAddress(sourceAddress),
         sanitizeAddress(maspCompatibleReceiver),
         baseAmount,
-        selectedAsset.originalAddress,
+        selectedAsset.asset.base,
         maspCompatibleMemo
       );
 

@@ -53,10 +53,7 @@ export const SelectedAsset = ({
         </span>
       )}
       {asset && (
-        <span
-          className={selectorClassList}
-          style={{ backgroundColor: asset.logo_URIs?.theme }}
-        >
+        <span className={selectorClassList}>
           <img
             className={clsx(
               "w-15 aspect-square object-cover select-none",

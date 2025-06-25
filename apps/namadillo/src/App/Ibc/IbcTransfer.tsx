@@ -91,7 +91,16 @@ export const IbcTransfer = (): JSX.Element => {
 
     const output: AddressWithAssetAndAmountMap = {};
     for (const key in userAssets) {
-      if (enabledAssets.includes(userAssets[key].asset.base)) {
+      const counterpartyBaseDenom =
+        userAssets[key].asset.traces?.[0].counterparty.base_denom || "";
+
+      // We look for both native for chain and in counterparty base denom
+      // TODO/IMPORTANT: this will not work for HOUSEFIRE NAM as it's not a part of
+      // osmosis asset list
+      if (
+        enabledAssets.includes(userAssets[key].asset.base) ||
+        enabledAssets.includes(counterpartyBaseDenom)
+      ) {
         output[key] = { ...userAssets[key] };
       }
     }

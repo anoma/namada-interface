@@ -1,4 +1,4 @@
-import { Asset, AssetDenomUnit } from "@chain-registry/types";
+import { Asset, DenomUnit } from "@chain-registry/types";
 import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import {
   BroadcastTxError,
@@ -72,7 +72,7 @@ export const sumBigNumberArray = (numbers: BigNumber[]): BigNumber => {
   return BigNumber.sum(...numbers);
 };
 
-const findDisplayUnit = (asset: Asset): AssetDenomUnit | undefined => {
+const findDisplayUnit = (asset: Asset): DenomUnit | undefined => {
   const { display, denom_units } = asset;
   return denom_units.find((unit) => unit.denom === display);
 };

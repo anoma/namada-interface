@@ -1775,10 +1775,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chain-registry/types@npm:^0.45.80":
-  version: 0.45.86
-  resolution: "@chain-registry/types@npm:0.45.86"
-  checksum: 10c0/d64508fb536beaf8f83556dcf60421bc685cadd3f9cd88ee2d7996d171b37e46a4bed933829cf0ca94ae3a4d4bd87f9d9289da8f7b8dcfdb4b645cfb7432404c
+"@chain-registry/types@npm:^0.50.160":
+  version: 0.50.160
+  resolution: "@chain-registry/types@npm:0.50.160"
+  checksum: 10c0/7fe89da5609c7e68eedab836738e1616ceaad211fcf0e9f5ee7fd5892fd6bdd6da317b275204b5a8e95ff8ef73640a03677d549a65d47bfeeb851d13194444c9
   languageName: node
   linkType: hard
 
@@ -7861,12 +7861,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chain-registry@npm:^1.63.100":
-  version: 1.69.89
-  resolution: "chain-registry@npm:1.69.89"
+"chain-registry@npm:^1.69.256":
+  version: 1.69.256
+  resolution: "chain-registry@npm:1.69.256"
   dependencies:
-    "@chain-registry/types": "npm:^0.50.47"
-  checksum: 10c0/99d39e430f8a42d4f034a7052d6239f806cb865e33c771c3aa0a349158a305894671b770fac7b5c1bdcd84109199e5b4ce4a6c6337611f2040a7528f8682972f
+    "@chain-registry/types": "npm:^0.50.160"
+  checksum: 10c0/14cf6ad5398134087661b27a1723bc0a8392fb208a1155b288c776342276b3cf767090eab97871121a33bee64e753934faa2a93f11c51efbdde3cf2dd81419ec
   languageName: node
   linkType: hard
 
@@ -15300,10 +15300,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "namada@workspace:."
   dependencies:
-    "@chain-registry/types": "npm:^0.45.80"
+    "@chain-registry/types": "npm:^0.50.160"
     "@typescript-eslint/eslint-plugin": "npm:^8.4.0"
     "@typescript-eslint/parser": "npm:^8.4.0"
-    chain-registry: "npm:^1.63.100"
+    chain-registry: "npm:^1.69.256"
     eslint: "npm:^8.57.0"
     git-commit-msg-linter: "npm:^5.0.6"
     husky: "npm:^8.0.3"

@@ -4,6 +4,7 @@ import { shortenAddress } from "@namada/utils";
 import { AddressWithAssetAndAmountMap } from "types";
 
 export const unknownAsset = (denom: string): Asset => ({
+  type_asset: "unknown",
   denom_units: [{ denom, exponent: 0 }],
   base: denom,
   name: denom,
