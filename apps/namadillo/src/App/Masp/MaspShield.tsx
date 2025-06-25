@@ -68,7 +68,7 @@ export const MaspShield: React.FC = () => {
   } = useTransfer({
     source: sourceAddress ?? "",
     target: destinationAddress ?? "",
-    token: selectedAsset?.originalAddress ?? "",
+    token: selectedAsset?.asset.address ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
     onUpdateStatus: setCurrentStatus,
     onBeforeBuildTx: () => {

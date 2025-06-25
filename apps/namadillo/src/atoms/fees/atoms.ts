@@ -1,7 +1,8 @@
+import { Asset } from "@chain-registry/types";
 import { GasEstimate } from "@namada/indexer-client";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { atomWithQuery } from "jotai-tanstack-query";
@@ -55,7 +56,12 @@ export const gasEstimateFamily = atomFamily(
 
 export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
   const api = get(indexerApiAtom);
-  const chainAssetsMap = get(chainAssetsMapAtom);
+
+  // TODO: chainAssetsMap move to utils
+  const chainAssetsMap: Record<Address, Asset> =
+    getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+      return curr.address ? { ...acc, [curr.address]: curr } : acc;
+    }, {});
 
   return {
     queryKey: ["gas-price-table", chainAssetsMap],

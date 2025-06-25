@@ -4,7 +4,7 @@ import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { ChainRegistryEntry } from "types";
+import { Address, AssetWithAmount, ChainRegistryEntry } from "types";
 
 type useAmountTransferProps = {
   registry?: ChainRegistryEntry;
@@ -16,7 +16,7 @@ type UseAmountTransferOutput = {
   isLoading: boolean;
   balance: BigNumber | undefined;
   availableAssets?: Asset[];
-  assetsBalances?: { asset: Asset; minDenomAmount: BigNumber }[];
+  assetsBalances?: Record<Address, AssetWithAmount>;
 };
 
 export const useAssetAmount = ({
@@ -36,11 +36,11 @@ export const useAssetAmount = ({
     if (!asset || !assetsBalances) {
       return undefined;
     }
-    const assetBalance = assetsBalances.find(
-      (ab) => ab.asset.base === asset.base
+    const assetBalance = Object.values(assetsBalances).find(
+      ({ asset: a }) => a.base === asset.base
     );
     invariant(assetBalance, "Asset balance not found");
-    return assetBalance.minDenomAmount;
+    return assetBalance.amount;
   }, [asset, assetsBalances]);
 
   const availableAssets = useMemo<Asset[] | undefined>(() => {

@@ -10,7 +10,7 @@ import { SelectedChain } from "App/Transfer/SelectedChain";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { TokenAmountCard } from "App/Transfer/TokenAmountCard";
 import { TransferArrow } from "App/Transfer/TransferArrow";
-import { SUPPORTED_CHAINS_MAP } from "atoms/integrations";
+import { getChainRegistryByChainId } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { wallets } from "integrations";
@@ -41,10 +41,7 @@ const TransferTransactionReceipt = ({
   transaction,
 }: TransactionReceiptProps): JSX.Element => {
   const getChain = (chainId: string, address: string): Chain | undefined => {
-    const chain = SUPPORTED_CHAINS_MAP.values().find(
-      (ch) => ch.chain.chain_id === chainId
-    )?.chain;
-
+    const chain = getChainRegistryByChainId(chainId)?.chain;
     if (isNamadaAddress(address) && chain) {
       return parseChainInfo(chain, isShieldedAddress(address || ""));
     }

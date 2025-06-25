@@ -77,7 +77,7 @@ export const MaspUnshield: React.FC = () => {
   } = useTransfer({
     source: sourceAddress ?? "",
     target: destinationAddress ?? "",
-    token: selectedAsset?.originalAddress ?? "",
+    token: selectedAsset?.asset.address ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
     onBeforeBuildTx: () => {
       setCurrentStatus("Generating MASP Parameters...");

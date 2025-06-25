@@ -1,10 +1,9 @@
-import { Asset } from "@chain-registry/types";
 import { Balance } from "@namada/indexer-client";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import { Address, AddressWithAssetAndAmountMap } from "types";
+import { Address, AssetWithAmount, TokenBalance } from "types";
 import { isNamadaAsset, toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
-import { TokenBalance } from "./atoms";
 
 export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
   (list ?? []).reduce(
@@ -15,16 +14,21 @@ export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
 export const getTotalNam = (list?: TokenBalance[]): BigNumber =>
   list?.find((i) => isNamadaAsset(i.asset))?.amount ?? new BigNumber(0);
 
-export const mapNamadaAddressesToAssets = (
-  balances: Balance[],
-  chainAssetsMap: Record<Address, Asset | undefined>
-): AddressWithAssetAndAmountMap => {
-  const map: AddressWithAssetAndAmountMap = {};
+// TODO: move this  to somewhere else?
+export const mapNamadaAddressesToAssets = ({
+  balances,
+}: {
+  balances: Balance[];
+}): Record<Address, AssetWithAmount> => {
+  const namadaRegistry = getNamadaChainRegistry();
+  const map: Record<Address, AssetWithAmount> = {};
   balances.forEach((item) => {
     const asset =
-      chainAssetsMap[item.tokenAddress] ?? unknownAsset(item.tokenAddress);
+      namadaRegistry.assets.assets.find(
+        (asset) => asset.address === item.tokenAddress
+      ) ?? unknownAsset(item.tokenAddress);
+
     map[item.tokenAddress] = {
-      originalAddress: item.tokenAddress,
       amount: toDisplayAmount(asset, BigNumber(item.minDenomAmount)),
       asset,
     };
@@ -33,16 +37,16 @@ export const mapNamadaAddressesToAssets = (
 };
 
 export const mapNamadaAssetsToTokenBalances = (
-  assets: AddressWithAssetAndAmountMap,
+  assets: Record<Address, AssetWithAmount>,
   tokenPrices: Record<string, BigNumber>
 ): TokenBalance[] => {
-  return Object.values(assets).map((assetEntry) => {
-    const { originalAddress, asset, amount } = assetEntry;
-    const tokenPrice = tokenPrices[originalAddress];
+  return Object.entries(assets).map(([address, assetEntry]) => {
+    const { asset, amount } = assetEntry;
+    const tokenPrice = tokenPrices[address];
     const dollar = tokenPrice ? amount.multipliedBy(tokenPrice) : undefined;
 
     return {
-      originalAddress,
+      address,
       asset,
       amount,
       dollar,

@@ -1,3 +1,4 @@
+import { Asset } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
@@ -8,13 +9,13 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Address, AddressWithAsset, WalletProvider } from "types";
+import { Address, WalletProvider } from "types";
 import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 
 type SelectWalletModalProps = {
   onClose: () => void;
   onSelect: (address: Address) => void;
-  assets: AddressWithAsset[];
+  assets: Asset[];
   wallet: WalletProvider;
   walletAddress: string;
 };
@@ -33,7 +34,7 @@ export const SelectAssetModal = ({
 
   const filteredAssets = useMemo(() => {
     return assets.filter(
-      ({ asset }) =>
+      (asset) =>
         asset.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0 ||
         asset.symbol.toLowerCase().indexOf(filter.toLowerCase()) >= 0
     );
@@ -50,14 +51,15 @@ export const SelectAssetModal = ({
         gap={0}
         className="max-h-[400px] overflow-auto dark-scrollbar pb-4 mr-[-0.5rem]"
       >
-        {filteredAssets.map(({ asset, originalAddress }) => {
+        {filteredAssets.map((asset) => {
           const disabled =
-            !namTransfersEnabled && originalAddress === nativeTokenAddress;
+            !namTransfersEnabled && asset.address === nativeTokenAddress;
           return (
-            <li key={originalAddress} className="text-sm">
+            <li key={asset.base} className="text-sm">
               <button
                 onClick={() => {
-                  onSelect(originalAddress);
+                  //TODO: || for IbcTransfer
+                  onSelect(asset.address || asset.base);
                   onClose();
                 }}
                 className={twMerge(
@@ -72,7 +74,8 @@ export const SelectAssetModal = ({
               >
                 <TokenCard
                   asset={asset}
-                  address={originalAddress}
+                  //TODO: || for IbcTransfer
+                  address={asset.address || asset.base}
                   disabled={disabled}
                 />
               </button>

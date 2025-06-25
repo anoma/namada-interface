@@ -1,4 +1,4 @@
-import { Asset, AssetList, Chain } from "@chain-registry/types";
+import { AssetList, Chain } from "@chain-registry/types";
 import { DeliverTxResponse, SigningStargateClient } from "@cosmjs/stargate";
 import { ExtensionKey } from "@namada/types";
 import { defaultAccountAtom } from "atoms/accounts";
@@ -6,17 +6,16 @@ import { chainAtom, chainTokensAtom } from "atoms/chain";
 import { defaultServerConfigAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import chainRegistry from "chain-registry";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import invariant from "invariant";
-import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { ChainId, ChainRegistryEntry, RpcStorage } from "types";
+import { AssetWithAmount, BaseDenom, RpcStorage } from "types";
+import { toDisplayAmount } from "utils";
 import {
+  getChainRegistryByChainName,
   getDenomFromIbcTrace,
   IbcChannels,
-  SUPPORTED_CHAINS_MAP,
 } from "./functions";
 import {
   broadcastIbcTransaction,
@@ -68,30 +67,38 @@ export const broadcastIbcTransactionAtom = atomWithMutation(() => {
   };
 });
 
-/// Balance of KEPLR assets(non NAMADA assets), should be only used in the context of deposits to Namada
+/// Balance of KEPLR assets, should be only used in the context of deposits to Namada
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    // TODO: move type
-    return atomWithQuery<{ asset: Asset; minDenomAmount: BigNumber }[]>(() => ({
+    // TODO: maybe we can already return value in display amount?
+    return atomWithQuery<Record<BaseDenom, AssetWithAmount>>(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
         return await queryAndStoreRpc(chain!, async (rpc: string) => {
           const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
-          const assetList = chainRegistry.assets.find(
-            (al) => al.chain_name === chain!.chain_name
-          );
+          const assetList = getChainRegistryByChainName(
+            chain!.chain_name
+          )?.assets;
           invariant(assetList, "Asset list not found for chain");
 
-          const assetBalance = assetsBalances.flatMap((ab) => {
-            const asset = assetList.assets.find((a) => a.base === ab.denom);
-
-            // Filter out assets that are not in the asset list
-            return asset ?
-                [{ asset, minDenomAmount: BigNumber(ab.minDenomAmount) }]
-              : [];
-          });
-
-          return assetBalance;
+          return assetsBalances.reduce(
+            (acc, curr) => {
+              const asset = assetList.assets.find((a) => a.base === curr.denom);
+              return asset ?
+                  {
+                    ...acc,
+                    [asset.base]: {
+                      asset,
+                      amount: toDisplayAmount(
+                        asset,
+                        BigNumber(curr.minDenomAmount)
+                      ),
+                    },
+                  }
+                : acc;
+            },
+            {} as Record<BaseDenom, AssetWithAmount>
+          );
         });
       }, [!!walletAddress, !!chain]),
     }));
@@ -106,26 +113,6 @@ export const assetBalanceAtomFamily = atomFamily(
   }
 );
 
-// Every entry contains information about the chain, available assets and IBC channels
-export const chainRegistryAtom = atom<Record<ChainId, ChainRegistryEntry>>(
-  () => {
-    // TODO: maybe not needed
-    return SUPPORTED_CHAINS_MAP.values().reduce(
-      (acc, curr) => {
-        return { ...acc, [curr.chain.chain_id]: curr };
-      },
-      {} as Record<ChainId, ChainRegistryEntry>
-    );
-  }
-);
-
-// Lists only the available chain list
-export const availableChainsAtom = atom(() => {
-  return SUPPORTED_CHAINS_MAP.values()
-    .map((val) => val.chain)
-    .toArray();
-});
-
 export const ibcRateLimitAtom = atomWithQuery((get) => {
   const chainTokens = get(chainTokensAtom);
   return {
@@ -136,6 +123,7 @@ export const ibcRateLimitAtom = atomWithQuery((get) => {
   };
 });
 
+// TODO: is this needed?
 export const enabledIbcAssetsDenomFamily = atomFamily((ibcChannel?: string) => {
   return atomWithQuery((get) => {
     const chainTokens = get(chainTokensAtom);

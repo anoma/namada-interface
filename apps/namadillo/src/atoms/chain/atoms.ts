@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
@@ -9,12 +8,9 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
-import namadaAssets from "chain-registry/mainnet/namada/assets";
-import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import {
-  Address,
   ChainParameters,
   ChainSettings,
   ChainStatus,
@@ -79,15 +75,6 @@ export const chainTokensAtom = atomWithQuery<(NativeToken | IbcToken)[]>(
     };
   }
 );
-
-export const chainAssetsMapAtom = atom<Record<Address, Asset>>(() => {
-  return namadaAssets.assets.reduce((acc, curr) => {
-    const address = curr.address;
-    invariant(address, "Asset address is required");
-
-    return { ...acc, [address]: curr };
-  }, {});
-});
 
 // Prefer calling settings@rpcUrlAtom instead, because default rpc url might be
 // overrided by the user

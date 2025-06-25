@@ -46,7 +46,7 @@ type useIbcTransactionProps = {
   sourceChannel?: string;
   shielded?: boolean;
   destinationChannel?: Address;
-  selectedAsset?: { asset: Asset; minDenomAmount: BigNumber };
+  selectedAsset?: Asset;
 };
 
 type useIbcTransactionOutput = {
@@ -188,20 +188,20 @@ export const useIbcTransaction = ({
           gasConfigQuery.error?.message
       );
 
-      const baseAmount = toBaseAmount(selectedAsset.asset, displayAmount);
+      const baseAmount = toBaseAmount(selectedAsset, displayAmount);
 
       // This step might require a bit of time
       const { memo: maspCompatibleMemo, receiver: maspCompatibleReceiver } =
         await (async () => {
           onUpdateStatus?.("Generating MASP parameters...");
-          const assetTrace = selectedAsset.asset.traces?.find(
+          const assetTrace = selectedAsset.traces?.find(
             (trace) => trace.type === "ibc"
           );
 
           // For genShieldedArgs we have to pass the ibc trace path on destination chain,
           // for native assets we use the base denom
           const assetTracePath =
-            assetTrace ? assetTrace.chain.path : selectedAsset.asset.base;
+            assetTrace ? assetTrace.chain.path : selectedAsset.base;
           invariant(assetTracePath, "Asset trace path is required");
 
           return shielded ?
@@ -221,7 +221,7 @@ export const useIbcTransaction = ({
         sanitizeAddress(sourceAddress),
         sanitizeAddress(maspCompatibleReceiver),
         baseAmount,
-        selectedAsset.asset.base,
+        selectedAsset.base,
         maspCompatibleMemo
       );
 
@@ -241,7 +241,7 @@ export const useIbcTransaction = ({
       const tx = createTransferDataFromIbc(
         txResponse,
         rpcUrl || "",
-        selectedAsset.asset,
+        selectedAsset,
         chainId,
         destinationChainId || "",
         getIbcTransferStage(!!shielded),

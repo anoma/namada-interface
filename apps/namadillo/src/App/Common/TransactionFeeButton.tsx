@@ -1,9 +1,10 @@
-import { chainAssetsMapAtom } from "atoms/chain/atoms";
+import { Asset } from "@chain-registry/types";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
-import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { twMerge } from "tailwind-merge";
+import { Address } from "types";
 import { getDisplayGasFee } from "utils/gas";
 import { GasFeeModal } from "./GasFeeModal";
 import { TransactionFee } from "./TransactionFee";
@@ -18,7 +19,13 @@ export const TransactionFeeButton = ({
   isShieldedTransfer?: boolean;
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
+  // TODO: chainAssetsMap move to utils
+  const chainAssetsMap: Record<Address, Asset> =
+    getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+      return curr.address ? { ...acc, [curr.address]: curr } : acc;
+    }, {});
+
   const gasDisplayAmount = useMemo(() => {
     return getDisplayGasFee(feeProps.gasConfig, chainAssetsMap);
   }, [feeProps]);

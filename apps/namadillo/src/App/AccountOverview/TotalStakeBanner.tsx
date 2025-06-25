@@ -15,7 +15,10 @@ export const TotalStakeBanner = (): JSX.Element => {
   const shieldedAssets = useAtomValue(namadaTransparentAssetsAtom);
   const tokenPrices = useAtomValue(
     tokenPricesFamily(
-      Object.values(shieldedAssets.data ?? {}).map((i) => i.originalAddress)
+      // TODO: namada assets should always have a defined address
+      Object.values(shieldedAssets.data ?? {}).map(
+        ({ asset }) => asset.address!
+      )
     )
   );
   const namPrice =

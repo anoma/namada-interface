@@ -1,6 +1,8 @@
 import { Chain, IBCInfo } from "@chain-registry/types";
+import { IbcTransition } from "@chain-registry/types/assetlist.schema";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmoshub from "chain-registry/mainnet/cosmoshub";
+import * as namada from "chain-registry/mainnet/namada";
 import * as neutron from "chain-registry/mainnet/neutron";
 import * as noble from "chain-registry/mainnet/noble";
 import * as nyx from "chain-registry/mainnet/nyx";
@@ -10,7 +12,7 @@ import invariant from "invariant";
 import { ChainRegistryEntry, RpcStorage } from "types";
 
 // Whitelist of supported chains
-export const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
+const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
   Object.entries({
     osmosis: osmosis,
     cosmoshub: cosmoshub,
@@ -72,4 +74,51 @@ export const getChannelFromIbcInfo = (
     namadaChannel: channelEntry[namadaChannelId].channel_id,
     ibcChannel: channelEntry[ibcChannelId].channel_id,
   };
+};
+
+// Utility functions for chain registry
+// TODO: move to global utility file
+
+export const getChainRegistryByChainId = (
+  chainId: string
+): ChainRegistryEntry | undefined => {
+  return SUPPORTED_CHAINS_MAP.values().find(
+    (registry) => registry.chain.chain_id === chainId
+  );
+};
+
+export const getChainRegistryByChainName = (
+  chainName: string
+): ChainRegistryEntry | undefined => {
+  return SUPPORTED_CHAINS_MAP.get(chainName);
+};
+
+export const getAvailableChains = (): Chain[] => {
+  return SUPPORTED_CHAINS_MAP.values()
+    .map((entry) => entry.chain)
+    .toArray();
+};
+
+// Utility function to get the chain name by Namada asset base_denom
+// Used by Ibc Withdraw to determine the target chain for the withdrawal
+// TODO: not sure why we pass denom here instead of namada address?
+export const getChainNameByNamadaAssetDenom = (
+  denom: string
+): string | undefined => {
+  let chainName;
+  for (const asset of namada.assets.assets) {
+    const trace = asset.traces?.find(
+      (trace) => trace.type === "ibc" && trace.counterparty.base_denom === denom
+    ) as IbcTransition | undefined;
+    if (trace) {
+      chainName = trace.counterparty.chain_name;
+      break;
+    }
+  }
+
+  return chainName;
+};
+
+export const getNamadaChainRegistry = (): ChainRegistryEntry => {
+  return namada;
 };

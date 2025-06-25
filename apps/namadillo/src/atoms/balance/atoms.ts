@@ -8,7 +8,6 @@ import {
 } from "atoms/accounts/atoms";
 import { indexerApiAtom } from "atoms/api";
 import {
-  chainAssetsMapAtom,
   chainParametersAtom,
   chainTokensAtom,
   fetchBlockHeightByTimestamp,
@@ -26,7 +25,7 @@ import * as O from "fp-ts/Option";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
-import { Address, AddressWithAsset } from "types";
+import { Address, TokenBalance } from "types";
 import { namadaAsset, toDisplayAmount } from "utils";
 import {
   mapNamadaAddressesToAssets,
@@ -38,11 +37,6 @@ import {
   fetchShieldedRewardsPerToken,
   shieldedSync,
 } from "./services";
-
-export type TokenBalance = AddressWithAsset & {
-  amount: BigNumber;
-  dollar?: BigNumber;
-};
 
 /**
   Gets the viewing key and its birthday timestamp if it's a generated key
@@ -210,7 +204,6 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
   const storageShieldedBalance = get(storageShieldedBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
   const chainTokensQuery = get(chainTokensAtom);
-  const chainAssetsMap = get(chainAssetsMapAtom);
 
   const [viewingKey] = viewingKeysQuery.data ?? [];
   const shieldedBalance = viewingKey && storageShieldedBalance[viewingKey.key];
@@ -219,11 +212,11 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
     queryKey: ["namada-shielded-assets", shieldedBalance],
     ...queryDependentFn(
       async () =>
-        mapNamadaAddressesToAssets(
-          shieldedBalance?.map((i) => ({ ...i, tokenAddress: i.address })) ??
+        mapNamadaAddressesToAssets({
+          balances:
+            shieldedBalance?.map((i) => ({ ...i, tokenAddress: i.address })) ??
             [],
-          chainAssetsMap
-        ),
+        }),
       [viewingKeysQuery, chainTokensQuery]
     ),
   };
@@ -231,15 +224,14 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
 
 export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
   const transparentBalances = get(transparentBalanceAtom);
-  const chainAssetsMap = get(chainAssetsMapAtom);
 
   const transparentBalance = transparentBalances.data;
 
   return {
-    queryKey: ["namada-transparent-assets", transparentBalance, chainAssetsMap],
+    queryKey: ["namada-transparent-assets", transparentBalance],
     ...queryDependentFn(
       async () =>
-        mapNamadaAddressesToAssets(transparentBalance ?? [], chainAssetsMap),
+        mapNamadaAddressesToAssets({ balances: transparentBalance ?? [] }),
       [transparentBalances]
     ),
   };
@@ -249,7 +241,7 @@ export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const shieldedAssets = get(namadaShieldedAssetsAtom);
   const tokenPrices = get(
     tokenPricesFamily(
-      Object.values(shieldedAssets.data ?? {}).map((i) => i.originalAddress)
+      Object.keys(shieldedAssets.data ?? {}).map((address) => address)
     )
   );
 
@@ -277,10 +269,12 @@ export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
     ...queryDependentFn(async () => {
       const { chainId } = chainParametersQuery.data!;
       const [viewingKey] = viewingKeysQuery.data!;
-      const assets = Object.values(shieldedAssets.data ?? {}).map((i) => ({
-        address: i.originalAddress,
-        amount: i.amount,
-      }));
+      const assets = Object.entries(shieldedAssets.data ?? {}).map(
+        ([address, entry]) => ({
+          address,
+          amount: entry.amount,
+        })
+      );
 
       if (!viewingKey) {
         return {};
@@ -303,7 +297,7 @@ export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const transparentAssets = get(namadaTransparentAssetsAtom);
   const tokenPrices = get(
     tokenPricesFamily(
-      Object.values(transparentAssets.data ?? {}).map((i) => i.originalAddress)
+      Object.keys(transparentAssets.data ?? {}).map((address) => address)
     )
   );
 

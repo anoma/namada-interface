@@ -1,5 +1,5 @@
 // TODO: deal with housefire channels
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { OfflineSigner } from "@cosmjs/launchpad";
 import {
   assertIsDeliverTxSuccess,
@@ -28,7 +28,6 @@ import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import toml from "toml";
 import {
-  AddressWithAsset,
   Coin,
   GasConfig,
   IbcTransferTransactionData,
@@ -51,7 +50,7 @@ type CommonParams = {
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
-  asset: AddressWithAsset;
+  asset: Asset;
   sourceChannelId: string;
   gasConfig: GasConfig;
 };

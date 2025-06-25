@@ -92,7 +92,7 @@ export const NamadaTransfer: React.FC = () => {
   } = useTransfer({
     source,
     target,
-    token: selectedAsset?.originalAddress ?? "",
+    token: selectedAsset?.asset.address ?? "",
     displayAmount: displayAmount ?? new BigNumber(0),
     onBeforeBuildTx: () => {
       if (isSourceShielded) {

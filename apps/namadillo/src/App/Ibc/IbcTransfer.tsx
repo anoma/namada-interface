@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { AccountType } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { params, routes } from "App/routes";
@@ -9,8 +9,8 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
-  availableChainsAtom,
   enabledIbcAssetsDenomFamily,
+  getAvailableChains,
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
@@ -27,7 +27,7 @@ import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import { AddressWithAssetAndAmountMap } from "types";
+import { AssetWithAmount, BaseDenom } from "types";
 import { toDisplayAmount, useTransactionEventListener } from "utils";
 import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
@@ -39,8 +39,9 @@ export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
 
+  const availableChains = useMemo(getAvailableChains, []);
+
   // Global & Atom states
-  const availableChains = useAtomValue(availableChainsAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
   // Wallet & Registry
@@ -78,29 +79,25 @@ export const IbcTransfer = (): JSX.Element => {
   const [txHash, setTxHash] = useState<string | undefined>();
 
   // Derived data
-  const availableDisplayAmount = mapUndefined((base) => {
-    const userAsset = userAssets?.find((asset) => asset.asset.base === base);
+  const availableDisplayAmount = mapUndefined((baseDenom) => {
+    const userAsset = userAssets?.[baseDenom];
     return userAsset ?
-        toDisplayAmount(userAsset.asset, userAsset.minDenomAmount)
+        toDisplayAmount(userAsset.asset, userAsset.amount)
       : undefined;
   }, selectedAssetBase);
 
   const selectedAsset =
-    selectedAssetBase ?
-      userAssets?.find((asset) => asset.asset.base === selectedAssetBase)
-    : undefined;
+    selectedAssetBase ? userAssets?.[selectedAssetBase]?.asset : undefined;
 
   const availableAssets = useMemo(() => {
     if (!enabledAssets || !userAssets) return undefined;
 
-    const output: { asset: Asset; minDenomAmount: BigNumber }[] = [];
+    const output: Record<BaseDenom, AssetWithAmount> = {};
     for (const key in userAssets) {
       const counterpartyBaseDenom =
         userAssets[key].asset.traces?.[0].counterparty.base_denom || "";
 
       // We look for both native for chain and in counterparty base denom
-      // TODO/IMPORTANT: this will not work for HOUSEFIRE NAM as it's not a part of
-      // osmosis asset list
       if (
         enabledAssets.includes(userAssets[key].asset.base) ||
         enabledAssets.includes(counterpartyBaseDenom)
@@ -199,17 +196,6 @@ export const IbcTransfer = (): JSX.Element => {
   const onChangeChain = (chain: Chain): void => {
     connectToChainId(chain.chain_id);
   };
-  // TODO:
-  const aa = availableAssets?.reduce((acc, curr) => {
-    return {
-      ...acc,
-      [curr.asset.base]: {
-        asset: curr.asset,
-        amount: curr.minDenomAmount,
-        originalAddress: curr.asset.base,
-      },
-    };
-  }, {} as AddressWithAssetAndAmountMap);
 
   return (
     <div className="relative min-h-[600px]">
@@ -222,7 +208,7 @@ export const IbcTransfer = (): JSX.Element => {
       <TransferModule
         source={{
           isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
-          availableAssets: aa,
+          availableAssets,
           selectedAssetAddress: selectedAssetBase,
           availableAmount: availableDisplayAmount,
           availableChains,

@@ -1,3 +1,4 @@
+import { Asset } from "@chain-registry/types";
 import { CopyToClipboardControl, Tooltip } from "@namada/components";
 import { shortenAddress } from "@namada/utils";
 import { TokenCurrency } from "App/Common/TokenCurrency";
@@ -8,7 +9,8 @@ import {
   isTransparentAddress,
 } from "App/Transfer/common";
 import { allDefaultAccountsAtom } from "atoms/accounts";
-import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { nativeTokenAddressAtom } from "atoms/chain";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
@@ -20,6 +22,7 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
+import { Address } from "types";
 import { isNamadaAsset, toDisplayAmount } from "utils";
 import keplrSvg from "../../integrations/assets/keplr.svg";
 
@@ -116,7 +119,13 @@ export const TransactionCard = ({
   const transaction = transactionTopLevel.tx;
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const token = getToken(transaction, nativeToken ?? "");
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
+  // TODO: chainAssetsMap move to utils
+  const chainAssetsMap: Record<Address, Asset> =
+    getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+      return curr.address ? { ...acc, [curr.address]: curr } : acc;
+    }, {});
+
   const asset = token ? chainAssetsMap[token] : undefined;
   const isBondingOrUnbondingTransaction = ["bond", "unbond"].includes(
     transactionTopLevel?.tx?.kind ?? ""

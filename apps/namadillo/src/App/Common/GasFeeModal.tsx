@@ -7,8 +7,9 @@ import {
 } from "@namada/components";
 import { transparentBalanceAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance";
-import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -16,7 +17,7 @@ import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
-import { GasConfig } from "types";
+import { Address, GasConfig } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
@@ -38,7 +39,11 @@ const useBuildGasOption = ({
   gasConfig: GasConfig;
   gasPriceTable: GasPriceTable | undefined;
 }) => {
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+  // TODO: chainAssetsMap move to utils
+  const chainAssetsMap: Record<Address, Asset> =
+    getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+      return curr.address ? { ...acc, [curr.address]: curr } : acc;
+    }, {});
 
   const gasDollarMap =
     useAtomValue(

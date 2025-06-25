@@ -7,9 +7,8 @@ import {
 } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
-import BigNumber from "bignumber.js";
 import { useEffect, useMemo, useState } from "react";
-import { ChainRegistryEntry, WalletProvider } from "types";
+import { AssetWithAmount, ChainRegistryEntry, WalletProvider } from "types";
 import {
   SelectableAddressWithAssetAndAmount,
   ShieldAllAssetList,
@@ -22,7 +21,7 @@ type ShieldAllPanelProps = {
   wallet: WalletProvider;
   walletAddress: string;
   isLoading: boolean;
-  assetList: { asset: Asset; minDenomAmount: BigNumber }[];
+  assetList: AssetWithAmount[];
   onShieldAll: (assets: Asset[]) => void;
 };
 

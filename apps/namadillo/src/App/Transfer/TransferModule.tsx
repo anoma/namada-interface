@@ -1,23 +1,22 @@
-import { Chain } from "@chain-registry/types";
+import { Asset, Chain } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
 import { routes } from "App/routes";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
-import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Address,
-  AddressWithAssetAndAmount,
-  AddressWithAssetAndAmountMap,
+  AssetWithAmount,
+  BaseDenom,
   GasConfig,
   LedgerAccountInfo,
   WalletProvider,
@@ -57,7 +56,7 @@ type TransferModuleConfig = {
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
-  availableAssets?: AddressWithAssetAndAmountMap;
+  availableAssets?: Record<BaseDenom | Address, AssetWithAmount>;
   isLoadingAssets?: boolean;
   selectedAssetAddress?: Address;
   availableAmount?: BigNumber;
@@ -180,7 +179,13 @@ export const TransferModule = ({
   );
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
+
+  // TODO: chainAssetsMap move to utils
+  const chainAssetsMap: Record<Address, Asset> =
+    getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+      return curr.address ? { ...acc, [curr.address]: curr } : acc;
+    }, {});
+
   const chainAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
@@ -188,9 +193,10 @@ export const TransferModule = ({
     return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
   }, [gasConfig]);
 
-  const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
-    return filterAvailableAssetsWithBalance(source.availableAssets);
-  }, [source.availableAssets]);
+  const availableAssets: Record<BaseDenom | Address, AssetWithAmount> =
+    useMemo(() => {
+      return filterAvailableAssetsWithBalance(source.availableAssets);
+    }, [source.availableAssets]);
 
   const firstAvailableAsset = Object.values(availableAssets)[0];
 
@@ -366,10 +372,7 @@ export const TransferModule = ({
 
     // Sort filtered assets by amount
     return [...filteredAvailableAssets].sort(
-      (
-        asset1: AddressWithAssetAndAmount,
-        asset2: AddressWithAssetAndAmount
-      ) => {
+      (asset1: AssetWithAmount, asset2: AssetWithAmount) => {
         return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
@@ -467,7 +470,7 @@ export const TransferModule = ({
 
   useEffect(() => {
     if (!selectedAsset?.asset && firstAvailableAsset) {
-      source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
+      source.onChangeSelectedAsset?.(firstAvailableAsset?.asset.address);
     }
   }, [firstAvailableAsset]);
 
@@ -620,7 +623,9 @@ export const TransferModule = ({
         source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
-            assets={sortedAssets}
+            assets={sortedAssets.map(
+              (assetsWithAmount) => assetsWithAmount.asset
+            )}
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}

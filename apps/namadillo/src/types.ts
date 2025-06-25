@@ -213,13 +213,14 @@ export type ChainRegistryEntry = {
   ibc?: IBCInfo[];
 };
 
-export type AddressWithAsset = {
-  originalAddress: Address;
+export type AssetWithAmount = {
   asset: Asset;
+  amount: BigNumber;
 };
 
-export type AddressWithAssetAndAmount = AddressWithAsset & {
-  amount: BigNumber;
+export type AssetWithMinDenomAmount = {
+  asset: Asset;
+  minDenomAmount: BigNumber;
 };
 
 export type Coin = {
@@ -227,10 +228,12 @@ export type Coin = {
   minDenomAmount: string;
 };
 
-export type AddressWithAssetAndAmountMap = Record<
-  Address,
-  AddressWithAssetAndAmount
->;
+export type TokenBalance = {
+  address: Address;
+  asset: Asset;
+  amount: BigNumber;
+  dollar?: BigNumber;
+};
 
 export enum TransferStep {
   Sign = "sign",

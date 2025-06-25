@@ -16,7 +16,7 @@ type useSimulateIbcTransferFeeProps = {
   registry?: ChainRegistryEntry;
   isShieldedTransfer?: boolean;
   sourceAddress?: string;
-  selectedAsset?: { asset: Asset; minDenomAmount: BigNumber };
+  selectedAsset?: Asset;
   channel?: string;
 };
 
@@ -32,7 +32,7 @@ export const useSimulateIbcTransferFee = ({
     queryKey: [
       "gasConfig",
       registry?.chain?.chain_id,
-      selectedAsset?.asset.base,
+      selectedAsset?.base,
       isShieldedTransfer,
     ],
     retry: false,
@@ -44,12 +44,10 @@ export const useSimulateIbcTransferFee = ({
         // while Keplr can't accept NAM for fees, and stargate can't simulate the NAM fee,
         // we use a hardcoded value of "uosmo"
         const getToken = (): string => {
-          if (isNamadaAsset(selectedAsset?.asset)) {
+          if (isNamadaAsset(selectedAsset)) {
             return "uosmo";
           }
-          return (
-            selectedAsset?.asset.base || registry?.assets.assets[0].base || ""
-          );
+          return selectedAsset?.base || registry?.assets.assets[0].base || "";
         };
 
         const transferMsg = createIbcTransferMessage(
