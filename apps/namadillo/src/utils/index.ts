@@ -6,8 +6,9 @@ import {
   ResultCode,
   TxMsgValue,
 } from "@namada/types";
+import { getNamadaChainAssetsMap } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import namadaAssets from "chain-registry/mainnet/namada/assets";
+import invariant from "invariant";
 import { useEffect, useRef } from "react";
 import { Asset } from "types";
 
@@ -77,8 +78,11 @@ const findDisplayUnit = (asset: Asset): DenomUnit | undefined => {
 };
 
 export const namadaAsset = (): Asset => {
-  // TODO: housefire
-  return namadaAssets.assets[0];
+  const namadaAssets = Object.values(getNamadaChainAssetsMap());
+  const nativeAsset = namadaAssets.find((asset) => asset.base === "unam");
+  invariant(nativeAsset, "Namada native asset not found");
+
+  return nativeAsset;
 };
 
 export const isNamadaAsset = (asset?: Asset): boolean =>

@@ -4,9 +4,11 @@ import {
   NativeToken,
   Parameters,
 } from "@namada/indexer-client";
-import { getDenomFromIbcTrace } from "atoms/integrations";
+import {
+  getDenomFromIbcTrace,
+  getNamadaChainAssetsMap,
+} from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import namadaAssets from "chain-registry/mainnet/namada/assets";
 import { MaspAssetRewards } from "types";
 import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
@@ -46,13 +48,14 @@ export const clearShieldedContext = async (chainId: string): Promise<void> => {
 export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
   const sdk = await getSdkInstance();
   const rewards = await sdk.rpc.globalShieldedRewardForTokens();
+  const namadaAssets = Object.values(getNamadaChainAssetsMap());
   const existingRewards: MaspAssetRewards[] = rewards
     .filter((r) => r.maxRewardRate > 0)
     .map((r) => {
       const denom = getDenomFromIbcTrace(r.name);
       const asset =
         // TODO: housefire
-        namadaAssets.assets.find((asset) => asset.base === denom) ??
+        namadaAssets.find((asset) => asset.base === denom) ??
         unknownAsset(denom);
       return {
         asset,

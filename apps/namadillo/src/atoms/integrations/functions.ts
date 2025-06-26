@@ -1,5 +1,4 @@
 import { Chain, IBCInfo } from "@chain-registry/types";
-import { IbcTransition } from "@chain-registry/types/assetlist.schema";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmoshub from "chain-registry/mainnet/cosmoshub";
 import * as namada from "chain-registry/mainnet/namada";
@@ -97,26 +96,6 @@ export const getAvailableChains = (): Chain[] => {
   return SUPPORTED_CHAINS_MAP.values()
     .map((entry) => entry.chain)
     .toArray();
-};
-
-// Utility function to get the chain name by Namada asset base_denom
-// Used by Ibc Withdraw to determine the target chain for the withdrawal
-// TODO: not sure why we pass denom here instead of namada address?
-export const getChainNameByNamadaAssetDenom = (
-  denom: string
-): string | undefined => {
-  let chainName;
-  for (const asset of namada.assets.assets) {
-    const trace = asset.traces?.find(
-      (trace) => trace.type === "ibc" && trace.counterparty.base_denom === denom
-    ) as IbcTransition | undefined;
-    if (trace) {
-      chainName = trace.counterparty.chain_name;
-      break;
-    }
-  }
-
-  return chainName;
 };
 
 export const getNamadaChainRegistry = (): ChainRegistryEntry => {
