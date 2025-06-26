@@ -8,7 +8,13 @@ import * as nyx from "chain-registry/mainnet/nyx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stride from "chain-registry/mainnet/stride";
 import invariant from "invariant";
-import { Address, ChainRegistryEntry, NamadaAsset, RpcStorage } from "types";
+import {
+  Address,
+  Asset,
+  ChainRegistryEntry,
+  NamadaAsset,
+  RpcStorage,
+} from "types";
 
 // Whitelist of supported chains
 const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
@@ -107,3 +113,23 @@ export const getNamadaChainAssetsMap = (): Record<Address, NamadaAsset> =>
   getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
     return curr.address ? { ...acc, [curr.address]: curr } : acc;
   }, {});
+
+export const getNamadaAssetByIbcAsset = (
+  asset: Asset
+): NamadaAsset | undefined => {
+  const namadaAssets = Object.values(getNamadaChainAssetsMap());
+  // Returns base denom for provided asset(e.g. "uosmo", "uatom", "unam")
+  const counterpartyBaseDenom =
+    asset.traces?.[0].counterparty.base_denom || asset.base;
+
+  const namadaAsset = namadaAssets.find((namadaAsset) => {
+    return (
+      // Match native token(unam)
+      counterpartyBaseDenom === namadaAsset.base ||
+      // Match any other token
+      counterpartyBaseDenom === namadaAsset.traces?.[0].counterparty.base_denom
+    );
+  });
+
+  return namadaAsset;
+};

@@ -11,7 +11,6 @@ export const unknownAsset = (denom: string): Asset => ({
   symbol: shortenAddress(denom, 4, 4),
 });
 
-// TODO: is this needed?
 // TODO upgrade this function to be as smart as possible
 // please refer to `tnamAddressToDenomTrace` and how we could combine both
 export const findAssetByToken = (

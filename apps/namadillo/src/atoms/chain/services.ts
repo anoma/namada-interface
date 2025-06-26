@@ -54,7 +54,6 @@ export const fetchMaspRewards = async (): Promise<MaspAssetRewards[]> => {
     .map((r) => {
       const denom = getDenomFromIbcTrace(r.name);
       const asset =
-        // TODO: housefire
         namadaAssets.find((asset) => asset.base === denom) ??
         unknownAsset(denom);
       return {

@@ -624,7 +624,7 @@ export const TransferModule = ({
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
-            isibcTransfer={isIbcTransfer}
+            isIbcTransfer={isIbcTransfer}
           />
         )}
 

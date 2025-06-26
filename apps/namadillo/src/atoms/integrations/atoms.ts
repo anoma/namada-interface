@@ -1,7 +1,6 @@
 import { AssetList, Chain } from "@chain-registry/types";
 import { DeliverTxResponse, SigningStargateClient } from "@cosmjs/stargate";
 import { ExtensionKey } from "@namada/types";
-import { defaultAccountAtom } from "atoms/accounts";
 import { chainAtom, chainTokensAtom } from "atoms/chain";
 import { defaultServerConfigAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
@@ -12,11 +11,7 @@ import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { AssetWithAmount, BaseDenom, RpcStorage } from "types";
 import { toDisplayAmount } from "utils";
-import {
-  getChainRegistryByChainName,
-  getDenomFromIbcTrace,
-  IbcChannels,
-} from "./functions";
+import { getChainRegistryByChainName, IbcChannels } from "./functions";
 import {
   broadcastIbcTransaction,
   fetchIbcChannelFromRegistry,
@@ -70,7 +65,6 @@ export const broadcastIbcTransactionAtom = atomWithMutation(() => {
 /// Balance of KEPLR assets, should be only used in the context of deposits to Namada
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    // TODO: maybe we can already return value in display amount?
     return atomWithQuery<Record<BaseDenom, AssetWithAmount>>(() => ({
       queryKey: ["assets", walletAddress, chain?.chain_id, assets],
       ...queryDependentFn(async () => {
@@ -121,46 +115,6 @@ export const ibcRateLimitAtom = atomWithQuery((get) => {
       return await fetchIbcRateLimits();
     }, [chainTokens]),
   };
-});
-
-// TODO: is this needed?
-export const enabledIbcAssetsDenomFamily = atomFamily((ibcChannel?: string) => {
-  return atomWithQuery((get) => {
-    const chainTokens = get(chainTokensAtom);
-    const ibcRateLimits = get(ibcRateLimitAtom);
-    const defaultAccount = get(defaultAccountAtom);
-
-    return {
-      queryKey: ["availableAssets", defaultAccount, ibcChannel],
-      ...queryDependentFn(async () => {
-        const channelAvailableTokens = chainTokens.data!.filter((token) => {
-          if ("trace" in token) {
-            return token.trace.indexOf(ibcChannel + "/") >= 0;
-          }
-          return false;
-        });
-
-        const availableTokens: string[] = ["nam", "unam"];
-        channelAvailableTokens.forEach((token) => {
-          const ibcRateLimit = ibcRateLimits.data?.find(
-            (rateLimit) => rateLimit.tokenAddress === token.address
-          );
-          if (
-            // if we don't have a rate limit defined on the indexer, believe that the sky is the limit
-            !ibcRateLimit ||
-            // otherwise, check if the limit is greater than zero
-            (ibcRateLimit && BigNumber(ibcRateLimit.throughputLimit).gt(0))
-          ) {
-            if ("trace" in token) {
-              availableTokens.push(getDenomFromIbcTrace(token.trace));
-            }
-          }
-        });
-
-        return availableTokens;
-      }, [chainTokens, ibcRateLimits, defaultAccount, !!ibcChannel]),
-    };
-  });
 });
 
 export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>

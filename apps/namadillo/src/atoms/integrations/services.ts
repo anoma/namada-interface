@@ -1,4 +1,3 @@
-// TODO: deal with housefire channels
 import { Chain } from "@chain-registry/types";
 import { OfflineSigner } from "@cosmjs/launchpad";
 import {

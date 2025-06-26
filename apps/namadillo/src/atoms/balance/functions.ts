@@ -13,7 +13,6 @@ export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
 export const getTotalNam = (list?: TokenBalance[]): BigNumber =>
   list?.find((i) => isNamadaAsset(i.asset))?.amount ?? new BigNumber(0);
 
-// TODO: move this  to somewhere else?
 export const mapNamadaAddressesToAssets = ({
   balances,
 }: {

@@ -27,7 +27,6 @@ export const getDisplayGasFee = (
   } else {
     // However, if the gasConfig contains a token used by Keplr, it could be the asset
     // denomination unit, like "uosmo"
-    // TODO: kind of sucks
     asset =
       namadaAssets.assets.find((a) =>
         a.denom_units.some((d) =>

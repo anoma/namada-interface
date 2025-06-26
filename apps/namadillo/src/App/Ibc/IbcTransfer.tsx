@@ -9,8 +9,8 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
-  enabledIbcAssetsDenomFamily,
   getAvailableChains,
+  getNamadaAssetByIbcAsset,
   getNamadaChainRegistry,
   ibcChannelsFamily,
 } from "atoms/integrations";
@@ -27,7 +27,7 @@ import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import { AssetWithAmount, BaseDenom } from "types";
-import { toDisplayAmount, useTransactionEventListener } from "utils";
+import { useTransactionEventListener } from "utils";
 import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
 
@@ -66,9 +66,6 @@ export const IbcTransfer = (): JSX.Element => {
   );
 
   const { trackEvent } = useFathomTracker();
-  const { data: enabledAssets } = useAtomValue(
-    enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel)
-  );
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetBase, setSelectedAssetBase] = useUrlState(params.asset);
   const [amount, setAmount] = useState<BigNumber | undefined>();
@@ -78,36 +75,29 @@ export const IbcTransfer = (): JSX.Element => {
   const [currentProgress, setCurrentProgress] = useState<string>();
   const [txHash, setTxHash] = useState<string | undefined>();
 
-  // Derived data
   const availableDisplayAmount = mapUndefined((baseDenom) => {
-    const userAsset = userAssets?.[baseDenom];
-    return userAsset ?
-        toDisplayAmount(userAsset.asset, userAsset.amount)
-      : undefined;
+    return userAssets ? userAssets[baseDenom].amount : undefined;
   }, selectedAssetBase);
 
   const selectedAsset =
     selectedAssetBase ? userAssets?.[selectedAssetBase]?.asset : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!enabledAssets || !userAssets) return undefined;
+    if (!userAssets) return undefined;
 
     const output: Record<BaseDenom, AssetWithAmount> = {};
-    for (const key in userAssets) {
-      const counterpartyBaseDenom =
-        userAssets[key].asset.traces?.[0].counterparty.base_denom || "";
 
-      // We look for both native for chain and in counterparty base denom
-      if (
-        enabledAssets.includes(userAssets[key].asset.base) ||
-        enabledAssets.includes(counterpartyBaseDenom)
-      ) {
+    Object.entries(userAssets).forEach(([key, { asset }]) => {
+      const namadaAsset = getNamadaAssetByIbcAsset(asset);
+
+      // Include if asset has a corresponding Namada asset, and it's either native or native for namada
+      if (namadaAsset && (!asset.traces || !namadaAsset.traces)) {
         output[key] = { ...userAssets[key] };
       }
-    }
+    });
 
     return output;
-  }, [enabledAssets, userAssets]);
+  }, [userAssets]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
@@ -207,7 +197,7 @@ export const IbcTransfer = (): JSX.Element => {
       </div>
       <TransferModule
         source={{
-          isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
+          isLoadingAssets: isLoadingBalances,
           availableAssets,
           selectedAssetAddress: selectedAssetBase,
           availableAmount: availableDisplayAmount,
