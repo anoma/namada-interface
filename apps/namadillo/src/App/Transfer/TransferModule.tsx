@@ -1,10 +1,10 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
 import { routes } from "App/routes";
-import { getNamadaChainRegistry } from "atoms/integrations";
+import { getNamadaChainAssetsMap } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
@@ -179,12 +179,7 @@ export const TransferModule = ({
   );
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
-
-  // TODO: chainAssetsMap move to utils
-  const chainAssetsMap: Record<Address, Asset> =
-    getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
-      return curr.address ? { ...acc, [curr.address]: curr } : acc;
-    }, {});
+  const chainAssetsMap = getNamadaChainAssetsMap();
 
   const chainAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;

@@ -1,5 +1,5 @@
 import { Chain, IBCInfo } from "@chain-registry/types";
-import { IbcTransition } from "@chain-registry/types/assetlist.schema";
+import { Asset, IbcTransition } from "@chain-registry/types/assetlist.schema";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmoshub from "chain-registry/mainnet/cosmoshub";
 import * as namada from "chain-registry/mainnet/namada";
@@ -9,7 +9,7 @@ import * as nyx from "chain-registry/mainnet/nyx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stride from "chain-registry/mainnet/stride";
 import invariant from "invariant";
-import { ChainRegistryEntry, RpcStorage } from "types";
+import { Address, ChainRegistryEntry, RpcStorage } from "types";
 
 // Whitelist of supported chains
 const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
@@ -122,3 +122,8 @@ export const getChainNameByNamadaAssetDenom = (
 export const getNamadaChainRegistry = (): ChainRegistryEntry => {
   return namada;
 };
+
+export const getNamadaChainAssetsMap = (): Record<Address, Asset> =>
+  getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+    return curr.address ? { ...acc, [curr.address]: curr } : acc;
+  }, {});
