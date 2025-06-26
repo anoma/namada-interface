@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import {
   ActionButton,
   AmountInput,
@@ -17,7 +16,7 @@ import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
-import { GasConfig } from "types";
+import { Asset, GasConfig } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";

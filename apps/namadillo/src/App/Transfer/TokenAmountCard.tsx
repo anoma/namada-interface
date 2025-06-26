@@ -1,8 +1,8 @@
-import { Asset } from "@chain-registry/types";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
+import { Asset } from "types";
 
 type TokenAmountCardProps = {
   asset: Asset;

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { AssetImage } from "App/Transfer/AssetImage";
 
-import { Asset } from "@chain-registry/types";
+import { Asset } from "types";
 import { assetMock, assetWithoutLogo } from "../__mocks__/assets";
 
 jest.mock("integrations/utils", () => ({

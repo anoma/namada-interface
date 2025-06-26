@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { Search } from "App/Common/Search";
 import { SelectModal } from "App/Common/SelectModal";
@@ -9,7 +8,7 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Address, WalletProvider } from "types";
+import { Address, Asset, WalletProvider } from "types";
 import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 
 type SelectWalletModalProps = {

@@ -1,10 +1,10 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { FeeToken } from "@chain-registry/types/chain.schema";
 import { Bech32Config, ChainInfo, Currency } from "@keplr-wallet/types";
 import tokenImage from "App/Common/assets/token.svg";
 import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import { ChainId, ChainRegistryEntry, GasConfig } from "types";
+import { Asset, ChainId, ChainRegistryEntry, GasConfig } from "types";
 
 type GasPriceStep = {
   low: number;

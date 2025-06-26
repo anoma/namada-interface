@@ -1,4 +1,4 @@
-import { Asset, DenomUnit } from "@chain-registry/types";
+import { DenomUnit } from "@chain-registry/types";
 import {
   BroadcastTxError,
   ProposalStatus,
@@ -9,6 +9,7 @@ import {
 import BigNumber from "bignumber.js";
 import namadaAssets from "chain-registry/mainnet/namada/assets";
 import { useEffect, useRef } from "react";
+import { Asset } from "types";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {

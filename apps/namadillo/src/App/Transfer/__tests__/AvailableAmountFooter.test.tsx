@@ -1,7 +1,7 @@
-import { Asset } from "@chain-registry/types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { assetMock } from "App/Transfer/__mocks__/assets";
 import BigNumber from "bignumber.js";
+import { Asset } from "types";
 import { AvailableAmountFooter } from "../AvailableAmountFooter";
 
 describe("Component: AvailableAmountFooter", () => {

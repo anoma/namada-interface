@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import {
   ActionButton,
   Heading,
@@ -8,7 +7,12 @@ import {
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { useEffect, useMemo, useState } from "react";
-import { AssetWithAmount, ChainRegistryEntry, WalletProvider } from "types";
+import {
+  Asset,
+  AssetWithAmount,
+  ChainRegistryEntry,
+  WalletProvider,
+} from "types";
 import {
   SelectableAddressWithAssetAndAmount,
   ShieldAllAssetList,

@@ -1,5 +1,5 @@
 import { Chain, IBCInfo } from "@chain-registry/types";
-import { Asset, IbcTransition } from "@chain-registry/types/assetlist.schema";
+import { IbcTransition } from "@chain-registry/types/assetlist.schema";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmoshub from "chain-registry/mainnet/cosmoshub";
 import * as namada from "chain-registry/mainnet/namada";
@@ -9,7 +9,7 @@ import * as nyx from "chain-registry/mainnet/nyx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stride from "chain-registry/mainnet/stride";
 import invariant from "invariant";
-import { Address, ChainRegistryEntry, RpcStorage } from "types";
+import { Address, Asset, ChainRegistryEntry, RpcStorage } from "types";
 
 // Whitelist of supported chains
 const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(

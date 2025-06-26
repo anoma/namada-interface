@@ -1,8 +1,7 @@
-import { Asset } from "@chain-registry/types";
 import { isTransparentAddress } from "App/Transfer/common";
 import BigNumber from "bignumber.js";
 import namadaAssets from "chain-registry/mainnet/namada/assets";
-import { Address, GasConfig, GasConfigToDisplay } from "types";
+import { Address, Asset, GasConfig, GasConfigToDisplay } from "types";
 import { isNamadaAsset, toDisplayAmount } from "utils";
 import { unknownAsset } from "./assets";
 

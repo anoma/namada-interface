@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { AccountType, IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { params, routes } from "App/routes";
@@ -45,7 +45,7 @@ import { useEffect, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 // TODO: housefire?
 import namadaChainRegistry from "chain-registry/mainnet/namada/chain";
-import { IbcTransferTransactionData, TransferStep } from "types";
+import { Asset, IbcTransferTransactionData, TransferStep } from "types";
 import {
   isNamadaAsset,
   toBaseAmount,
@@ -342,8 +342,7 @@ export const IbcWithdraw = (): JSX.Element => {
             amountInBaseDenom,
             channelId: sourceChannel.trim(),
             portId: "transfer",
-            // TODO: namada assets should always have a defined address
-            token: selectedAsset.asset.address!,
+            token: selectedAsset.asset.address,
             source,
             receiver: destinationAddress,
             gasSpendingKey,

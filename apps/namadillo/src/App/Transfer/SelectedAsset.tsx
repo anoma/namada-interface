@@ -1,8 +1,8 @@
-import { Asset } from "@chain-registry/types";
 import { SkeletonLoading } from "@namada/components";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
 import { GoChevronDown } from "react-icons/go";
+import { Asset } from "types";
 import { EmptyResourceIcon } from "./EmptyResourceIcon";
 
 type SelectedAssetProps = {

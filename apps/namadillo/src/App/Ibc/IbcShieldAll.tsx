@@ -1,10 +1,11 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { useAssetAmount } from "hooks/useAssetAmount";
 import { useWalletManager } from "hooks/useWalletManager";
 import { wallets } from "integrations";
 import { KeplrWalletManager } from "integrations/Keplr";
 import { useState } from "react";
+import { Asset } from "types";
 import { ShieldAllIntro } from "./ShieldAllIntro";
 import { ShieldAllPanel } from "./ShieldAllPanel";
 

@@ -1,8 +1,7 @@
-import { Asset } from "@chain-registry/types";
 import { InactiveChannelWarning } from "App/Common/InactiveChannelWarning";
 import { AssetImage } from "App/Transfer/AssetImage";
 import { ReactNode } from "react";
-import { Address } from "types";
+import { Address, Asset } from "types";
 
 export const TokenCard = ({
   address,

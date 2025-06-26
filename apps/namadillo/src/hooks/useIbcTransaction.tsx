@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import {
   useMutation,
@@ -29,6 +28,7 @@ import {
 import { useState } from "react";
 import {
   Address,
+  Asset,
   ChainRegistryEntry,
   GasConfig,
   IbcTransferStage,

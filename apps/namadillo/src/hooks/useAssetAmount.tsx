@@ -1,10 +1,9 @@
-import { Asset } from "@chain-registry/types";
 import { assetBalanceAtomFamily } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
-import { Address, AssetWithAmount, ChainRegistryEntry } from "types";
+import { Address, Asset, AssetWithAmount, ChainRegistryEntry } from "types";
 
 type useAmountTransferProps = {
   registry?: ChainRegistryEntry;

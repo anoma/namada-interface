@@ -1,7 +1,6 @@
-import { Asset } from "@chain-registry/types";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { shortenAddress } from "@namada/utils";
-import { Address, AssetWithAmount } from "types";
+import { Address, Asset, AssetWithAmount } from "types";
 
 export const unknownAsset = (denom: string): Asset => ({
   type_asset: "unknown",
@@ -12,6 +11,7 @@ export const unknownAsset = (denom: string): Asset => ({
   symbol: shortenAddress(denom, 4, 4),
 });
 
+// TODO: is this needed?
 // TODO upgrade this function to be as smart as possible
 // please refer to `tnamAddressToDenomTrace` and how we could combine both
 export const findAssetByToken = (

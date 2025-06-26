@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { simulateIbcTransferGas } from "atoms/integrations";
@@ -6,7 +5,7 @@ import BigNumber from "bignumber.js";
 import { getIbcGasConfig } from "integrations/utils";
 import invariant from "invariant";
 import { createIbcTransferMessage } from "lib/transactions";
-import { ChainRegistryEntry, GasConfig } from "types";
+import { Asset, ChainRegistryEntry, GasConfig } from "types";
 import { isNamadaAsset } from "utils";
 import { sanitizeAddress } from "utils/address";
 import { sanitizeChannel } from "utils/ibc";

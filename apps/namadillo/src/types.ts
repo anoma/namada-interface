@@ -213,8 +213,18 @@ export type ChainRegistryEntry = {
   ibc?: IBCInfo[];
 };
 
+export type Asset = Asset;
+
+// Namada assets should always have specific address field
+export type NamadaAsset = Asset & { address: Address };
+
 export type AssetWithAmount = {
   asset: Asset;
+  amount: BigNumber;
+};
+
+export type NamadaAssetWithAmount = {
+  asset: NamadaAsset;
   amount: BigNumber;
 };
 

@@ -1,4 +1,4 @@
-import { Asset } from "@chain-registry/types";
+import { Asset } from "types";
 
 export const assetMock: Asset = {
   description:

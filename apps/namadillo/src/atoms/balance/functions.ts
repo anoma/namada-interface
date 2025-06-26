@@ -1,7 +1,12 @@
 import { Balance } from "@namada/indexer-client";
 import { getNamadaChainRegistry } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import { Address, AssetWithAmount, TokenBalance } from "types";
+import {
+  Address,
+  AssetWithAmount,
+  NamadaAssetWithAmount,
+  TokenBalance,
+} from "types";
 import { isNamadaAsset, toDisplayAmount } from "utils";
 import { unknownAsset } from "utils/assets";
 
@@ -19,7 +24,7 @@ export const mapNamadaAddressesToAssets = ({
   balances,
 }: {
   balances: Balance[];
-}): Record<Address, AssetWithAmount> => {
+}): Record<Address, NamadaAssetWithAmount> => {
   const namadaRegistry = getNamadaChainRegistry();
   const map: Record<Address, AssetWithAmount> = {};
   balances.forEach((item) => {
@@ -37,7 +42,7 @@ export const mapNamadaAddressesToAssets = ({
 };
 
 export const mapNamadaAssetsToTokenBalances = (
-  assets: Record<Address, AssetWithAmount>,
+  assets: Record<Address, NamadaAssetWithAmount>,
   tokenPrices: Record<string, BigNumber>
 ): TokenBalance[] => {
   return Object.entries(assets).map(([address, assetEntry]) => {

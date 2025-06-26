@@ -1,8 +1,8 @@
-import { Asset } from "@chain-registry/types";
 import { ActionButton } from "@namada/components";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
+import { Asset } from "types";
 
 type AvailableAmountFooterProps = {
   availableAmount?: BigNumber;
