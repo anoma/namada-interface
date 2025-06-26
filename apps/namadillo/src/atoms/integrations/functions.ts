@@ -12,6 +12,7 @@ import {
   Address,
   Asset,
   ChainRegistryEntry,
+  IbcChannels,
   NamadaAsset,
   RpcStorage,
 } from "types";
@@ -54,12 +55,6 @@ export const getRestApiAddressByIndex = (chain: Chain, index = 0): string => {
 
 export const getDenomFromIbcTrace = (ibcAddress: string): string => {
   return ibcAddress.replaceAll(/(transfer\/|channel-\d+\/)*/gi, "");
-};
-
-// TODO: move
-export type IbcChannels = {
-  namadaChannel: string;
-  ibcChannel: string;
 };
 
 export const getChannelFromIbcInfo = (

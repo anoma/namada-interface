@@ -9,9 +9,9 @@ import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import invariant from "invariant";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import { AssetWithAmount, BaseDenom, RpcStorage } from "types";
+import { AssetWithAmount, BaseDenom, IbcChannels, RpcStorage } from "types";
 import { toDisplayAmount } from "utils";
-import { getChainRegistryByChainName, IbcChannels } from "./functions";
+import { getChainRegistryByChainName } from "./functions";
 import {
   broadcastIbcTransaction,
   fetchIbcChannelFromRegistry,

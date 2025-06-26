@@ -250,6 +250,11 @@ export type TokenBalance = {
   dollar?: BigNumber;
 };
 
+export type IbcChannels = {
+  namadaChannel: string;
+  ibcChannel: string;
+};
+
 export enum TransferStep {
   Sign = "sign",
   ZkProof = "zk-proof",

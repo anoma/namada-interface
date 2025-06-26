@@ -30,6 +30,7 @@ import {
   Asset,
   Coin,
   GasConfig,
+  IbcChannels,
   IbcTransferTransactionData,
   LocalnetToml,
   TransferStep,
@@ -42,7 +43,7 @@ import { GenerateIbcShieldingMemo } from "workers/MaspTxMessages";
 import { Worker as MaspTxWorkerApi } from "workers/MaspTxWorker";
 import MaspTxWorker from "workers/MaspTxWorker?worker";
 import { rpcByChainAtom } from "./atoms";
-import { getChannelFromIbcInfo, getRpcByIndex, IbcChannels } from "./functions";
+import { getChannelFromIbcInfo, getRpcByIndex } from "./functions";
 
 type CommonParams = {
   signer: OfflineSigner;
