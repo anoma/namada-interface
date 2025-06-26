@@ -11,11 +11,10 @@ import {
   assetBalanceAtomFamily,
   enabledIbcAssetsDenomFamily,
   getAvailableChains,
+  getNamadaChainRegistry,
   ibcChannelsFamily,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-// TODO: housefire
-import namadaChain from "chain-registry/mainnet/namada/chain";
 import { useFathomTracker } from "hooks/useFathomTracker";
 import { useIbcTransaction } from "hooks/useIbcTransaction";
 import { useTransactionActions } from "hooks/useTransactionActions";
@@ -38,6 +37,7 @@ const defaultChainId = "cosmoshub-4";
 export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
+  const { chain } = getNamadaChainRegistry();
 
   const availableChains = useMemo(getAvailableChains, []);
 
@@ -223,7 +223,7 @@ export const IbcTransfer = (): JSX.Element => {
           onChangeAmount: setAmount,
         }}
         destination={{
-          chain: namadaChain as Chain,
+          chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: namadaAddress,

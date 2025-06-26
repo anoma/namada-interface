@@ -1,4 +1,3 @@
-import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { params } from "App/routes";
@@ -13,6 +12,7 @@ import {
   namadaTransparentAssetsAtom,
 } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -27,11 +27,10 @@ import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-// TODO: housefire?
-import namadaChain from "chain-registry/mainnet/namada/chain";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
+  const { chain } = getNamadaChainRegistry();
   const [searchParams, setSearchParams] = useSearchParams();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
@@ -197,7 +196,7 @@ export const NamadaTransfer: React.FC = () => {
           isLoadingAssets,
           availableAssets,
           availableAmount: selectedAsset?.amount,
-          chain: namadaChain as Chain,
+          chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: sourceAddress,
@@ -210,7 +209,7 @@ export const NamadaTransfer: React.FC = () => {
           ledgerAccountInfo,
         }}
         destination={{
-          chain: namadaChain as Chain,
+          chain,
           enableCustomAddress: true,
           customAddress,
           onChangeCustomAddress: setCustomAddress,

@@ -20,6 +20,7 @@ import {
   getChainNameByNamadaAssetDenom,
   getChainRegistryByChainName,
   getDenomFromIbcTrace,
+  getNamadaChainRegistry,
   ibcChannelsFamily,
 } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
@@ -43,8 +44,6 @@ import { useAtom, useAtomValue } from "jotai";
 import { TransactionPair } from "lib/query";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-// TODO: housefire?
-import namadaChainRegistry from "chain-registry/mainnet/namada/chain";
 import { Asset, IbcTransferTransactionData, TransferStep } from "types";
 import {
   isNamadaAsset,
@@ -357,6 +356,7 @@ export const IbcWithdraw = (): JSX.Element => {
   };
 
   const requiresIbcChannels = !isLoadingIbcChannels && unknownIbcChannels;
+  const { chain } = getNamadaChainRegistry();
 
   return (
     <div className="relative min-h-[600px]">
@@ -374,9 +374,9 @@ export const IbcWithdraw = (): JSX.Element => {
             shielded ?
               shieldedAccount?.address
             : transparentAccount.data?.address,
-          chain: namadaChainRegistry,
+          chain,
           isShieldedAddress: shielded,
-          availableChains: [namadaChainRegistry],
+          availableChains: [chain],
           availableAssets,
           availableAmount,
           selectedAssetAddress,

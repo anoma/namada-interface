@@ -1,14 +1,8 @@
 import { Balance } from "@namada/indexer-client";
-import { getNamadaChainRegistry } from "atoms/integrations";
+import { getNamadaChainAssetsMap } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import {
-  Address,
-  AssetWithAmount,
-  NamadaAssetWithAmount,
-  TokenBalance,
-} from "types";
+import { Address, NamadaAssetWithAmount, TokenBalance } from "types";
 import { isNamadaAsset, toDisplayAmount } from "utils";
-import { unknownAsset } from "utils/assets";
 
 export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
   (list ?? []).reduce(
@@ -25,18 +19,19 @@ export const mapNamadaAddressesToAssets = ({
 }: {
   balances: Balance[];
 }): Record<Address, NamadaAssetWithAmount> => {
-  const namadaRegistry = getNamadaChainRegistry();
-  const map: Record<Address, AssetWithAmount> = {};
+  const namadaAssets = Object.values(getNamadaChainAssetsMap());
+  const map: Record<Address, NamadaAssetWithAmount> = {};
   balances.forEach((item) => {
-    const asset =
-      namadaRegistry.assets.assets.find(
-        (asset) => asset.address === item.tokenAddress
-      ) ?? unknownAsset(item.tokenAddress);
+    const asset = namadaAssets.find(
+      (asset) => asset.address === item.tokenAddress
+    );
 
-    map[item.tokenAddress] = {
-      amount: toDisplayAmount(asset, BigNumber(item.minDenomAmount)),
-      asset,
-    };
+    if (asset) {
+      map[item.tokenAddress] = {
+        amount: toDisplayAmount(asset, BigNumber(item.minDenomAmount)),
+        asset,
+      };
+    }
   });
   return map;
 };

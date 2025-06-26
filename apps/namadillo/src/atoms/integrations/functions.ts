@@ -9,7 +9,7 @@ import * as nyx from "chain-registry/mainnet/nyx";
 import * as osmosis from "chain-registry/mainnet/osmosis";
 import * as stride from "chain-registry/mainnet/stride";
 import invariant from "invariant";
-import { Address, Asset, ChainRegistryEntry, RpcStorage } from "types";
+import { Address, ChainRegistryEntry, NamadaAsset, RpcStorage } from "types";
 
 // Whitelist of supported chains
 const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
@@ -120,10 +120,11 @@ export const getChainNameByNamadaAssetDenom = (
 };
 
 export const getNamadaChainRegistry = (): ChainRegistryEntry => {
+  // TODO: housefire support
   return namada;
 };
 
-export const getNamadaChainAssetsMap = (): Record<Address, Asset> =>
+export const getNamadaChainAssetsMap = (): Record<Address, NamadaAsset> =>
   getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
     return curr.address ? { ...acc, [curr.address]: curr } : acc;
   }, {});

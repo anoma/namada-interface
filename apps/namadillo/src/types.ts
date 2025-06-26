@@ -1,4 +1,9 @@
-import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
+import {
+  AssetList,
+  Chain,
+  Asset as ChainRegistryAsset,
+  IBCInfo,
+} from "@chain-registry/types";
 import { ValidatorStatus } from "@namada/indexer-client";
 import {
   Account,
@@ -213,7 +218,7 @@ export type ChainRegistryEntry = {
   ibc?: IBCInfo[];
 };
 
-export type Asset = Asset;
+export type Asset = ChainRegistryAsset;
 
 // Namada assets should always have specific address field
 export type NamadaAsset = Asset & { address: Address };

@@ -1,4 +1,3 @@
-import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { NamadaTransferTopHeader } from "App/NamadaTransfer/NamadaTransferTopHeader";
@@ -10,6 +9,7 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -21,11 +21,11 @@ import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
-// TODO: housefire?
-import namadaChain from "chain-registry/mainnet/namada/chain";
 
 export const MaspShield: React.FC = () => {
   const { storeTransaction } = useTransactionActions();
+
+  const { chain } = getNamadaChainRegistry();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
@@ -150,7 +150,7 @@ export const MaspShield: React.FC = () => {
           availableAssets,
           selectedAssetAddress,
           availableAmount: selectedAsset?.amount,
-          chain: namadaChain as Chain,
+          chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: sourceAddress,
@@ -160,7 +160,7 @@ export const MaspShield: React.FC = () => {
           ledgerAccountInfo,
         }}
         destination={{
-          chain: namadaChain as Chain,
+          chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: destinationAddress,

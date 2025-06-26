@@ -1,4 +1,3 @@
-import { Chain } from "@chain-registry/types";
 import { Panel } from "@namada/components";
 import { AccountType } from "@namada/types";
 import { MaspSyncCover } from "App/Common/MaspSyncCover";
@@ -14,6 +13,7 @@ import {
   namadaShieldedAssetsAtom,
 } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
+import { getNamadaChainRegistry } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger/atoms";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -26,8 +26,6 @@ import invariant from "invariant";
 import { useAtom, useAtomValue } from "jotai";
 import { createTransferDataFromNamada } from "lib/transactions";
 import { useState } from "react";
-// TODO: housefire?
-import namadaChain from "chain-registry/mainnet/namada/chain";
 
 export const MaspUnshield: React.FC = () => {
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
@@ -35,6 +33,7 @@ export const MaspUnshield: React.FC = () => {
   const [currentStatus, setCurrentStatus] = useState("");
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
   const requiresNewSync = useRequiresNewShieldedSync();
+  const { chain } = getNamadaChainRegistry();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
@@ -156,7 +155,7 @@ export const MaspUnshield: React.FC = () => {
           availableAssets,
           selectedAssetAddress,
           availableAmount: selectedAsset?.amount,
-          chain: namadaChain as Chain,
+          chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: sourceAddress,
@@ -167,7 +166,7 @@ export const MaspUnshield: React.FC = () => {
           ledgerAccountInfo,
         }}
         destination={{
-          chain: namadaChain as Chain,
+          chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: destinationAddress,
