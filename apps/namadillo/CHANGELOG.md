@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.3](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.2...namadillo@v1.28.3) (2025-06-25)
+
+
+### Bug Fixes
+
+* Ibc shielded deposits with nam ([#2191](https://github.com/anoma/namada-interface/issues/2191)) ([c54ef3e](https://github.com/anoma/namada-interface/commit/c54ef3ef2e393c28bb272ebd89fba67f5aca50ef))
+
 ## [1.28.2](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.1...namadillo@v1.28.2) (2025-06-20)
 
 
