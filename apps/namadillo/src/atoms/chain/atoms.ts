@@ -1,6 +1,7 @@
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import {
   defaultServerConfigAtom,
   indexerUrlAtom,
@@ -8,6 +9,7 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import {
@@ -112,11 +114,14 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
 export const chainStatusAtom = atom<ChainStatus | undefined>();
 
 export const maspRewardsAtom = atomWithQuery((get) => {
-  const chain = get(chainAtom);
+  const chainAssetsMap = get(namadaRegistryChainAssetsMapAtom);
+
   return {
-    queryKey: ["masp-rewards", chain],
+    queryKey: ["masp-rewards", chainAssetsMap.data],
     ...queryDependentFn(async (): Promise<MaspAssetRewards[]> => {
-      return await fetchMaspRewards();
-    }, [chain]),
+      invariant(chainAssetsMap.data, "No chain assets map");
+
+      return await fetchMaspRewards(Object.values(chainAssetsMap.data));
+    }, [chainAssetsMap]),
   };
 });

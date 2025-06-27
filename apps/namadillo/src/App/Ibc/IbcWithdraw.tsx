@@ -18,8 +18,8 @@ import {
 import { chainAtom } from "atoms/chain";
 import {
   getChainRegistryByChainName,
-  getNamadaChainRegistry,
   ibcChannelsFamily,
+  namadaChainRegistryAtom,
 } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
@@ -63,6 +63,8 @@ export const IbcWithdraw = (): JSX.Element => {
   const transparentAccount = useAtomValue(defaultAccountAtom);
   const namadaChain = useAtomValue(chainAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chain = namadaChainRegistry.data?.chain;
 
   const requiresNewShieldedSync = useRequiresNewShieldedSync();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
@@ -351,7 +353,6 @@ export const IbcWithdraw = (): JSX.Element => {
   };
 
   const requiresIbcChannels = !isLoadingIbcChannels && unknownIbcChannels;
-  const { chain } = getNamadaChainRegistry();
 
   return (
     <div className="relative min-h-[600px]">
@@ -371,7 +372,7 @@ export const IbcWithdraw = (): JSX.Element => {
             : transparentAccount.data?.address,
           chain,
           isShieldedAddress: shielded,
-          availableChains: [chain],
+          availableChains: chain ? [chain] : [],
           availableAssets,
           availableAmount,
           selectedAssetAddress,
@@ -408,7 +409,7 @@ export const IbcWithdraw = (): JSX.Element => {
            * from the confirmation event from target chain */
           isSuccess
         }
-        isIbcTransfer={true}
+        ibcTransfer={"withdraw"}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{
           sourceChannel,

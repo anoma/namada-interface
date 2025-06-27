@@ -12,7 +12,7 @@ import {
   namadaTransparentAssetsAtom,
 } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
-import { getNamadaChainRegistry } from "atoms/integrations";
+import { namadaChainRegistryAtom } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -30,7 +30,6 @@ import { useSearchParams } from "react-router-dom";
 import { NamadaTransferTopHeader } from "./NamadaTransferTopHeader";
 
 export const NamadaTransfer: React.FC = () => {
-  const { chain } = getNamadaChainRegistry();
   const [searchParams, setSearchParams] = useSearchParams();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [customAddress, setCustomAddress] = useState<string>("");
@@ -53,6 +52,9 @@ export const NamadaTransfer: React.FC = () => {
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
   const { trackEvent } = useFathomTracker();
+
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chain = namadaChainRegistry.data?.chain;
 
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom

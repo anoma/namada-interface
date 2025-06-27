@@ -17,7 +17,7 @@ type SelectWalletModalProps = {
   assets: Asset[];
   wallet: WalletProvider;
   walletAddress: string;
-  isIbcTransfer?: boolean;
+  ibcTransfer?: "deposit" | "withdraw";
 };
 
 export const SelectAssetModal = ({
@@ -26,7 +26,7 @@ export const SelectAssetModal = ({
   assets,
   wallet,
   walletAddress,
-  isIbcTransfer = false,
+  ibcTransfer,
 }: SelectWalletModalProps): JSX.Element => {
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
   const nativeTokenAddress = useAtomValue(nativeTokenAddressAtom).data;
@@ -55,7 +55,9 @@ export const SelectAssetModal = ({
         {filteredAssets.map((asset) => {
           // Fpr IbcTransfer(Deposits), we consider base denom as a token address.
           const tokenAddress =
-            isIbcTransfer ? asset.base : (asset as NamadaAsset).address;
+            ibcTransfer === "deposit" ?
+              asset.base
+            : (asset as NamadaAsset).address;
 
           const disabled =
             !namTransfersEnabled && asset.address === nativeTokenAddress;

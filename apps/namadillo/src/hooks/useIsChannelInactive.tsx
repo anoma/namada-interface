@@ -9,7 +9,6 @@ export const useIsChannelInactive = (
   const token = chainTokens.find((i) => i.address === address);
   const hasTrace = token && "trace" in token;
   const denom = getDenomFromIbcTrace(hasTrace ? token.trace : "");
-  // TODO: channels should be loaded from the registry aswell
   const { data: ibcChannels } = useAtomValue(ibcChannelsFamily("namada"));
 
   if (!hasTrace || !ibcChannels) return { isInactive: false, trace: "" };

@@ -1,4 +1,4 @@
-import { Chain, IBCInfo } from "@chain-registry/types";
+import { AssetList, Chain, IBCInfo } from "@chain-registry/types";
 import * as celestia from "chain-registry/mainnet/celestia";
 import * as cosmoshub from "chain-registry/mainnet/cosmoshub";
 import * as namada from "chain-registry/mainnet/namada";
@@ -14,8 +14,28 @@ import {
   ChainRegistryEntry,
   IbcChannels,
   NamadaAsset,
+  NamadaChainRegistryEntry,
   RpcStorage,
 } from "types";
+
+// TODO: get those from  "chain-registry" package once it's there
+import housefireIbcCelestia from "@namada/chain-registry/_testnets/_IBC/namadahousefire-celestia.json";
+import housefireIbcCosmoshub from "@namada/chain-registry/_testnets/_IBC/namadahousefire-cosmoshub.json";
+import housefireIbcOsmosis from "@namada/chain-registry/_testnets/_IBC/namadahousefire-osmosis.json";
+import housefireIbcStride from "@namada/chain-registry/_testnets/_IBC/namadahousefire-stride.json";
+import housefireAssets from "@namada/chain-registry/_testnets/namadahousefire/assetlist.json";
+import housefireChain from "@namada/chain-registry/_testnets/namadahousefire/chain.json";
+
+const housefire: ChainRegistryEntry = {
+  chain: housefireChain as Chain,
+  assets: housefireAssets as AssetList,
+  ibc: [
+    housefireIbcCelestia,
+    housefireIbcCosmoshub,
+    housefireIbcStride,
+    housefireIbcOsmosis,
+  ] as IBCInfo[],
+};
 
 // Whitelist of supported chains
 const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
@@ -76,9 +96,6 @@ export const getChannelFromIbcInfo = (
   };
 };
 
-// Utility functions for chain registry
-// TODO: move to global utility file
-
 export const getChainRegistryByChainId = (
   chainId: string
 ): ChainRegistryEntry | undefined => {
@@ -99,20 +116,23 @@ export const getAvailableChains = (): Chain[] => {
     .toArray();
 };
 
-export const getNamadaChainRegistry = (): ChainRegistryEntry => {
-  // TODO: housefire support
-  return namada;
+export const getNamadaChainRegistry = (
+  isHousefire: boolean
+): NamadaChainRegistryEntry => {
+  return (isHousefire ? housefire : namada) as NamadaChainRegistryEntry;
 };
 
-export const getNamadaChainAssetsMap = (): Record<Address, NamadaAsset> =>
-  getNamadaChainRegistry().assets.assets.reduce((acc, curr) => {
+export const getNamadaChainAssetsMap = (
+  isHousefire: boolean
+): Record<Address, NamadaAsset> =>
+  getNamadaChainRegistry(isHousefire).assets.assets.reduce((acc, curr) => {
     return curr.address ? { ...acc, [curr.address]: curr } : acc;
   }, {});
 
 export const getNamadaAssetByIbcAsset = (
-  asset: Asset
+  asset: Asset,
+  namadaAssets: NamadaAsset[]
 ): NamadaAsset | undefined => {
-  const namadaAssets = Object.values(getNamadaChainAssetsMap());
   // Returns base denom for provided asset(e.g. "uosmo", "uatom", "unam")
   const counterpartyBaseDenom =
     asset.traces?.[0].counterparty.base_denom || asset.base;
@@ -127,4 +147,11 @@ export const getNamadaAssetByIbcAsset = (
   });
 
   return namadaAsset;
+};
+
+export const getNamadaIbcInfo = (isHousefire: boolean): IBCInfo[] => {
+  const ibcInfo = getNamadaChainRegistry(isHousefire).ibc;
+  invariant(ibcInfo, "Namada IBC info is not available");
+
+  return ibcInfo;
 };

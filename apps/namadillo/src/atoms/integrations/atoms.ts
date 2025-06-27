@@ -11,7 +11,12 @@ import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily, atomWithStorage } from "jotai/utils";
 import { AssetWithAmount, BaseDenom, IbcChannels, RpcStorage } from "types";
 import { toDisplayAmount } from "utils";
-import { getChainRegistryByChainName } from "./functions";
+import {
+  getChainRegistryByChainName,
+  getNamadaChainAssetsMap,
+  getNamadaChainRegistry,
+  getNamadaIbcInfo,
+} from "./functions";
 import {
   broadcastIbcTransaction,
   fetchIbcChannelFromRegistry,
@@ -127,8 +132,39 @@ export const ibcChannelsFamily = atomFamily((ibcChainName?: string) =>
       ...queryDependentFn(async () => {
         invariant(chainSettings.data, "No chain settings");
         invariant(ibcChainName, "No IBC chain name");
-        return fetchIbcChannelFromRegistry(ibcChainName);
+        const isHousefire = chainSettings.data.chainId.includes("housefire");
+        const ibcInfo = getNamadaIbcInfo(isHousefire);
+
+        return fetchIbcChannelFromRegistry(ibcChainName, ibcInfo);
       }, [chainSettings, config, !!ibcChainName]),
     };
   })
 );
+
+export const namadaChainRegistryAtom = atomWithQuery((get) => {
+  const chainSettings = get(chainAtom);
+
+  return {
+    queryKey: ["namada-chain-registry", chainSettings.data?.chainId],
+    ...queryDependentFn(async () => {
+      invariant(chainSettings.data, "No chain settings");
+      const isHousefire = chainSettings.data.chainId.includes("housefire");
+
+      return getNamadaChainRegistry(isHousefire);
+    }, [chainSettings]),
+  };
+});
+
+export const namadaRegistryChainAssetsMapAtom = atomWithQuery((get) => {
+  const chainSettings = get(chainAtom);
+
+  return {
+    queryKey: ["namada-chain-assets-map", chainSettings.data?.chainId],
+    ...queryDependentFn(async () => {
+      invariant(chainSettings.data, "No chain settings");
+      const isHousefire = chainSettings.data.chainId.includes("housefire");
+
+      return getNamadaChainAssetsMap(isHousefire);
+    }, [chainSettings]),
+  };
+});

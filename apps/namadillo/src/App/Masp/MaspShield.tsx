@@ -9,7 +9,7 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { namadaTransparentAssetsAtom } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
-import { getNamadaChainRegistry } from "atoms/integrations";
+import { namadaChainRegistryAtom } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -25,7 +25,6 @@ import { useState } from "react";
 export const MaspShield: React.FC = () => {
   const { storeTransaction } = useTransactionActions();
 
-  const { chain } = getNamadaChainRegistry();
   const [displayAmount, setDisplayAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
@@ -38,6 +37,8 @@ export const MaspShield: React.FC = () => {
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     namadaTransparentAssetsAtom
   );
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chain = namadaChainRegistry.data?.chain;
   const ledgerAccountInfo = ledgerStatus && {
     deviceConnected: ledgerStatus.connected,
     errorMessage: ledgerStatus.errorMessage,

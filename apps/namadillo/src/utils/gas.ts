@@ -21,7 +21,7 @@ export const getDisplayGasFee = (
   const { gasToken } = gasConfig;
   let asset: Asset;
 
-  if (isTransparentAddress(gasToken) && chainAssetsMap) {
+  if (isTransparentAddress(gasToken)) {
     // The gasConfig token might be the address of the token on Namada chain
     asset = chainAssetsMap[gasToken] ?? unknownAsset(gasToken);
   } else {

@@ -4,12 +4,13 @@ import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
 import { routes } from "App/routes";
-import { getNamadaChainAssetsMap } from "atoms/integrations";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
+import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -104,8 +105,8 @@ export type TransferModuleProps = {
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
   onComplete?: () => void;
 } & (
-  | { isIbcTransfer?: false; ibcOptions?: undefined }
-  | { isIbcTransfer: true; ibcOptions: IbcOptions }
+  | { ibcTransfer?: undefined; ibcOptions?: undefined }
+  | { ibcTransfer: "deposit" | "withdraw"; ibcOptions: IbcOptions }
 );
 
 type ValidationResult =
@@ -154,7 +155,7 @@ export const TransferModule = ({
   changeFeeEnabled,
   submittingText,
   isSubmitting,
-  isIbcTransfer,
+  ibcTransfer,
   ibcOptions,
   requiresIbcChannels,
   onSubmitTransfer,
@@ -179,13 +180,15 @@ export const TransferModule = ({
   );
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
-  const chainAssetsMap = getNamadaChainAssetsMap();
+  const chainAssetsMap = useAtomValue(namadaRegistryChainAssetsMapAtom);
 
-  const chainAssets = Object.values(chainAssetsMap) ?? [];
+  const chainAssets = Object.values(chainAssetsMap.data || {}) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
-    return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
+    return gasConfig ?
+        getDisplayGasFee(gasConfig, chainAssetsMap.data || {})
+      : undefined;
   }, [gasConfig]);
 
   const availableAssets: Record<BaseDenom | Address, AssetWithAmount> =
@@ -551,7 +554,7 @@ export const TransferModule = ({
             amount={source.amount}
             isSubmitting={isSubmitting}
           />
-          {isIbcTransfer && requiresIbcChannels && (
+          {ibcTransfer && requiresIbcChannels && (
             <IbcChannels
               isShielded={Boolean(
                 source.isShieldedAddress || destination.isShieldedAddress
@@ -624,7 +627,7 @@ export const TransferModule = ({
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
-            isIbcTransfer={isIbcTransfer}
+            ibcTransfer={ibcTransfer}
           />
         )}
 

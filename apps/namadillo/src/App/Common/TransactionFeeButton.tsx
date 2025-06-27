@@ -1,5 +1,7 @@
-import { getNamadaChainAssetsMap } from "atoms/integrations";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
+import BigNumber from "bignumber.js";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
+import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { twMerge } from "tailwind-merge";
@@ -18,11 +20,15 @@ export const TransactionFeeButton = ({
 }): JSX.Element => {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const chainAssetsMap = getNamadaChainAssetsMap();
+  const chainAssetsMap = useAtomValue(namadaRegistryChainAssetsMapAtom);
 
   const gasDisplayAmount = useMemo(() => {
-    return getDisplayGasFee(feeProps.gasConfig, chainAssetsMap);
-  }, [feeProps]);
+    if (!chainAssetsMap.data) {
+      return undefined;
+    }
+
+    return getDisplayGasFee(feeProps.gasConfig, chainAssetsMap.data);
+  }, [feeProps, chainAssetsMap.data]);
 
   return (
     <>
@@ -33,8 +39,8 @@ export const TransactionFeeButton = ({
         )}
       >
         <TransactionFee
-          displayAmount={gasDisplayAmount.totalDisplayAmount}
-          symbol={gasDisplayAmount.asset.symbol}
+          displayAmount={gasDisplayAmount?.totalDisplayAmount || BigNumber(0)}
+          symbol={gasDisplayAmount?.asset.symbol || ""}
         />
         <div className="flex items-center gap-2">
           <div className="text-neutral-500 text-xs">Fee Options:</div>
@@ -48,7 +54,7 @@ export const TransactionFeeButton = ({
             onClick={() => setModalOpen(true)}
           >
             <span className="text- font-medium">
-              {gasDisplayAmount.asset.symbol}
+              {gasDisplayAmount?.asset.symbol || ""}
             </span>
             <IoIosArrowDown />
           </button>
@@ -59,6 +65,7 @@ export const TransactionFeeButton = ({
           feeProps={feeProps}
           onClose={() => setModalOpen(false)}
           isShielded={isShieldedTransfer}
+          chainAssetsMap={chainAssetsMap.data || {}}
         />
       )}
     </>

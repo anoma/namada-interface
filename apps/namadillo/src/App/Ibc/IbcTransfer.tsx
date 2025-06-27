@@ -11,8 +11,8 @@ import {
   assetBalanceAtomFamily,
   getAvailableChains,
   getNamadaAssetByIbcAsset,
-  getNamadaChainRegistry,
   ibcChannelsFamily,
+  namadaChainRegistryAtom,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useFathomTracker } from "hooks/useFathomTracker";
@@ -37,7 +37,6 @@ const defaultChainId = "cosmoshub-4";
 export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
-  const { chain } = getNamadaChainRegistry();
 
   const availableChains = useMemo(getAvailableChains, []);
 
@@ -50,6 +49,8 @@ export const IbcTransfer = (): JSX.Element => {
     walletAddress: sourceAddress,
     connectToChainId,
   } = useWalletManager(keplr);
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chainRegistry = namadaChainRegistry.data;
 
   // IBC Channels & Balances
   const {
@@ -83,12 +84,15 @@ export const IbcTransfer = (): JSX.Element => {
     selectedAssetBase ? userAssets?.[selectedAssetBase]?.asset : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!userAssets) return undefined;
+    if (!userAssets || !chainRegistry) return undefined;
 
     const output: Record<BaseDenom, AssetWithAmount> = {};
 
     Object.entries(userAssets).forEach(([key, { asset }]) => {
-      const namadaAsset = getNamadaAssetByIbcAsset(asset);
+      const namadaAsset = getNamadaAssetByIbcAsset(
+        asset,
+        chainRegistry.assets.assets
+      );
 
       // Include if asset has a corresponding Namada asset, and it's either native or native for namada
       if (namadaAsset && (!asset.traces || !namadaAsset.traces)) {
@@ -97,7 +101,7 @@ export const IbcTransfer = (): JSX.Element => {
     });
 
     return output;
-  }, [userAssets]);
+  }, [Object.keys(userAssets || {}).join(""), chainRegistry?.chain.chain_id]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
@@ -213,7 +217,7 @@ export const IbcTransfer = (): JSX.Element => {
           onChangeAmount: setAmount,
         }}
         destination={{
-          chain,
+          chain: chainRegistry?.chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: namadaAddress,
@@ -230,7 +234,7 @@ export const IbcTransfer = (): JSX.Element => {
           transferToNamada.isSuccess
         }
         completedAt={completedAt}
-        isIbcTransfer={true}
+        ibcTransfer={"deposit"}
         currentStatus={currentProgress}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{

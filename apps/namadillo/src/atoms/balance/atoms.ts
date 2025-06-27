@@ -14,6 +14,7 @@ import {
   nativeTokenAddressAtom,
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
@@ -22,6 +23,7 @@ import BigNumber from "bignumber.js";
 import { sequenceT } from "fp-ts/lib/Apply";
 import { pipe } from "fp-ts/lib/function";
 import * as O from "fp-ts/Option";
+import invariant from "invariant";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
@@ -204,36 +206,46 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
   const storageShieldedBalance = get(storageShieldedBalanceAtom);
   const viewingKeysQuery = get(viewingKeysAtom);
   const chainTokensQuery = get(chainTokensAtom);
+  const chainAssetsMap = get(namadaRegistryChainAssetsMapAtom);
 
   const [viewingKey] = viewingKeysQuery.data ?? [];
   const shieldedBalance = viewingKey && storageShieldedBalance[viewingKey.key];
 
   return {
-    queryKey: ["namada-shielded-assets", shieldedBalance],
-    ...queryDependentFn(
-      async () =>
-        mapNamadaAddressesToAssets({
-          balances:
-            shieldedBalance?.map((i) => ({ ...i, tokenAddress: i.address })) ??
-            [],
-        }),
-      [viewingKeysQuery, chainTokensQuery]
-    ),
+    queryKey: ["namada-shielded-assets", shieldedBalance, chainAssetsMap.data],
+    ...queryDependentFn(async () => {
+      invariant(chainAssetsMap.data, "No chain assets map");
+
+      return mapNamadaAddressesToAssets({
+        balances:
+          shieldedBalance?.map((i) => ({ ...i, tokenAddress: i.address })) ??
+          [],
+        assets: Object.values(chainAssetsMap.data),
+      });
+    }, [viewingKeysQuery, chainTokensQuery, chainAssetsMap]),
   };
 });
 
 export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
   const transparentBalances = get(transparentBalanceAtom);
+  const chainAssetsMap = get(namadaRegistryChainAssetsMapAtom);
 
   const transparentBalance = transparentBalances.data;
 
   return {
-    queryKey: ["namada-transparent-assets", transparentBalance],
-    ...queryDependentFn(
-      async () =>
-        mapNamadaAddressesToAssets({ balances: transparentBalance ?? [] }),
-      [transparentBalances]
-    ),
+    queryKey: [
+      "namada-transparent-assets",
+      transparentBalance,
+      chainAssetsMap.data,
+    ],
+    ...queryDependentFn(async () => {
+      invariant(chainAssetsMap.data, "No chain assets map");
+
+      return mapNamadaAddressesToAssets({
+        balances: transparentBalance ?? [],
+        assets: Object.values(chainAssetsMap.data),
+      });
+    }, [transparentBalances, chainAssetsMap]),
   };
 });
 

@@ -13,7 +13,7 @@ import {
   namadaShieldedAssetsAtom,
 } from "atoms/balance/atoms";
 import { chainParametersAtom } from "atoms/chain/atoms";
-import { getNamadaChainRegistry } from "atoms/integrations";
+import { namadaChainRegistryAtom } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger/atoms";
 import { rpcUrlAtom } from "atoms/settings";
 import BigNumber from "bignumber.js";
@@ -33,7 +33,6 @@ export const MaspUnshield: React.FC = () => {
   const [currentStatus, setCurrentStatus] = useState("");
   const [currentStatusExplanation, setCurrentStatusExplanation] = useState("");
   const requiresNewSync = useRequiresNewShieldedSync();
-  const { chain } = getNamadaChainRegistry();
 
   const rpcUrl = useAtomValue(rpcUrlAtom);
   const chainParameters = useAtomValue(chainParametersAtom);
@@ -42,6 +41,8 @@ export const MaspUnshield: React.FC = () => {
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     namadaShieldedAssetsAtom
   );
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chain = namadaChainRegistry.data?.chain;
 
   const { storeTransaction } = useTransactionActions();
 

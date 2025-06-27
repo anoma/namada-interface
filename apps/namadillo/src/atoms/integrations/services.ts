@@ -1,4 +1,4 @@
-import { Chain } from "@chain-registry/types";
+import { Chain, IBCInfo } from "@chain-registry/types";
 import { OfflineSigner } from "@cosmjs/launchpad";
 import {
   assertIsDeliverTxSuccess,
@@ -19,7 +19,6 @@ import { chainParametersAtom } from "atoms/chain";
 import { rpcUrlAtom } from "atoms/settings";
 import { queryForAck, queryForIbcTimeout } from "atoms/transactions";
 import BigNumber from "bignumber.js";
-import namadaIbcInfo from "chain-registry/ibc";
 import * as Comlink from "comlink";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { differenceInMinutes } from "date-fns";
@@ -324,9 +323,10 @@ export const fetchLocalnetTomlConfig = async (): Promise<LocalnetToml> => {
 };
 
 export const fetchIbcChannelFromRegistry = async (
-  ibcChainName: string
+  ibcChainName: string,
+  ibcInfo: IBCInfo[]
 ): Promise<IbcChannels> => {
-  const channelInfo = namadaIbcInfo.find(
+  const channelInfo = ibcInfo.find(
     (info) =>
       info.chain_1.chain_name === ibcChainName ||
       info.chain_2.chain_name === ibcChainName

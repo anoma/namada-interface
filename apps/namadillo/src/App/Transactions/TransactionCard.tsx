@@ -9,7 +9,7 @@ import {
 } from "App/Transfer/common";
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import { nativeTokenAddressAtom } from "atoms/chain";
-import { getNamadaChainAssetsMap } from "atoms/integrations";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import { TransactionHistory as TransactionHistoryType } from "atoms/transactions/atoms";
 import { allValidatorsAtom } from "atoms/validators";
 import BigNumber from "bignumber.js";
@@ -116,10 +116,10 @@ export const TransactionCard = ({
 }: Props): JSX.Element => {
   const transaction = transactionTopLevel.tx;
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
+  const chainAssetsMap = useAtomValue(namadaRegistryChainAssetsMapAtom);
   const token = getToken(transaction, nativeToken ?? "");
 
-  const chainAssetsMap = getNamadaChainAssetsMap();
-  const asset = token ? chainAssetsMap[token] : undefined;
+  const asset = token ? chainAssetsMap.data?.[token] : undefined;
   const isBondingOrUnbondingTransaction = ["bond", "unbond"].includes(
     transactionTopLevel?.tx?.kind ?? ""
   );

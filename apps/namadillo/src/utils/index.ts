@@ -6,7 +6,7 @@ import {
   ResultCode,
   TxMsgValue,
 } from "@namada/types";
-import { getNamadaChainAssetsMap } from "atoms/integrations";
+import { getNamadaChainAssetsMap } from "atoms/integrations/functions";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
 import { useEffect, useRef } from "react";
@@ -78,7 +78,8 @@ const findDisplayUnit = (asset: Asset): DenomUnit | undefined => {
 };
 
 export const namadaAsset = (): Asset => {
-  const namadaAssets = Object.values(getNamadaChainAssetsMap());
+  // This works for both housefire and mainnet because the native asset is the same
+  const namadaAssets = Object.values(getNamadaChainAssetsMap(false));
   const nativeAsset = namadaAssets.find((asset) => asset.base === "unam");
   invariant(nativeAsset, "Namada native asset not found");
 
