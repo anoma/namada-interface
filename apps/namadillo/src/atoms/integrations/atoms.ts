@@ -70,37 +70,46 @@ export const broadcastIbcTransactionAtom = atomWithMutation(() => {
 /// Balance of KEPLR assets, should be only used in the context of deposits to Namada
 export const assetBalanceAtomFamily = atomFamily(
   ({ chain, walletAddress, assets }: AssetBalanceAtomParams) => {
-    return atomWithQuery<Record<BaseDenom, AssetWithAmount>>(() => ({
-      queryKey: ["assets", walletAddress, chain?.chain_id, assets],
-      ...queryDependentFn(async () => {
-        return await queryAndStoreRpc(chain!, async (rpc: string) => {
-          const assetsBalances = await queryAssetBalances(walletAddress!, rpc);
-          const assetList = getChainRegistryByChainName(
-            chain!.chain_name
-          )?.assets;
-          invariant(assetList, "Asset list not found for chain");
+    return atomWithQuery<Record<BaseDenom, AssetWithAmount>>((get) => {
+      const chainSettings = get(chainAtom);
+      return {
+        queryKey: ["assets", walletAddress, chain?.chain_id, assets],
+        ...queryDependentFn(async () => {
+          return await queryAndStoreRpc(chain!, async (rpc: string) => {
+            invariant(chainSettings.data, "No chain settings");
 
-          return assetsBalances.reduce(
-            (acc, curr) => {
-              const asset = assetList.assets.find((a) => a.base === curr.denom);
-              return asset ?
-                  {
-                    ...acc,
-                    [asset.base]: {
-                      asset,
-                      amount: toDisplayAmount(
-                        asset,
-                        BigNumber(curr.minDenomAmount)
-                      ),
-                    },
-                  }
-                : acc;
-            },
-            {} as Record<BaseDenom, AssetWithAmount>
-          );
-        });
-      }, [!!walletAddress, !!chain]),
-    }));
+            const isHousefire =
+              chainSettings.data.chainId.includes("housefire");
+            const chainName =
+              isHousefire ?
+                `${chain!.chain_name}-housefire`
+              : chain!.chain_name;
+
+            const assetsBalances = await queryAssetBalances(
+              walletAddress!,
+              rpc
+            );
+            const assetList = getChainRegistryByChainName(chainName)?.assets;
+            invariant(assetList, "Asset list not found for chain");
+
+            const entries = assetsBalances
+              // Because there is no filerMap in js
+              .flatMap((ab) => {
+                const asset = assetList.assets.find((a) => a.base === ab.denom);
+                return asset ? [[asset, ab] as const] : [];
+              })
+              .map(([asset, ab]) => ({
+                asset,
+                amount: toDisplayAmount(asset, BigNumber(ab.minDenomAmount)),
+              }))
+              // Not the most efficient but way more readable
+              .map((item) => [item.asset.base, item] as const);
+
+            return Object.fromEntries(entries);
+          });
+        }, [!!walletAddress, !!chain]),
+      };
+    });
   },
   (prev, current) => {
     return Boolean(

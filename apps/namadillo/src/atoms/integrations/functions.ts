@@ -18,7 +18,13 @@ import {
   RpcStorage,
 } from "types";
 
-// TODO: get those from  "chain-registry" package once it's there
+// TODO: hardcoded for now, more info below
+// ---- Housefire Chain Registry section ----
+// **INFO**
+// This section would not be needed if:
+// - we add namada housefire to chain-registry testnets
+// - housefire would use corresponding testnets from different chains,
+// this way for example we could add housefire nam to osmosis testnet registry
 import housefireIbcCelestia from "@namada/chain-registry/_testnets/_IBC/namadahousefire-celestia.json";
 import housefireIbcCosmoshub from "@namada/chain-registry/_testnets/_IBC/namadahousefire-cosmoshub.json";
 import housefireIbcOsmosis from "@namada/chain-registry/_testnets/_IBC/namadahousefire-osmosis.json";
@@ -37,10 +43,59 @@ const housefire: ChainRegistryEntry = {
   ] as IBCInfo[],
 };
 
+const housefireNamOnOsmosisDenom =
+  "ibc/48473B990DD70EC30F270727C4FEBA5D49C7D74949498CDE99113B13F9EA5522";
+
+const namOnOsmosis = osmosis.assets.assets.find((a) => a.symbol === "NAM");
+const housefireNamOnOsmosis = {
+  ...namOnOsmosis,
+  denom_units: namOnOsmosis?.denom_units.map((unit) => {
+    if (unit.exponent === 0) {
+      return {
+        ...unit,
+        denom: housefireNamOnOsmosisDenom,
+      };
+    } else {
+      return unit;
+    }
+  }),
+  base: housefireNamOnOsmosisDenom,
+  traces: namOnOsmosis?.traces?.map((trace) => {
+    if (trace.type === "ibc") {
+      return {
+        ...trace,
+        counterparty: {
+          ...trace.counterparty,
+          channel_id: housefireIbcOsmosis.channels[0].chain_1.channel_id,
+        },
+        chain: {
+          ...trace.chain,
+          channel_id: housefireIbcOsmosis.channels[0].chain_2.channel_id,
+          path: `transfer/${housefireIbcOsmosis.channels[0].chain_2.channel_id}/${housefireAssets.assets[0].address}`,
+        },
+      };
+    }
+  }),
+};
+
+const cosmosisForHousefire = {
+  ...osmosis,
+  assets: {
+    ...osmosis.assets,
+    assets: [
+      housefireNamOnOsmosis,
+      ...osmosis.assets.assets.filter((a) => a.symbol !== "NAM"),
+    ] as Asset[],
+  },
+};
+
+// ---- Housefire Chain Registry Section End ----
+
 // Whitelist of supported chains
 const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
   Object.entries({
     osmosis: osmosis,
+    "osmosis-housefire": cosmosisForHousefire,
     cosmoshub: cosmoshub,
     celestia: celestia,
     nyx: nyx,
@@ -111,8 +166,9 @@ export const getChainRegistryByChainName = (
 };
 
 export const getAvailableChains = (): Chain[] => {
-  return SUPPORTED_CHAINS_MAP.values()
-    .map((entry) => entry.chain)
+  return SUPPORTED_CHAINS_MAP.entries()
+    .filter(([key]) => !key.includes("housefire"))
+    .map(([_, entry]) => entry.chain)
     .toArray();
 };
 

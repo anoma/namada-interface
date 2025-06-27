@@ -224,7 +224,7 @@ export type NamadaChainRegistryEntry = ChainRegistryEntry & {
 
 export type Asset = ChainRegistryAsset;
 
-// Namada assets should always have specific address field
+// Namada assets should always have address field defined
 export type NamadaAsset = Asset & { address: Address };
 
 export type AssetWithAmount = {
