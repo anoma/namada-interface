@@ -64,8 +64,9 @@ export const IbcTransfer = (): JSX.Element => {
   );
 
   const { trackEvent } = useFathomTracker();
-  const { data: enabledAssets, isLoading: isLoadingEnabledAssets } =
-    useAtomValue(enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel));
+  const { data: enabledAssets } = useAtomValue(
+    enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel)
+  );
   const [shielded, setShielded] = useState<boolean>(true);
   const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
     params.asset
@@ -207,7 +208,7 @@ export const IbcTransfer = (): JSX.Element => {
       </div>
       <TransferModule
         source={{
-          isLoadingAssets: isLoadingBalances || isLoadingEnabledAssets,
+          isLoadingAssets: isLoadingBalances,
           availableAssets,
           selectedAssetAddress,
           availableAmount,
