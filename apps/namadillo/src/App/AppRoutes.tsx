@@ -21,9 +21,6 @@ import { SubmitVote } from "./Governance/SubmitVote";
 import { ViewJson } from "./Governance/ViewJson";
 import { IbcLayout } from "./Ibc/IbcLayout";
 import { IbcShieldAll } from "./Ibc/IbcShieldAll";
-import { IbcTransfer } from "./Ibc/IbcTransfer";
-import { IbcTransfersLayout } from "./Ibc/IbcTransfersLayout";
-import { IbcWithdraw } from "./Ibc/IbcWithdraw";
 import { MaspLayout } from "./Masp/MaspLayout";
 import { MaspShield } from "./Masp/MaspShield";
 import { MaspUnshield } from "./Masp/MaspUnshield";
@@ -46,6 +43,9 @@ import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { TransactionDetails } from "./Transactions/TransactionDetails";
 import { TransactionHistory } from "./Transactions/TransactionHistory";
+import { SelectTokenExample } from "./Transfer/SelectTokenExample";
+import { Shield } from "./Transfer/Shield";
+import { ShieldLayout } from "./Transfer/ShieldLayout";
 import { TransferLayout } from "./Transfer/TransferLayout";
 
 export const MainRoutes = (): JSX.Element => {
@@ -100,12 +100,18 @@ export const MainRoutes = (): JSX.Element => {
           )}
 
           {/* Ibc Transfers */}
-          {features.ibcTransfersEnabled && (
+          {/* {features.ibcTransfersEnabled && (
             <Route element={<IbcTransfersLayout />}>
               <Route path={routes.ibc} element={<IbcTransfer />} />
               <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
             </Route>
-          )}
+          )} */}
+
+          <Route element={<ShieldLayout />}>
+            <Route path={routes.shield} element={<Shield />} />
+          </Route>
+
+          <Route path={"/example"} element={<SelectTokenExample />} />
 
           {features.ibcTransfersEnabled && (
             <Route element={<IbcLayout />}>

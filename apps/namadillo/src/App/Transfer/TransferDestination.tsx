@@ -7,10 +7,12 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { Address, WalletProvider } from "types";
+import shieldedEye from "./assets/shielded-eye.svg";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";
 import { SelectedWallet } from "./SelectedWallet";
+import { ShieldedPropertiesTooltip } from "./ShieldedPropertiesTooltip";
 import { TokenAmountCard } from "./TokenAmountCard";
 
 type TransferDestinationProps = {
@@ -111,6 +113,16 @@ export const TransferDestination = ({
                 ]}
               />
             </nav>
+          )}
+          {isShieldedAddress && (
+            <div className="ml-auto relative w-fit group/tooltip">
+              <img
+                src={shieldedEye}
+                alt={wallet?.name + " Logo"}
+                className="w-5 select-none ml-auto mb-2 -mt-2 mr-2 cursor-pointer"
+              />
+              <ShieldedPropertiesTooltip />
+            </div>
           )}
           {!customAddressActive && (
             <div className="flex justify-between items-center">
