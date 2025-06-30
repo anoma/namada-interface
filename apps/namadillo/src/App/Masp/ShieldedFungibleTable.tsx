@@ -4,6 +4,7 @@ import {
   TableRow,
   Tooltip,
 } from "@namada/components";
+import { sortedTableData } from "App/AccountOverview/common";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCard } from "App/Common/TokenCard";
@@ -124,17 +125,7 @@ export const ShieldedFungibleTable = ({
     setPage(0);
   }, [data]);
 
-  const sortedData = data.sort((a, b) => {
-    const aIsNam = a.asset.symbol === "NAM";
-    const bIsNam = b.asset.symbol === "NAM";
-
-    // NAM always will be shown on top
-    if (aIsNam !== bIsNam) return aIsNam ? -1 : 1;
-    const aValue = BigNumber(a.amount);
-    const bValue = BigNumber(b.amount);
-    return bValue.comparedTo(aValue);
-  });
-
+  const sortedData = sortedTableData(data);
   const paginatedItems = sortedData.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage

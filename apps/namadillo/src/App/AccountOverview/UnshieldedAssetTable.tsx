@@ -12,7 +12,6 @@ import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
 import { TokenBalance, transparentTokensAtom } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings";
-import { BigNumber } from "bignumber.js";
 import { useBalances } from "hooks/useBalances";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
@@ -21,6 +20,7 @@ import { TbVectorTriangle } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { isNamadaAsset } from "utils";
+import { sortedTableData } from "./common";
 
 const resultsPerPage = 100;
 const initialPage = 0;
@@ -152,17 +152,7 @@ const TransparentTokensTable = ({
     setPage(0);
   }, [data]);
 
-  const sortedData = data.sort((a, b) => {
-    const aIsNam = a.asset.symbol === "NAM";
-    const bIsNam = b.asset.symbol === "NAM";
-
-    // NAM always will be shown on top
-    if (aIsNam !== bIsNam) return aIsNam ? -1 : 1;
-    const aValue = BigNumber(a.amount);
-    const bValue = BigNumber(b.amount);
-    return bValue.comparedTo(aValue);
-  });
-
+  const sortedData = sortedTableData(data);
   const paginatedItems = sortedData.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage
