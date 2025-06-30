@@ -4,6 +4,7 @@ import {
   TableRow,
   Tooltip,
 } from "@namada/components";
+import { sortedTableData } from "App/AccountOverview/common";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCard } from "App/Common/TokenCard";
@@ -126,7 +127,8 @@ export const ShieldedFungibleTable = ({
     setPage(0);
   }, [data]);
 
-  const paginatedItems = data.slice(
+  const sortedData = sortedTableData(data);
+  const paginatedItems = sortedData.slice(
     page * resultsPerPage,
     page * resultsPerPage + resultsPerPage
   );
