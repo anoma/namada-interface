@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import {
   ActionButton,
   Heading,
@@ -9,7 +8,8 @@ import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectedWallet } from "App/Transfer/SelectedWallet";
 import { useEffect, useMemo, useState } from "react";
 import {
-  AddressWithAssetAndAmount,
+  Asset,
+  AssetWithAmount,
   ChainRegistryEntry,
   WalletProvider,
 } from "types";
@@ -25,7 +25,7 @@ type ShieldAllPanelProps = {
   wallet: WalletProvider;
   walletAddress: string;
   isLoading: boolean;
-  assetList: AddressWithAssetAndAmount[];
+  assetList: AssetWithAmount[];
   onShieldAll: (assets: Asset[]) => void;
 };
 

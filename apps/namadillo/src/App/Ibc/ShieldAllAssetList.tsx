@@ -1,12 +1,11 @@
-import { Asset } from "@chain-registry/types";
 import { Checkbox } from "@namada/components";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { getAssetImageUrl } from "integrations/utils";
-import { AddressWithAssetAndAmount } from "types";
+import { Asset, AssetWithAmount } from "types";
 
-export type SelectableAddressWithAssetAndAmount = AddressWithAssetAndAmount & {
+export type SelectableAddressWithAssetAndAmount = AssetWithAmount & {
   checked: boolean;
 };
 

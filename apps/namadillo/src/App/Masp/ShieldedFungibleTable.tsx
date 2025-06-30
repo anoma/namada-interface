@@ -10,7 +10,6 @@ import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
-import { TokenBalance } from "atoms/balance/atoms";
 import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
@@ -18,6 +17,7 @@ import { useEffect, useState } from "react";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
+import { TokenBalance } from "types";
 import { namadaAsset } from "utils";
 
 const resultsPerPage = 100;
@@ -43,22 +43,18 @@ export const ShieldedFungibleTable = ({
   }
 
   const renderRow = ({
-    originalAddress,
+    address,
     asset,
     amount,
     dollar,
   }: TokenBalance): TableRow => {
-    const reward = rewards?.[originalAddress];
+    const reward = rewards?.[address];
 
     return {
       cells: [
-        <TokenCard
-          key={`token-${originalAddress}`}
-          address={originalAddress}
-          asset={asset}
-        />,
+        <TokenCard key={`token-${address}`} address={address} asset={asset} />,
         <div
-          key={`balance-${originalAddress}`}
+          key={`balance-${address}`}
           className="flex flex-col text-right leading-tight"
         >
           <TokenCurrency symbol={asset.symbol} amount={amount} />
@@ -69,10 +65,7 @@ export const ShieldedFungibleTable = ({
             />
           )}
         </div>,
-        <div
-          key={`ssr-rate-${originalAddress}`}
-          className="text-right leading-tight "
-        >
+        <div key={`ssr-rate-${address}`} className="text-right leading-tight ">
           {shieldingRewardsEnabled &&
             (reward ?
               <TokenCurrency
@@ -88,7 +81,7 @@ export const ShieldedFungibleTable = ({
               />)}
         </div>,
         <div
-          key={`unshield-${originalAddress}`}
+          key={`unshield-${address}`}
           className="flex items-center text-neutral-450"
         >
           <ActionButton
@@ -96,17 +89,14 @@ export const ShieldedFungibleTable = ({
             outlineColor="white"
             className="w-fit ml-auto mr-10"
             onClick={() =>
-              navigate(`${routes.unshield}?${params.asset}=${originalAddress}`)
+              navigate(`${routes.unshield}?${params.asset}=${address}`)
             }
           >
             Unshield
           </ActionButton>
-          <div
-            key={`swap-${originalAddress}`}
-            className="relative group/tooltip mr-5"
-          >
+          <div key={`swap-${address}`} className="relative group/tooltip mr-5">
             <Link
-              to={`${routes.transfer}?${params.asset}=${originalAddress}&${params.shielded}=0`}
+              to={`${routes.transfer}?${params.asset}=${address}&${params.shielded}=0`}
               className={twMerge(
                 "bg-black rounded-full w-10 h-10 flex items-center justify-center p-0",
                 "hover:bg-white hover:text-black transition-all duration-300"

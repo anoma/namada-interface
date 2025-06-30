@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import {
   AccountType,
   ShieldedTransferMsgValue,
@@ -25,7 +24,7 @@ import { useAtomValue } from "jotai";
 import { TransactionPair } from "lib/query";
 import { useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import { Address, NamadaTransferTxKind } from "types";
+import { Address, Asset, NamadaTransferTxKind } from "types";
 import { isNamadaAsset, toBaseAmount } from "utils";
 import { useOptimisticTransferUpdate } from "./useOptimisticTransferUpdate";
 

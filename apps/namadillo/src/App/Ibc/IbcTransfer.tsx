@@ -9,9 +9,10 @@ import {
 import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
-  availableChainsAtom,
-  enabledIbcAssetsDenomFamily,
+  getAvailableChains,
+  getNamadaAssetByIbcAsset,
   ibcChannelsFamily,
+  namadaChainRegistryAtom,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useFathomTracker } from "hooks/useFathomTracker";
@@ -25,8 +26,7 @@ import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import namadaChain from "registry/namada.json";
-import { AddressWithAssetAndAmountMap } from "types";
+import { AssetWithAmount, BaseDenom } from "types";
 import { useTransactionEventListener } from "utils";
 import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
@@ -38,8 +38,9 @@ export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
   const [completedAt, setCompletedAt] = useState<Date | undefined>();
 
+  const availableChains = useMemo(getAvailableChains, []);
+
   // Global & Atom states
-  const availableChains = useAtomValue(availableChainsAtom);
   const defaultAccounts = useAtomValue(allDefaultAccountsAtom);
 
   // Wallet & Registry
@@ -48,6 +49,8 @@ export const IbcTransfer = (): JSX.Element => {
     walletAddress: sourceAddress,
     connectToChainId,
   } = useWalletManager(keplr);
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chainRegistry = namadaChainRegistry.data;
 
   // IBC Channels & Balances
   const {
@@ -64,13 +67,8 @@ export const IbcTransfer = (): JSX.Element => {
   );
 
   const { trackEvent } = useFathomTracker();
-  const { data: enabledAssets } = useAtomValue(
-    enabledIbcAssetsDenomFamily(ibcChannels?.namadaChannel)
-  );
   const [shielded, setShielded] = useState<boolean>(true);
-  const [selectedAssetAddress, setSelectedAssetAddress] = useUrlState(
-    params.asset
-  );
+  const [selectedAssetBase, setSelectedAssetBase] = useUrlState(params.asset);
   const [amount, setAmount] = useState<BigNumber | undefined>();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
   const [sourceChannel, setSourceChannel] = useState("");
@@ -78,36 +76,32 @@ export const IbcTransfer = (): JSX.Element => {
   const [currentProgress, setCurrentProgress] = useState<string>();
   const [txHash, setTxHash] = useState<string | undefined>();
 
-  // Derived data
-  const availableAmount = mapUndefined(
-    (address) => userAssets?.[address]?.amount,
-    selectedAssetAddress
-  );
+  const availableDisplayAmount = mapUndefined((baseDenom) => {
+    return userAssets ? userAssets[baseDenom]?.amount : undefined;
+  }, selectedAssetBase);
 
   const selectedAsset =
-    selectedAssetAddress ? userAssets?.[selectedAssetAddress] : undefined;
+    selectedAssetBase ? userAssets?.[selectedAssetBase]?.asset : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!enabledAssets || !userAssets) return undefined;
+    if (!userAssets || !chainRegistry) return undefined;
 
-    const output: AddressWithAssetAndAmountMap = {};
-    for (const key in userAssets) {
-      const counterpartyBaseDenom =
-        userAssets[key].asset.traces?.[0].counterparty.base_denom || "";
+    const output: Record<BaseDenom, AssetWithAmount> = {};
 
-      // We look for both native for chain and in counterparty base denom
-      // TODO/IMPORTANT: this will not work for HOUSEFIRE NAM as it's not a part of
-      // osmosis asset list
-      if (
-        enabledAssets.includes(userAssets[key].asset.base) ||
-        enabledAssets.includes(counterpartyBaseDenom)
-      ) {
+    Object.entries(userAssets).forEach(([key, { asset }]) => {
+      const namadaAsset = getNamadaAssetByIbcAsset(
+        asset,
+        chainRegistry.assets.assets
+      );
+
+      // Include if asset has a corresponding Namada asset, and it's either native or native for namada
+      if (namadaAsset && (!asset.traces || !namadaAsset.traces)) {
         output[key] = { ...userAssets[key] };
       }
-    }
+    });
 
     return output;
-  }, [enabledAssets, userAssets]);
+  }, [Object.keys(userAssets || {}).join(""), chainRegistry?.chain.chain_id]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
@@ -136,7 +130,7 @@ export const IbcTransfer = (): JSX.Element => {
         (shielded && ibcChannels && !ibcChannels?.namadaChannel))
   );
 
-  useEffect(() => setSelectedAssetAddress(undefined), [registry]);
+  useEffect(() => setSelectedAssetBase(undefined), [registry]);
 
   // Set source and destination channels based on IBC channels data
   useEffect(() => {
@@ -165,7 +159,6 @@ export const IbcTransfer = (): JSX.Element => {
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
-      invariant(selectedAsset?.originalAddress, "Error: Asset not selected");
       invariant(registry?.chain, "Error: Chain not selected");
       setGeneralErrorMessage("");
       setCurrentProgress("Submitting...");
@@ -210,8 +203,8 @@ export const IbcTransfer = (): JSX.Element => {
         source={{
           isLoadingAssets: isLoadingBalances,
           availableAssets,
-          selectedAssetAddress,
-          availableAmount,
+          selectedAssetAddress: selectedAssetBase,
+          availableAmount: availableDisplayAmount,
           availableChains,
           onChangeChain,
           chain: registry?.chain,
@@ -219,12 +212,12 @@ export const IbcTransfer = (): JSX.Element => {
           wallet: wallets.keplr,
           walletAddress: sourceAddress,
           onChangeWallet,
-          onChangeSelectedAsset: setSelectedAssetAddress,
+          onChangeSelectedAsset: setSelectedAssetBase,
           amount,
           onChangeAmount: setAmount,
         }}
         destination={{
-          chain: namadaChain as Chain,
+          chain: chainRegistry?.chain,
           availableWallets: [wallets.namada],
           wallet: wallets.namada,
           walletAddress: namadaAddress,
@@ -241,7 +234,7 @@ export const IbcTransfer = (): JSX.Element => {
           transferToNamada.isSuccess
         }
         completedAt={completedAt}
-        isIbcTransfer={true}
+        ibcTransfer={"deposit"}
         currentStatus={currentProgress}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{

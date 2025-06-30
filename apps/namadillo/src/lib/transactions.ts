@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import { coin } from "@cosmjs/proto-signing";
 import {
   Attribute,
@@ -13,6 +12,7 @@ import {
   UnshieldingTransferMsgValue,
 } from "@namada/types";
 import BigNumber from "bignumber.js";
+import { Asset } from "types";
 
 import {
   allTransferStages,

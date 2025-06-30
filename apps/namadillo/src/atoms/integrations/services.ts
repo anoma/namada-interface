@@ -14,7 +14,6 @@ import {
   WrapperTransaction,
   WrapperTransactionExitCodeEnum,
 } from "@namada/indexer-client";
-import { sanitizeUrl } from "@namada/utils";
 import { getIndexerApi } from "atoms/api";
 import { chainParametersAtom } from "atoms/chain";
 import { rpcUrlAtom } from "atoms/settings";
@@ -23,12 +22,14 @@ import BigNumber from "bignumber.js";
 import * as Comlink from "comlink";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { differenceInMinutes } from "date-fns";
+import invariant from "invariant";
 import { getDefaultStore } from "jotai";
 import toml from "toml";
 import {
-  AddressWithAsset,
+  Asset,
   Coin,
   GasConfig,
+  IbcChannels,
   IbcTransferTransactionData,
   LocalnetToml,
   TransferStep,
@@ -41,12 +42,7 @@ import { GenerateIbcShieldingMemo } from "workers/MaspTxMessages";
 import { Worker as MaspTxWorkerApi } from "workers/MaspTxWorker";
 import MaspTxWorker from "workers/MaspTxWorker?worker";
 import { rpcByChainAtom } from "./atoms";
-import {
-  getChainRegistryIbcFilePath,
-  getChannelFromIbcInfo,
-  getRpcByIndex,
-  IbcChannels,
-} from "./functions";
+import { getChannelFromIbcInfo, getRpcByIndex } from "./functions";
 
 type CommonParams = {
   signer: OfflineSigner;
@@ -54,7 +50,7 @@ type CommonParams = {
   sourceAddress: string;
   destinationAddress: string;
   amount: BigNumber;
-  asset: AddressWithAsset;
+  asset: Asset;
   sourceChannelId: string;
   gasConfig: GasConfig;
 };
@@ -327,22 +323,20 @@ export const fetchLocalnetTomlConfig = async (): Promise<LocalnetToml> => {
 };
 
 export const fetchIbcChannelFromRegistry = async (
-  currentNamadaChainId: string,
   ibcChainName: string,
-  namadaChainRegistryUrl: string
-): Promise<IbcChannels | null> => {
-  const ibcFilePath = getChainRegistryIbcFilePath(
-    currentNamadaChainId,
-    ibcChainName
+  ibcInfo: IBCInfo[]
+): Promise<IbcChannels> => {
+  const channelInfo = ibcInfo.find(
+    (info) =>
+      info.chain_1.chain_name === ibcChainName ||
+      info.chain_2.chain_name === ibcChainName
+  );
+  invariant(
+    channelInfo,
+    `IBC channel information not found for chain: ${ibcChainName}`
   );
 
-  const queryUrl = new URL(
-    ibcFilePath,
-    sanitizeUrl(namadaChainRegistryUrl) + "/"
-  );
-
-  const channelInfo: IBCInfo = await (await fetch(queryUrl.toString())).json();
-  return getChannelFromIbcInfo(ibcChainName, channelInfo) || null;
+  return getChannelFromIbcInfo(ibcChainName, channelInfo);
 };
 
 export const simulateIbcTransferGas = async (

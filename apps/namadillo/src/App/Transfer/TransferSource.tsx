@@ -1,10 +1,10 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
 import { MaspSyncIndicator } from "App/Layout/MaspSyncIndicator";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { WalletProvider } from "types";
+import { Asset, WalletProvider } from "types";
 import { AvailableAmountFooter } from "./AvailableAmountFooter";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { SelectedAsset } from "./SelectedAsset";

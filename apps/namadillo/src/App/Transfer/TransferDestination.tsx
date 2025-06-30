@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
 import { TabSelector } from "App/Common/TabSelector";
 import { TransactionFee } from "App/Common/TransactionFee";
@@ -6,7 +6,7 @@ import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
-import { Address, WalletProvider } from "types";
+import { Address, Asset, WalletProvider } from "types";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { CustomAddressForm } from "./CustomAddressForm";
 import { SelectedChain } from "./SelectedChain";

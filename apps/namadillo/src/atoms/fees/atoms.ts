@@ -1,9 +1,10 @@
 import { GasEstimate } from "@namada/indexer-client";
 import { defaultAccountAtom } from "atoms/accounts";
 import { indexerApiAtom } from "atoms/api";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import invariant from "invariant";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import { isPublicKeyRevealed } from "lib/query";
@@ -55,18 +56,20 @@ export const gasEstimateFamily = atomFamily(
 
 export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
   const api = get(indexerApiAtom);
-  const chainAssetsMap = get(chainAssetsMapAtom);
+  const chainAssetsMap = get(namadaRegistryChainAssetsMapAtom);
 
   return {
-    queryKey: ["gas-price-table", chainAssetsMap],
+    queryKey: ["gas-price-table", chainAssetsMap.data],
     ...queryDependentFn(async () => {
+      invariant(chainAssetsMap.data, "No chain settings");
+
       const response = await fetchTokensGasPrice(api);
       return (
         response
           // filter only tokens that exists on the chain
-          .filter(({ token }) => Boolean(chainAssetsMap[token]))
+          .filter(({ token }) => Boolean(chainAssetsMap.data[token]))
           .map(({ token, minDenomAmount }) => {
-            const asset = chainAssetsMap[token];
+            const asset = chainAssetsMap.data[token];
             const baseAmount = BigNumber(minDenomAmount);
             return {
               token,
@@ -77,7 +80,7 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
             };
           })
       );
-    }, []),
+    }, [chainAssetsMap]),
   };
 });
 

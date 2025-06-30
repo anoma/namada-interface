@@ -1,9 +1,5 @@
 import { chainTokensAtom } from "atoms/chain/atoms";
-import {
-  getDenomFromIbcTrace,
-  ibcChannelsFamily,
-  searchChainByDenom,
-} from "atoms/integrations";
+import { getDenomFromIbcTrace, ibcChannelsFamily } from "atoms/integrations";
 import { useAtomValue } from "jotai";
 
 export const useIsChannelInactive = (
@@ -13,11 +9,9 @@ export const useIsChannelInactive = (
   const token = chainTokens.find((i) => i.address === address);
   const hasTrace = token && "trace" in token;
   const denom = getDenomFromIbcTrace(hasTrace ? token.trace : "");
-  const chainName = searchChainByDenom(denom)?.chain_name;
-  const { data: ibcChannels } = useAtomValue(ibcChannelsFamily(chainName));
+  const { data: ibcChannels } = useAtomValue(ibcChannelsFamily("namada"));
 
-  if (!chainName || !hasTrace || !ibcChannels)
-    return { isInactive: false, trace: "" };
+  if (!hasTrace || !ibcChannels) return { isInactive: false, trace: "" };
 
   // search for other tokens that contains the same denom
   // if find one, but with different address, shows the warning

@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import { Panel, SkeletonLoading } from "@namada/components";
 import { formatPercentage } from "@namada/utils";
 import { AssetImage } from "App/Transfer/AssetImage";
@@ -6,6 +5,7 @@ import { maspRewardsAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useAtomValue } from "jotai";
+import { Asset } from "types";
 
 type MaspAssetRewardsItemProps = {
   asset: Asset;

@@ -74,7 +74,7 @@ describe("SelectAssetModal", () => {
       />
     );
     fireEvent.click(screen.getByText("BTC"));
-    expect(onSelectMock).toHaveBeenCalledWith(assetMockList[1].originalAddress);
+    expect(onSelectMock).toHaveBeenCalledWith(assetMockList[1].address);
     expect(onCloseMock).toHaveBeenCalled();
   });
 });
