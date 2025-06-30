@@ -88,7 +88,7 @@ export const ShieldedFungibleTable = ({
             outlineColor="white"
             className="w-fit ml-auto mr-10"
             onClick={() =>
-              navigate(`${routes.unshield}?${params.asset}=${originalAddress}`)
+              navigate(`${routes.unshield}?${params.asset}=${address}`)
             }
           >
             Unshield

@@ -77,7 +77,7 @@ export const IbcTransfer = (): JSX.Element => {
   const [txHash, setTxHash] = useState<string | undefined>();
 
   const availableDisplayAmount = mapUndefined((baseDenom) => {
-    return userAssets ? userAssets[baseDenom].amount : undefined;
+    return userAssets ? userAssets[baseDenom]?.amount : undefined;
   }, selectedAssetBase);
 
   const selectedAsset =
