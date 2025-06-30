@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.28.3](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.2...namadillo@v1.28.3) (2025-06-30)
+
+
+### Bug Fixes
+
+* Ibc shielded deposits with nam ([#2191](https://github.com/anoma/namada-interface/issues/2191)) ([c54ef3e](https://github.com/anoma/namada-interface/commit/c54ef3ef2e393c28bb272ebd89fba67f5aca50ef))
+* Remove blocker to loading assets ([#2192](https://github.com/anoma/namada-interface/issues/2192)) ([e5c0ef9](https://github.com/anoma/namada-interface/commit/e5c0ef9026801433b5da8c6f56f6c3b0a36a16ed))
+* Update indexer client ([#2197](https://github.com/anoma/namada-interface/issues/2197)) ([7492e84](https://github.com/anoma/namada-interface/commit/7492e8486c3dc367816397ed8166777f0b19d466))
+* Update pagination on staking tables ([#2147](https://github.com/anoma/namada-interface/issues/2147)) ([765a579](https://github.com/anoma/namada-interface/commit/765a579d8f754e6a6a42b36ac3b0f72225e957ba))
+* Update ranking on shielded fungible table and transparent table ([#2190](https://github.com/anoma/namada-interface/issues/2190)) ([bccae15](https://github.com/anoma/namada-interface/commit/bccae15b32d721fe83ff4fb74d7a68778e3ef3b1))
+* Update unshield button with proper route ([#2189](https://github.com/anoma/namada-interface/issues/2189)) ([8653898](https://github.com/anoma/namada-interface/commit/865389833898b845f72adc265b2a90ca3dfff940))
+
 ## [1.28.3](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.2...namadillo@v1.28.3) (2025-06-25)
 
 
