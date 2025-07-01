@@ -16,7 +16,6 @@ import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Address,
-  AddressWithAssetAndAmount,
   AddressWithAssetAndAmountMap,
   GasConfig,
   LedgerAccountInfo,
@@ -32,8 +31,8 @@ import {
 } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
-import { SelectAssetModal } from "./SelectAssetModal";
 import { SelectChainModal } from "./SelectChainModal";
+import { SelectToken } from "./SelectToken";
 import { SelectWalletModal } from "./SelectWalletModal";
 import { SuccessAnimation } from "./SuccessAnimation";
 import { TransferArrow } from "./TransferArrow";
@@ -181,7 +180,7 @@ export const TransferModule = ({
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-  const chainAssets = Object.values(chainAssetsMap) ?? [];
+  // const chainAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
@@ -348,32 +347,32 @@ export const TransferModule = ({
     return assetDisplayAmount.gt(feeDisplayAmount);
   }
 
-  const filteredAvailableAssets = useMemo(() => {
-    // Get available assets that are accepted by the chain
-    return Object.values(availableAssets).filter(({ asset }) => {
-      if (!source.chain) return true;
-      return chainAssets.some(
-        (chainAsset) =>
-          chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
-      );
-    });
-  }, [availableAssets, source.chain, chainAssets]);
+  // const filteredAvailableAssets = useMemo(() => {
+  //   // Get available assets that are accepted by the chain
+  //   return Object.values(availableAssets).filter(({ asset }) => {
+  //     if (!source.chain) return true;
+  //     return chainAssets.some(
+  //       (chainAsset) =>
+  //         chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
+  //     );
+  //   });
+  // }, [availableAssets, source.chain, chainAssets]);
 
-  const sortedAssets = useMemo(() => {
-    if (!filteredAvailableAssets.length) {
-      return [];
-    }
+  // const sortedAssets = useMemo(() => {
+  //   if (!filteredAvailableAssets.length) {
+  //     return [];
+  //   }
 
-    // Sort filtered assets by amount
-    return [...filteredAvailableAssets].sort(
-      (
-        asset1: AddressWithAssetAndAmount,
-        asset2: AddressWithAssetAndAmount
-      ) => {
-        return asset1.amount.gt(asset2.amount) ? -1 : 1;
-      }
-    );
-  }, [filteredAvailableAssets]);
+  //   // Sort filtered assets by amount
+  //   return [...filteredAvailableAssets].sort(
+  //     (
+  //       asset1: AddressWithAssetAndAmount,
+  //       asset2: AddressWithAssetAndAmount
+  //     ) => {
+  //       return asset1.amount.gt(asset2.amount) ? -1 : 1;
+  //     }
+  //   );
+  // }, [filteredAvailableAssets]);
 
   const getButtonTextError = (
     id: ValidationResult,
@@ -473,6 +472,12 @@ export const TransferModule = ({
 
   return (
     <>
+      <SelectToken
+        isOpen={assetSelectorModalOpen}
+        onClose={() => setAssetSelectorModalOpen(false)}
+        onSelect={source.onChangeSelectedAsset}
+      />
+
       <section className="max-w-[480px] mx-auto" role="widget">
         <Stack
           className={clsx({
@@ -614,7 +619,7 @@ export const TransferModule = ({
           />
         )}
 
-      {assetSelectorModalOpen &&
+      {/* {assetSelectorModalOpen &&
         source.onChangeSelectedAsset &&
         source.wallet &&
         source.walletAddress && (
@@ -625,7 +630,7 @@ export const TransferModule = ({
             wallet={source.wallet}
             walletAddress={source.walletAddress}
           />
-        )}
+        )} */}
 
       {sourceChainModalOpen && source.onChangeChain && source.wallet && (
         <SelectChainModal
