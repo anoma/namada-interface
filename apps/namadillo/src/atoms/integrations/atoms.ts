@@ -81,7 +81,7 @@ export const assetBalanceAtomFamily = atomFamily(
             const isHousefire =
               chainSettings.data.chainId.includes("housefire");
             const chainName =
-              isHousefire ?
+              isHousefire && chain!.chain_name === "osmosis" ?
                 `${chain!.chain_name}-housefire`
               : chain!.chain_name;
 

@@ -1,5 +1,5 @@
-import { TokenBalance } from "atoms/balance/atoms";
 import BigNumber from "bignumber.js";
+import { TokenBalance } from "types";
 
 // Sorts table data so nam is always on top and then descends by value
 // NAM => $5 => $4 => $3 etc
