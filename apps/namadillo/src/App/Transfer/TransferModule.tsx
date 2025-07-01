@@ -198,8 +198,6 @@ export const TransferModule = ({
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
   );
-  const transactionCompleted =
-    completedAt && selectedAsset?.asset && source.amount;
 
   const availableAmountMinusFees = useMemo(() => {
     const { selectedAssetAddress, availableAmount } = source;
@@ -597,7 +595,7 @@ export const TransferModule = ({
             </div>
           )}
         </Stack>
-        {transactionCompleted && source.amount && (
+        {completedAt && selectedAsset?.asset && source.amount && (
           <SuccessAnimation
             asset={selectedAsset.asset}
             amount={source.amount}
