@@ -72,7 +72,7 @@ export const TransferDestination = ({
     >
       {!isSubmitting && (
         <div>
-          {onChangeShielded && chain?.chain_name === "namada" && (
+          {onChangeShielded && chain?.chain_name.includes("namada") && (
             <nav className="mb-6">
               <TabSelector
                 active={isShieldedAddress ? "shielded" : "transparent"}
