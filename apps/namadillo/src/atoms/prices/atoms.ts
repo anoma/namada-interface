@@ -1,4 +1,3 @@
-import { namadaChainRegistryAtom } from "atoms/integrations";
 import namadaAssets from "chain-registry/mainnet/namada/assets";
 import * as osmosisAssets from "chain-registry/mainnet/osmosis";
 import { atomWithQuery } from "jotai-tanstack-query";
@@ -9,10 +8,9 @@ import { fetchTokenPrices } from "./functions";
 
 export const tokenPricesFamily = atomFamily(
   (addresses: Address[]) =>
-    atomWithQuery((get) => {
-      const chainTokens = get(namadaChainRegistryAtom).data?.assets.assets;
+    atomWithQuery(() => {
       return {
-        queryKey: ["token-prices", addresses, chainTokens],
+        queryKey: ["token-prices", addresses],
         queryFn: () =>
           fetchTokenPrices(
             addresses,
