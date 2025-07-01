@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import { getIbcGasConfig } from "integrations/utils";
 import invariant from "invariant";
 import { createIbcTransferMessage } from "lib/transactions";
-import { AddressWithAsset, ChainRegistryEntry, GasConfig } from "types";
+import { Asset, ChainRegistryEntry, GasConfig } from "types";
 import { isNamadaAsset } from "utils";
 import { sanitizeAddress } from "utils/address";
 import { sanitizeChannel } from "utils/ibc";
@@ -15,7 +15,7 @@ type useSimulateIbcTransferFeeProps = {
   registry?: ChainRegistryEntry;
   isShieldedTransfer?: boolean;
   sourceAddress?: string;
-  selectedAsset?: AddressWithAsset;
+  selectedAsset?: Asset;
   channel?: string;
 };
 
@@ -31,23 +31,22 @@ export const useSimulateIbcTransferFee = ({
     queryKey: [
       "gasConfig",
       registry?.chain?.chain_id,
-      selectedAsset?.asset.base,
+      selectedAsset?.base,
       isShieldedTransfer,
     ],
     retry: false,
     queryFn: async () => {
       try {
+        invariant(registry, "Error: registry is required");
         const MASP_MEMO_LENGTH = 2356;
 
         // while Keplr can't accept NAM for fees, and stargate can't simulate the NAM fee,
         // we use a hardcoded value of "uosmo"
         const getToken = (): string => {
-          if (isNamadaAsset(selectedAsset?.asset)) {
+          if (isNamadaAsset(selectedAsset)) {
             return "uosmo";
           }
-          return (
-            selectedAsset?.asset.base || registry?.assets.assets[0].base || ""
-          );
+          return selectedAsset?.base || registry?.assets.assets[0].base || "";
         };
 
         const transferMsg = createIbcTransferMessage(
@@ -66,7 +65,11 @@ export const useSimulateIbcTransferFee = ({
           sourceAddress!,
           transferMsg
         );
-        const gasConfig = getIbcGasConfig(registry!, simulatedGas);
+
+        const feeToken = registry.chain.fees?.fee_tokens?.[0];
+        invariant(feeToken, "Error: fee token is required");
+
+        const gasConfig = getIbcGasConfig(feeToken, simulatedGas);
         invariant(gasConfig, "Error: invalid Gas config");
         return gasConfig;
       } catch (err) {

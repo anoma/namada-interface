@@ -1,4 +1,9 @@
-import { Asset, AssetList, Chain, IBCInfo } from "@chain-registry/types";
+import {
+  AssetList,
+  Chain,
+  Asset as ChainRegistryAsset,
+  IBCInfo,
+} from "@chain-registry/types";
 import { ValidatorStatus } from "@namada/indexer-client";
 import {
   Account,
@@ -213,13 +218,28 @@ export type ChainRegistryEntry = {
   ibc?: IBCInfo[];
 };
 
-export type AddressWithAsset = {
-  originalAddress: Address;
-  asset: Asset;
+export type NamadaChainRegistryEntry = ChainRegistryEntry & {
+  assets: AssetList & { assets: NamadaAsset[] };
 };
 
-export type AddressWithAssetAndAmount = AddressWithAsset & {
+export type Asset = ChainRegistryAsset;
+
+// Namada assets should always have address field defined
+export type NamadaAsset = Asset & { address: Address };
+
+export type AssetWithAmount = {
+  asset: Asset;
   amount: BigNumber;
+};
+
+export type NamadaAssetWithAmount = {
+  asset: NamadaAsset;
+  amount: BigNumber;
+};
+
+export type AssetWithMinDenomAmount = {
+  asset: Asset;
+  minDenomAmount: BigNumber;
 };
 
 export type Coin = {
@@ -227,10 +247,17 @@ export type Coin = {
   minDenomAmount: string;
 };
 
-export type AddressWithAssetAndAmountMap = Record<
-  Address,
-  AddressWithAssetAndAmount
->;
+export type TokenBalance = {
+  address: Address;
+  asset: Asset;
+  amount: BigNumber;
+  dollar?: BigNumber;
+};
+
+export type IbcChannels = {
+  namadaChannel: string;
+  ibcChannel: string;
+};
 
 export enum TransferStep {
   Sign = "sign",

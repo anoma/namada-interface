@@ -1,4 +1,4 @@
-import { Asset, Chain } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { AccountType, IbcTransferMsgValue } from "@namada/types";
 import { mapUndefined } from "@namada/utils";
 import { params, routes } from "App/routes";
@@ -15,11 +15,11 @@ import {
   namadaShieldedAssetsAtom,
   namadaTransparentAssetsAtom,
 } from "atoms/balance";
-import { chainAtom, chainTokensAtom } from "atoms/chain";
+import { chainAtom } from "atoms/chain";
 import {
-  getDenomFromIbcTrace,
+  getChainRegistryByChainName,
   ibcChannelsFamily,
-  searchChainByDenom,
+  namadaChainRegistryAtom,
 } from "atoms/integrations";
 import { ledgerStatusDataAtom } from "atoms/ledger";
 import { createIbcTxAtom } from "atoms/transfer/atoms";
@@ -42,8 +42,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { TransactionPair } from "lib/query";
 import { useEffect, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import namadaChainRegistry from "registry/namada.json";
-import { IbcTransferTransactionData, TransferStep } from "types";
+import { Asset, IbcTransferTransactionData, TransferStep } from "types";
 import {
   isNamadaAsset,
   toBaseAmount,
@@ -64,6 +63,8 @@ export const IbcWithdraw = (): JSX.Element => {
   const transparentAccount = useAtomValue(defaultAccountAtom);
   const namadaChain = useAtomValue(chainAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
+  const namadaChainRegistry = useAtomValue(namadaChainRegistryAtom);
+  const chain = namadaChainRegistry.data?.chain;
 
   const requiresNewShieldedSync = useRequiresNewShieldedSync();
   const [generalErrorMessage, setGeneralErrorMessage] = useState("");
@@ -82,7 +83,6 @@ export const IbcWithdraw = (): JSX.Element => {
   const [destinationChain, setDestinationChain] = useState<Chain | undefined>();
   const { refetch: genDisposableSigner } = useAtomValue(disposableSignerAtom);
   const alias = shieldedAccount?.alias ?? transparentAccount.data?.alias;
-  const chainTokens = useAtomValue(chainTokensAtom);
 
   const { data: availableAssets, isLoading: isLoadingAssets } = useAtomValue(
     shielded ? namadaShieldedAssetsAtom : namadaTransparentAssetsAtom
@@ -170,26 +170,29 @@ export const IbcWithdraw = (): JSX.Element => {
   // ATOM to Cosmoshub, etc.
   useEffect(() => {
     (async () => {
-      if (!selectedAsset || !chainTokens.data) {
+      if (!selectedAsset) {
         await updateDestinationChainAndAddress(undefined);
         return;
       }
 
-      const token = chainTokens.data.find(
-        (token) => token.address === selectedAsset.originalAddress
-      );
-
       let chain: Chain | undefined;
+
       if (isNamadaAsset(selectedAsset.asset)) {
         chain = osmosis.chain; // for now, NAM uses the osmosis chain
-      } else if (token && "trace" in token) {
-        const denom = getDenomFromIbcTrace(token.trace);
-        chain = searchChainByDenom(denom);
+      } else if (selectedAsset.asset.traces) {
+        const trace = selectedAsset.asset.traces.find(
+          (trace) => trace.type === "ibc"
+        );
+
+        if (trace) {
+          const chainName = trace.counterparty.chain_name;
+          chain = getChainRegistryByChainName(chainName)?.chain;
+        }
       }
 
       await updateDestinationChainAndAddress(chain);
     })();
-  }, [selectedAsset, chainTokens.data]);
+  }, [selectedAsset]);
 
   const {
     execute: performWithdraw,
@@ -335,7 +338,7 @@ export const IbcWithdraw = (): JSX.Element => {
             amountInBaseDenom,
             channelId: sourceChannel.trim(),
             portId: "transfer",
-            token: selectedAsset.originalAddress,
+            token: selectedAsset.asset.address,
             source,
             receiver: destinationAddress,
             gasSpendingKey,
@@ -367,9 +370,9 @@ export const IbcWithdraw = (): JSX.Element => {
             shielded ?
               shieldedAccount?.address
             : transparentAccount.data?.address,
-          chain: namadaChainRegistry as Chain,
+          chain,
           isShieldedAddress: shielded,
-          availableChains: [namadaChainRegistry as Chain],
+          availableChains: chain ? [chain] : [],
           availableAssets,
           availableAmount,
           selectedAssetAddress,
@@ -406,7 +409,7 @@ export const IbcWithdraw = (): JSX.Element => {
            * from the confirmation event from target chain */
           isSuccess
         }
-        isIbcTransfer={true}
+        ibcTransfer={"withdraw"}
         requiresIbcChannels={requiresIbcChannels}
         ibcOptions={{
           sourceChannel,

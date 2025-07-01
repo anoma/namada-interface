@@ -1,10 +1,10 @@
-import { Asset } from "@chain-registry/types";
 import anime from "animejs";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useScope } from "hooks/useScope";
 import { useRef } from "react";
 import { FaCheckCircle } from "react-icons/fa";
+import { Asset } from "types";
 import { TokenAmountCard } from "./TokenAmountCard";
 
 type SuccessAnimationProps = {

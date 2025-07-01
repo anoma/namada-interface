@@ -4,7 +4,7 @@ import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
 import { routes } from "App/routes";
-import { chainAssetsMapAtom } from "atoms/chain";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
@@ -16,8 +16,8 @@ import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Address,
-  AddressWithAssetAndAmount,
-  AddressWithAssetAndAmountMap,
+  AssetWithAmount,
+  BaseDenom,
   GasConfig,
   LedgerAccountInfo,
   WalletProvider,
@@ -57,7 +57,7 @@ type TransferModuleConfig = {
 };
 
 export type TransferSourceProps = TransferModuleConfig & {
-  availableAssets?: AddressWithAssetAndAmountMap;
+  availableAssets?: Record<BaseDenom | Address, AssetWithAmount>;
   isLoadingAssets?: boolean;
   selectedAssetAddress?: Address;
   availableAmount?: BigNumber;
@@ -105,8 +105,8 @@ export type TransferModuleProps = {
   buttonTextErrors?: Partial<Record<ValidationResult, string>>;
   onComplete?: () => void;
 } & (
-  | { isIbcTransfer?: false; ibcOptions?: undefined }
-  | { isIbcTransfer: true; ibcOptions: IbcOptions }
+  | { ibcTransfer?: undefined; ibcOptions?: undefined }
+  | { ibcTransfer: "deposit" | "withdraw"; ibcOptions: IbcOptions }
 );
 
 type ValidationResult =
@@ -155,7 +155,7 @@ export const TransferModule = ({
   changeFeeEnabled,
   submittingText,
   isSubmitting,
-  isIbcTransfer,
+  ibcTransfer,
   ibcOptions,
   requiresIbcChannels,
   onSubmitTransfer,
@@ -180,17 +180,21 @@ export const TransferModule = ({
   );
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-  const chainAssets = Object.values(chainAssetsMap) ?? [];
+  const chainAssetsMap = useAtomValue(namadaRegistryChainAssetsMapAtom);
+
+  const chainAssets = Object.values(chainAssetsMap.data || {}) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
-    return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
+    return gasConfig ?
+        getDisplayGasFee(gasConfig, chainAssetsMap.data || {})
+      : undefined;
   }, [gasConfig]);
 
-  const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
-    return filterAvailableAssetsWithBalance(source.availableAssets);
-  }, [source.availableAssets]);
+  const availableAssets: Record<BaseDenom | Address, AssetWithAmount> =
+    useMemo(() => {
+      return filterAvailableAssetsWithBalance(source.availableAssets);
+    }, [source.availableAssets]);
 
   const firstAvailableAsset = Object.values(availableAssets)[0];
 
@@ -366,10 +370,7 @@ export const TransferModule = ({
 
     // Sort filtered assets by amount
     return [...filteredAvailableAssets].sort(
-      (
-        asset1: AddressWithAssetAndAmount,
-        asset2: AddressWithAssetAndAmount
-      ) => {
+      (asset1: AssetWithAmount, asset2: AssetWithAmount) => {
         return asset1.amount.gt(asset2.amount) ? -1 : 1;
       }
     );
@@ -467,7 +468,7 @@ export const TransferModule = ({
 
   useEffect(() => {
     if (!selectedAsset?.asset && firstAvailableAsset) {
-      source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
+      source.onChangeSelectedAsset?.(firstAvailableAsset?.asset.address);
     }
   }, [firstAvailableAsset]);
 
@@ -553,7 +554,7 @@ export const TransferModule = ({
             amount={source.amount}
             isSubmitting={isSubmitting}
           />
-          {isIbcTransfer && requiresIbcChannels && (
+          {ibcTransfer && requiresIbcChannels && (
             <IbcChannels
               isShielded={Boolean(
                 source.isShieldedAddress || destination.isShieldedAddress
@@ -620,10 +621,13 @@ export const TransferModule = ({
         source.walletAddress && (
           <SelectAssetModal
             onClose={() => setAssetSelectorModalOpen(false)}
-            assets={sortedAssets}
+            assets={sortedAssets.map(
+              (assetsWithAmount) => assetsWithAmount.asset
+            )}
             onSelect={source.onChangeSelectedAsset}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
+            ibcTransfer={ibcTransfer}
           />
         )}
 

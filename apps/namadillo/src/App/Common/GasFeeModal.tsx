@@ -1,4 +1,3 @@
-import { Asset } from "@chain-registry/types";
 import {
   ActionButton,
   AmountInput,
@@ -7,7 +6,7 @@ import {
 } from "@namada/components";
 import { transparentBalanceAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance";
-import { chainAssetsMapAtom, nativeTokenAddressAtom } from "atoms/chain";
+import { nativeTokenAddressAtom } from "atoms/chain";
 import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
@@ -16,7 +15,7 @@ import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
-import { GasConfig } from "types";
+import { Asset, GasConfig, NamadaAsset } from "types";
 import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
@@ -34,12 +33,12 @@ const useSortByNativeToken = () => {
 const useBuildGasOption = ({
   gasConfig,
   gasPriceTable,
+  chainAssetsMap,
 }: {
   gasConfig: GasConfig;
   gasPriceTable: GasPriceTable | undefined;
+  chainAssetsMap: Record<string, NamadaAsset>;
 }) => {
-  const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-
   const gasDollarMap =
     useAtomValue(
       tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
@@ -95,10 +94,12 @@ const useBuildGasOption = ({
 export const GasFeeModal = ({
   feeProps,
   onClose,
+  chainAssetsMap,
   isShielded = false,
 }: {
   feeProps: TransactionFeeProps;
   onClose: () => void;
+  chainAssetsMap: Record<string, NamadaAsset>;
   isShielded?: boolean;
 }): JSX.Element => {
   const {
@@ -110,7 +111,11 @@ export const GasFeeModal = ({
   } = feeProps;
 
   const sortByNativeToken = useSortByNativeToken();
-  const buildGasOption = useBuildGasOption({ gasConfig, gasPriceTable });
+  const buildGasOption = useBuildGasOption({
+    gasConfig,
+    gasPriceTable,
+    chainAssetsMap,
+  });
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;
   const transparentAmount = useAtomValue(transparentBalanceAtom);
   const shieldedAmount = useAtomValue(shieldedBalanceAtom);

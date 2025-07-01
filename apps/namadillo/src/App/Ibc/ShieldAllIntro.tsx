@@ -2,10 +2,9 @@ import { Chain } from "@chain-registry/types";
 import { ActionButton, Heading, Stack } from "@namada/components";
 import svgImg from "App/Assets/ShieldedParty.svg";
 import { SelectChainModal } from "App/Transfer/SelectChainModal";
-import { availableChainsAtom } from "atoms/integrations";
+import { getAvailableChains } from "atoms/integrations";
 import { wallets } from "integrations";
-import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ShieldAllContainer } from "./ShieldAllContainer";
 
 type ShieldAllIntroProps = {
@@ -16,7 +15,7 @@ export const ShieldAllIntro = ({
   onSelectChain,
 }: ShieldAllIntroProps): JSX.Element => {
   const [displayChainModal, setDisplayChainModal] = useState(false);
-  const chainList = useAtomValue(availableChainsAtom);
+  const chainList = useMemo(getAvailableChains, []);
 
   return (
     <>

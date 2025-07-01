@@ -1,5 +1,4 @@
-import { Asset } from "@chain-registry/types";
-import { AddressWithAsset } from "types";
+import { Asset } from "types";
 
 export const assetMock: Asset = {
   description:
@@ -26,6 +25,7 @@ export const assetMock: Asset = {
   name: "Ethereum",
   display: "eth",
   symbol: "ETH",
+  address: "tnam1qzwhl0u4kjj869q55k44n7jl69u5c2gv9sejtwqk",
   logo_URIs: {
     svg: "https://example.com/eth-icon.png",
   },
@@ -61,6 +61,7 @@ export const assetMock2: Asset = {
   name: "Bitcoin",
   display: "btc",
   symbol: "BTC",
+  address: "tnam1qpzxm7chztek5zch82uf68d5zawutjjhu5qq7hdq",
   logo_URIs: { svg: "btc.svg" },
   coingecko_id: "bitcoin",
   images: [
@@ -76,8 +77,5 @@ export const assetMock2: Asset = {
   ],
 };
 
-export const assetMockList: AddressWithAsset[] = [assetMock, assetMock2].map(
-  (asset) => ({ asset, originalAddress: asset.base })
-);
-
+export const assetMockList: Asset[] = [assetMock, assetMock2];
 export const assetWithoutLogo: Asset = { ...assetMock, logo_URIs: {} };

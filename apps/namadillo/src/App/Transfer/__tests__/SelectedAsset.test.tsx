@@ -1,7 +1,7 @@
-import { Asset } from "@chain-registry/types";
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { SelectedAsset } from "App/Transfer/SelectedAsset"; // Adjust the path accordingly
+import { Asset } from "types";
 import { assetMock } from "../__mocks__/assets";
 
 describe("SelectedAsset", () => {

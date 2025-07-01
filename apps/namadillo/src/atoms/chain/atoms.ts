@@ -1,8 +1,7 @@
-import { Asset } from "@chain-registry/types";
-import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
 import namada from "@namada/chains/chains/namada";
 import { IbcToken, NativeToken } from "@namada/indexer-client";
 import { indexerApiAtom } from "atoms/api";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import {
   defaultServerConfigAtom,
   indexerUrlAtom,
@@ -10,16 +9,15 @@ import {
 } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
+import invariant from "invariant";
 import { atom } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import {
-  Address,
   ChainParameters,
   ChainSettings,
   ChainStatus,
   MaspAssetRewards,
 } from "types";
-import { findAssetByToken } from "utils/assets";
 import { calculateUnbondingPeriod } from "./functions";
 import {
   fetchChainParameters,
@@ -80,29 +78,6 @@ export const chainTokensAtom = atomWithQuery<(NativeToken | IbcToken)[]>(
   }
 );
 
-export const chainAssetsMapAtom = atom<Record<Address, Asset | undefined>>(
-  (get) => {
-    const nativeTokenAddress = get(nativeTokenAddressAtom);
-    const chainTokensQuery = get(chainTokensAtom);
-
-    // TODO we should get this dynamically from the Github like how we do for chains
-    const assets = namadaAssets.assets as Asset[];
-
-    const chainAssetsMap: Record<Address, Asset> = {};
-    if (nativeTokenAddress.data) {
-      // the first asset is the native token asset
-      chainAssetsMap[nativeTokenAddress.data] = assets[0];
-    }
-    chainTokensQuery.data?.forEach((token) => {
-      const asset = findAssetByToken(token, assets);
-      if (asset) {
-        chainAssetsMap[token.address] = asset;
-      }
-    });
-    return chainAssetsMap;
-  }
-);
-
 // Prefer calling settings@rpcUrlAtom instead, because default rpc url might be
 // overrided by the user
 export const indexerRpcUrlAtom = atomWithQuery<string>((get) => {
@@ -139,11 +114,14 @@ export const chainParametersAtom = atomWithQuery<ChainParameters>((get) => {
 export const chainStatusAtom = atom<ChainStatus | undefined>();
 
 export const maspRewardsAtom = atomWithQuery((get) => {
-  const chain = get(chainAtom);
+  const chainAssetsMap = get(namadaRegistryChainAssetsMapAtom);
+
   return {
-    queryKey: ["masp-rewards", chain],
+    queryKey: ["masp-rewards", chainAssetsMap.data],
     ...queryDependentFn(async (): Promise<MaspAssetRewards[]> => {
-      return await fetchMaspRewards();
-    }, [chain]),
+      invariant(chainAssetsMap.data, "No chain assets map");
+
+      return await fetchMaspRewards(Object.values(chainAssetsMap.data));
+    }, [chainAssetsMap]),
   };
 });

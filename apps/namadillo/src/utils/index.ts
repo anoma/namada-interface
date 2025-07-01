@@ -1,5 +1,4 @@
-import { Asset, DenomUnit } from "@chain-registry/types";
-import namadaAssets from "@namada/chain-registry/namada/assetlist.json";
+import { DenomUnit } from "@chain-registry/types";
 import {
   BroadcastTxError,
   ProposalStatus,
@@ -7,10 +6,11 @@ import {
   ResultCode,
   TxMsgValue,
 } from "@namada/types";
-import { localnetConfigAtom } from "atoms/integrations/atoms";
+import { getNamadaChainAssetsMap } from "atoms/integrations/functions";
 import BigNumber from "bignumber.js";
-import { getDefaultStore } from "jotai";
+import invariant from "invariant";
 import { useEffect, useRef } from "react";
+import { Asset } from "types";
 
 export const proposalStatusToString = (status: ProposalStatus): string => {
   const statusText: Record<ProposalStatus, string> = {
@@ -78,23 +78,12 @@ const findDisplayUnit = (asset: Asset): DenomUnit | undefined => {
 };
 
 export const namadaAsset = (): Asset => {
-  const store = getDefaultStore();
-  const config = store.get(localnetConfigAtom);
+  // This works for both housefire and mainnet because the native asset is the same
+  const namadaAssets = Object.values(getNamadaChainAssetsMap(false));
+  const nativeAsset = namadaAssets.find((asset) => asset.base === "unam");
+  invariant(nativeAsset, "Namada native asset not found");
 
-  const configTokenAddress = config.data?.tokenAddress;
-
-  // TODO we should get this dynamically from the Github like how we do for chains
-  const assets = namadaAssets.assets as Asset[];
-  const registryAsset = assets[0];
-  const asset =
-    configTokenAddress ?
-      {
-        ...registryAsset,
-        address: configTokenAddress,
-      }
-    : registryAsset;
-
-  return asset;
+  return nativeAsset;
 };
 
 export const isNamadaAsset = (asset?: Asset): boolean =>
