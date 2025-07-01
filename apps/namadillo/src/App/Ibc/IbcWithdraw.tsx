@@ -359,9 +359,7 @@ export const IbcWithdraw = (): JSX.Element => {
       <header className="flex flex-col items-center text-center mb-8 gap-6">
         <IbcTopHeader type="namToIbc" isShielded={shielded} />
       </header>
-      <div className="mb-6">
-        <IbcTabNavigation />
-      </div>
+      <div className="mb-6">{!completedAt && <IbcTabNavigation />}</div>
       <TransferModule
         source={{
           isLoadingAssets,
