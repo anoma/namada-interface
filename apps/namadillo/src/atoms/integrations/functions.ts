@@ -185,6 +185,25 @@ export const getNamadaChainAssetsMap = (
     return curr.address ? { ...acc, [curr.address]: curr } : acc;
   }, {});
 
+export const getIbcAssetByNamadaAsset = (
+  asset: NamadaAsset,
+  ibcAssets: Asset[]
+): Asset | undefined => {
+  // Returns base denom for provided asset(e.g. "uosmo", "uatom", "unam")
+  const counterpartyBaseDenom =
+    asset.traces?.[0].counterparty.base_denom || asset.base;
+
+  const ibcAsset = ibcAssets.find((ibcAsset) => {
+    return (
+      // Match native token(unam)
+      counterpartyBaseDenom === ibcAsset.base ||
+      // Match any other token
+      counterpartyBaseDenom === ibcAsset.traces?.[0].counterparty.base_denom
+    );
+  });
+  return ibcAsset;
+};
+
 export const getNamadaAssetByIbcAsset = (
   asset: Asset,
   namadaAssets: NamadaAsset[]

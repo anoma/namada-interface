@@ -1,20 +1,19 @@
-import { IbcToken, NativeToken } from "@namada/indexer-client";
+import { getIbcAssetByNamadaAsset } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import * as osmosis from "chain-registry/mainnet/osmosis";
-import { Address, BaseDenom } from "types";
-import { findAssetByToken } from "utils/assets";
+import { Address, Asset, BaseDenom, NamadaAsset } from "types";
 import { fetchCoinPrices } from "./services";
 
 export const fetchTokenPrices = async (
   tokenAddressToFetch: Address[],
-  chainTokens: (NativeToken | IbcToken)[]
+  namadaAssets: NamadaAsset[],
+  osmosisAssets: Asset[]
 ): Promise<Record<Address, BigNumber>> => {
   const baseMap: Record<BaseDenom, Address[]> = {};
   tokenAddressToFetch.forEach((address) => {
-    const token = chainTokens?.find((t) => t.address === address);
+    const token = namadaAssets?.find((t) => t.address === address);
     if (token) {
       // searching only on osmosis because these are the assets supported by fetchCoinPrices
-      const asset = findAssetByToken(token, osmosis.assets.assets);
+      const asset = getIbcAssetByNamadaAsset(token, osmosisAssets);
       if (asset) {
         if (baseMap[asset.base]) {
           baseMap[asset.base].push(address);
