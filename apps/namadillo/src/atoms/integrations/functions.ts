@@ -194,12 +194,19 @@ export const getIbcAssetByNamadaAsset = (
     asset.traces?.[0].counterparty.base_denom || asset.base;
 
   const ibcAsset = ibcAssets.find((ibcAsset) => {
-    return (
-      // Match native token(unam)
-      counterpartyBaseDenom === ibcAsset.base ||
-      // Match any other token
-      counterpartyBaseDenom === ibcAsset.traces?.[0].counterparty.base_denom
-    );
+    // Keep this check for native assets (e.g., if you were matching OSMO to OSMO)
+    if (counterpartyBaseDenom === ibcAsset.base) {
+      return true;
+    }
+
+    // For non-native IBC assets, we must search the entire traces array (e.g. stOSMO, Noble USDC)
+    if (ibcAsset.traces) {
+      return ibcAsset.traces.some(
+        (trace) =>
+          trace.type === "ibc" &&
+          trace.counterparty.base_denom === counterpartyBaseDenom
+      );
+    }
   });
   return ibcAsset;
 };
