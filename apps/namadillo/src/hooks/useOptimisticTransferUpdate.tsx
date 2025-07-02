@@ -17,17 +17,17 @@ export const useOptimisticTransferUpdate = () => {
   const [viewingKeyData] = useAtomValue(viewingKeysAtom).data ?? [];
   const viewingKey = viewingKeyData?.key;
 
-  return (token: Address, incrementBaseDenomAmount: BigNumber) => {
+  return (token: Address, incrementAmount: BigNumber) => {
     if (!viewingKey) {
       return;
     }
     setStorageShieldedBalance((storage) => ({
       ...storage,
       [viewingKey]: storage[viewingKey].map((item) =>
-        item.address === token ?
+        item.tokenAddress === token ?
           {
             ...item,
-            minDenomAmount: sum(item.minDenomAmount, incrementBaseDenomAmount),
+            amount: sum(item.amount, incrementAmount),
           }
         : item
       ),

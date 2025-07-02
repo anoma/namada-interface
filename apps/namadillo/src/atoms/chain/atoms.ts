@@ -121,7 +121,7 @@ export const maspRewardsAtom = atomWithQuery((get) => {
     ...queryDependentFn(async (): Promise<MaspAssetRewards[]> => {
       invariant(chainAssetsMap.data, "No chain assets map");
 
-      return await fetchMaspRewards(Object.values(chainAssetsMap.data));
+      return await fetchMaspRewards(chainAssetsMap.data);
     }, [chainAssetsMap]),
   };
 });

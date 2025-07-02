@@ -11,7 +11,7 @@ import { isPublicKeyRevealed } from "lib/query";
 import isEqual from "lodash.isequal";
 import { Address } from "types";
 import { TxKind } from "types/txKind";
-import { isNamadaAsset, toDisplayAmount } from "utils";
+import { toDisplayAmount } from "utils";
 import { fetchGasEstimate, fetchTokensGasPrice } from "./services";
 
 export type GasPriceTableItem = {
@@ -73,10 +73,7 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
             const baseAmount = BigNumber(minDenomAmount);
             return {
               token,
-              gasPrice:
-                asset && isNamadaAsset(asset) ?
-                  toDisplayAmount(asset, baseAmount)
-                : baseAmount,
+              gasPrice: toDisplayAmount(asset, baseAmount),
             };
           })
       );
