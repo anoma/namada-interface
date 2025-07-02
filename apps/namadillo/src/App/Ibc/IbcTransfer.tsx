@@ -10,7 +10,7 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   getAvailableChains,
-  getNamadaAssetByIbcAsset,
+  getCounterPartyAsset,
   ibcChannelsFamily,
   namadaChainRegistryAtom,
 } from "atoms/integrations";
@@ -89,7 +89,7 @@ export const IbcTransfer = (): JSX.Element => {
     const output: Record<BaseDenom, AssetWithAmount> = {};
 
     Object.entries(userAssets).forEach(([key, { asset }]) => {
-      const namadaAsset = getNamadaAssetByIbcAsset(
+      const namadaAsset = getCounterPartyAsset(
         asset,
         chainRegistry.assets.assets
       );

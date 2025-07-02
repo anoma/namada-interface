@@ -7,8 +7,8 @@ import {
 import { transparentBalanceAtom } from "atoms/accounts";
 import { shieldedBalanceAtom } from "atoms/balance";
 import { nativeTokenAddressAtom } from "atoms/chain";
-import { GasPriceTable, GasPriceTableItem } from "atoms/fees/atoms";
-import { tokenPricesFamily } from "atoms/prices/atoms";
+import { GasPriceTableItem } from "atoms/fees/atoms";
+import { tokenPricesAtom } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { TransactionFeeProps } from "hooks/useTransactionFee";
@@ -32,17 +32,12 @@ const useSortByNativeToken = () => {
 
 const useBuildGasOption = ({
   gasConfig,
-  gasPriceTable,
   chainAssetsMap,
 }: {
   gasConfig: GasConfig;
-  gasPriceTable: GasPriceTable | undefined;
   chainAssetsMap: Record<string, NamadaAsset>;
 }) => {
-  const gasDollarMap =
-    useAtomValue(
-      tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
-    ).data ?? {};
+  const gasDollarMap = useAtomValue(tokenPricesAtom).data ?? {};
 
   return (
     override: Partial<GasConfig>
@@ -113,7 +108,6 @@ export const GasFeeModal = ({
   const sortByNativeToken = useSortByNativeToken();
   const buildGasOption = useBuildGasOption({
     gasConfig,
-    gasPriceTable,
     chainAssetsMap,
   });
   const nativeToken = useAtomValue(nativeTokenAddressAtom).data;

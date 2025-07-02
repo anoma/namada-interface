@@ -185,50 +185,28 @@ export const getNamadaChainAssetsMap = (
     return curr.address ? { ...acc, [curr.address]: curr } : acc;
   }, {});
 
-export const getIbcAssetByNamadaAsset = (
-  asset: NamadaAsset,
-  ibcAssets: Asset[]
-): Asset | undefined => {
+// Returns corresponding Asset from provided asset list, i.e. given NAM on Namada return NAM on osmosis
+export const getCounterPartyAsset = <
+  A1 extends Asset | NamadaAsset = Asset,
+  A2 extends Asset | NamadaAsset = Asset,
+>(
+  asset: A1,
+  counterPartyAssets: A2[]
+): A2 | undefined => {
   // Returns base denom for provided asset(e.g. "uosmo", "uatom", "unam")
   const counterpartyBaseDenom =
     asset.traces?.[0].counterparty.base_denom || asset.base;
 
-  const ibcAsset = ibcAssets.find((ibcAsset) => {
-    // Keep this check for native assets (e.g., if you were matching OSMO to OSMO)
-    if (counterpartyBaseDenom === ibcAsset.base) {
-      return true;
-    }
-
-    // For non-native IBC assets, we must search the entire traces array (e.g. stOSMO, Noble USDC)
-    if (ibcAsset.traces) {
-      return ibcAsset.traces.some(
-        (trace) =>
-          trace.type === "ibc" &&
-          trace.counterparty.base_denom === counterpartyBaseDenom
-      );
-    }
-  });
-  return ibcAsset;
-};
-
-export const getNamadaAssetByIbcAsset = (
-  asset: Asset,
-  namadaAssets: NamadaAsset[]
-): NamadaAsset | undefined => {
-  // Returns base denom for provided asset(e.g. "uosmo", "uatom", "unam")
-  const counterpartyBaseDenom =
-    asset.traces?.[0].counterparty.base_denom || asset.base;
-
-  const namadaAsset = namadaAssets.find((namadaAsset) => {
+  const counterPartyAsset = counterPartyAssets.find((asset) => {
     return (
-      // Match native token(unam)
-      counterpartyBaseDenom === namadaAsset.base ||
+      // Match native token
+      counterpartyBaseDenom === asset.base ||
       // Match any other token
-      counterpartyBaseDenom === namadaAsset.traces?.[0].counterparty.base_denom
+      counterpartyBaseDenom === asset.traces?.[0].counterparty.base_denom
     );
   });
 
-  return namadaAsset;
+  return counterPartyAsset;
 };
 
 export const getNamadaIbcInfo = (isHousefire: boolean): IBCInfo[] => {

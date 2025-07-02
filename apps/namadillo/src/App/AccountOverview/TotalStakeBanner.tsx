@@ -2,8 +2,7 @@ import { Panel, SkeletonLoading, Stack } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { UnclaimedRewardsCard } from "App/Staking/UnclaimedRewardsCard";
-import { namadaTransparentAssetsAtom } from "atoms/balance";
-import { tokenPricesFamily } from "atoms/prices/atoms";
+import { tokenPricesAtom } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useBalances } from "hooks/useBalances";
@@ -12,12 +11,7 @@ import { namadaAsset } from "utils";
 
 export const TotalStakeBanner = (): JSX.Element => {
   const { bondedAmount, isLoading: bondedAmountIsLoading } = useBalances();
-  const shieldedAssets = useAtomValue(namadaTransparentAssetsAtom);
-  const tokenPrices = useAtomValue(
-    tokenPricesFamily(
-      Object.values(shieldedAssets.data ?? {}).map(({ asset }) => asset.address)
-    )
-  );
+  const tokenPrices = useAtomValue(tokenPricesAtom);
   const namPrice =
     tokenPrices.data?.[namadaAsset().address ?? ""] ?? BigNumber(0);
 

@@ -8,7 +8,7 @@ import {
   gasPriceTableAtom,
   isPublicKeyRevealedAtom,
 } from "atoms/fees";
-import { tokenPricesFamily } from "atoms/prices/atoms";
+import { tokenPricesAtom } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
@@ -45,10 +45,7 @@ export const useTransactionFee = (
   const { data: gasPriceTable, isLoading: isLoadingGasPriceTable } =
     useAtomValue(gasPriceTableAtom);
 
-  const gasDollarMap =
-    useAtomValue(
-      tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
-    ).data ?? {};
+  const gasDollarMap = useAtomValue(tokenPricesAtom).data ?? {};
 
   const findCheapestToken = (
     gasPriceTable: GasPriceTable

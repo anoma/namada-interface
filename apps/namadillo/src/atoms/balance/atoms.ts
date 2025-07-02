@@ -15,7 +15,7 @@ import {
 } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
 import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
-import { tokenPricesFamily } from "atoms/prices/atoms";
+import { tokenPricesAtom } from "atoms/prices/atoms";
 import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import { isAxiosError } from "axios";
@@ -251,11 +251,7 @@ export const namadaTransparentAssetsAtom = atomWithQuery((get) => {
 
 export const shieldedTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const shieldedAssets = get(namadaShieldedAssetsAtom);
-  const tokenPrices = get(
-    tokenPricesFamily(
-      Object.keys(shieldedAssets.data ?? {}).map((address) => address)
-    )
-  );
+  const tokenPrices = get(tokenPricesAtom);
 
   return {
     queryKey: ["shielded-tokens", shieldedAssets.data, tokenPrices.data],
@@ -307,11 +303,7 @@ export const shieldedRewardsPerTokenAtom = atomWithQuery((get) => {
 
 export const transparentTokensAtom = atomWithQuery<TokenBalance[]>((get) => {
   const transparentAssets = get(namadaTransparentAssetsAtom);
-  const tokenPrices = get(
-    tokenPricesFamily(
-      Object.keys(transparentAssets.data ?? {}).map((address) => address)
-    )
-  );
+  const tokenPrices = get(tokenPricesAtom);
 
   return {
     queryKey: ["transparent-tokens", transparentAssets.data, tokenPrices.data],

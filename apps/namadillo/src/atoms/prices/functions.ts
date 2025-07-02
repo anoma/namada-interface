@@ -1,40 +1,26 @@
-import { getIbcAssetByNamadaAsset } from "atoms/integrations";
+import { getCounterPartyAsset } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import namadaAssets from "chain-registry/mainnet/namada/assets";
-import * as osmosisAssets from "chain-registry/mainnet/osmosis";
-import { Address, BaseDenom, NamadaAsset } from "types";
+import { Address, Asset, NamadaAsset } from "types";
 import { fetchCoinPrices } from "./services";
 
 export const fetchTokenPrices = async (
-  tokenAddressToFetch: Address[]
+  namadaAssets: NamadaAsset[],
+  osmosisAssets: Asset[]
 ): Promise<Record<Address, BigNumber>> => {
-  const baseMap: Record<BaseDenom, Address[]> = {};
-  tokenAddressToFetch.forEach((address) => {
-    const namadaAssetsRegistry = namadaAssets.assets as NamadaAsset[];
-    const token = namadaAssetsRegistry.find((t) => t.address === address);
-    const osmosisRegistryAssets = osmosisAssets.assets.assets;
-    if (token) {
-      // searching only on osmosis because these are the assets supported by fetchCoinPrices
-      const asset = getIbcAssetByNamadaAsset(token, osmosisRegistryAssets);
-      if (asset) {
-        if (baseMap[asset.base]) {
-          baseMap[asset.base].push(address);
-        } else {
-          baseMap[asset.base] = [address];
-        }
-      }
+  const baseAddressMap: Record<string, Address> = {};
+  namadaAssets.forEach((asset) => {
+    const counterPartyAsset = getCounterPartyAsset(asset, osmosisAssets);
+    if (counterPartyAsset) {
+      baseAddressMap[counterPartyAsset.base] = asset.address;
     }
   });
-  const baseList = Object.keys(baseMap);
-  const apiResponse = await fetchCoinPrices(baseList);
+  const apiResponse = await fetchCoinPrices(Object.keys(baseAddressMap));
 
-  const tokenPrices: Record<string, BigNumber> = {};
+  const tokenPrices: Record<Address, BigNumber> = {};
   Object.entries(apiResponse).forEach(([base, value]) => {
     const dollar = Object.values(value)[0];
     if (dollar) {
-      baseMap[base].forEach((address) => {
-        tokenPrices[address] = new BigNumber(dollar);
-      });
+      tokenPrices[baseAddressMap[base]] = new BigNumber(dollar);
     }
   });
   return tokenPrices;

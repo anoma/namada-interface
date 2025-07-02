@@ -1,16 +1,19 @@
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
+import { queryDependentFn } from "atoms/utils";
+import * as osmosis from "chain-registry/mainnet/osmosis";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { atomFamily } from "jotai/utils";
-import isEqual from "lodash.isequal";
-import { Address } from "types";
 import { fetchTokenPrices } from "./functions";
 
-export const tokenPricesFamily = atomFamily(
-  (addresses: Address[]) =>
-    atomWithQuery(() => {
-      return {
-        queryKey: ["token-prices", addresses],
-        queryFn: () => fetchTokenPrices(addresses),
-      };
-    }),
-  isEqual
-);
+export const tokenPricesAtom = atomWithQuery((get) => {
+  const namadaChainAssetsMap = get(namadaRegistryChainAssetsMapAtom);
+
+  return {
+    queryKey: ["token-prices"],
+    ...queryDependentFn(async () => {
+      return fetchTokenPrices(
+        Object.values(namadaChainAssetsMap.data!),
+        osmosis.assets.assets
+      );
+    }, [namadaChainAssetsMap]),
+  };
+});
