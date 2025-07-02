@@ -475,7 +475,11 @@ export const TransferModule = ({
       <SelectToken
         isOpen={assetSelectorModalOpen}
         onClose={() => setAssetSelectorModalOpen(false)}
-        onSelect={source.onChangeSelectedAsset}
+        onSelect={(asset) => {
+          source.onChangeAmount?.(undefined);
+          source.onChangeSelectedAsset?.(asset);
+          setAssetSelectorModalOpen(false);
+        }}
       />
 
       <section className="max-w-[480px] mx-auto" role="widget">
