@@ -1,4 +1,3 @@
-import { chainTokensAtom } from "atoms/chain/atoms";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomFamily } from "jotai/utils";
 import isEqual from "lodash.isequal";
@@ -7,11 +6,10 @@ import { fetchTokenPrices } from "./functions";
 
 export const tokenPricesFamily = atomFamily(
   (addresses: Address[]) =>
-    atomWithQuery((get) => {
-      const chainTokens = get(chainTokensAtom).data;
+    atomWithQuery(() => {
       return {
-        queryKey: ["token-prices", addresses, chainTokens],
-        queryFn: () => fetchTokenPrices(addresses, chainTokens ?? []),
+        queryKey: ["token-prices", addresses],
+        queryFn: () => fetchTokenPrices(addresses),
       };
     }),
   isEqual
