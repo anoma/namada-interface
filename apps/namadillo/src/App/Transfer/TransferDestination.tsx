@@ -185,7 +185,7 @@ export const TransferDestination = ({
       )}
 
       {!isSubmitting && (
-        <footer className="flex items-center mt-10">
+        <footer className="flex mt-10">
           {changeFeeEnabled ?
             feeProps && (
               <TransactionFeeButton

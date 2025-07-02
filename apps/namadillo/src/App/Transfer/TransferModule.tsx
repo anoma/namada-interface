@@ -493,6 +493,7 @@ export const TransferModule = ({
             wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}
+            originalAddress={selectedAsset?.originalAddress}
             isLoadingAssets={source.isLoadingAssets}
             chain={parseChainInfo(source.chain, source.isShieldedAddress)}
             availableAmount={source.availableAmount}
