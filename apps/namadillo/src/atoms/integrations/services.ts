@@ -296,7 +296,8 @@ export const handleStandardTransfer = async (
 
   try {
     const txResponse = await fetchTx(tx.hash ?? "");
-    const hasRejectedTx = txResponse.innerTransactions.some(
+    // We consider tx as rejected if every inner transaction has an exit code of Rejected
+    const hasRejectedTx = txResponse.innerTransactions.every(
       ({ exitCode }) => exitCode === WrapperTransactionExitCodeEnum.Rejected
     );
 
