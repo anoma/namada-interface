@@ -31,7 +31,6 @@ type TransferDestinationProps = {
   isSubmitting?: boolean;
   destinationAsset?: Asset;
   amount?: BigNumber;
-  openChainSelector?: () => void;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
   onChangeAddress?: (address: Address) => void;
@@ -60,7 +59,6 @@ export const TransferDestination = ({
   onChangeAddress,
   memo,
   onChangeMemo,
-  openChainSelector,
   openProviderSelector,
 }: TransferDestinationProps): JSX.Element => {
   return (
@@ -126,12 +124,7 @@ export const TransferDestination = ({
           )}
           {!customAddressActive && (
             <div className="flex justify-between items-center">
-              <SelectedChain
-                chain={chain}
-                wallet={wallet}
-                onClick={openChainSelector}
-                iconSize="42px"
-              />
+              <SelectedChain chain={chain} wallet={wallet} iconSize="42px" />
               {!walletAddress && (
                 <ConnectProviderButton onClick={openProviderSelector} />
               )}
@@ -144,12 +137,7 @@ export const TransferDestination = ({
           {customAddressActive && (
             <Stack gap={8}>
               {onToggleCustomAddress && (
-                <SelectedChain
-                  chain={chain}
-                  wallet={wallet}
-                  onClick={openChainSelector}
-                  iconSize="42px"
-                />
+                <SelectedChain chain={chain} wallet={wallet} iconSize="42px" />
               )}
               <CustomAddressForm
                 memo={memo}

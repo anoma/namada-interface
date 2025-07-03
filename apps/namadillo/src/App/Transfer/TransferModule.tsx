@@ -1,4 +1,3 @@
-import { Chain } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
@@ -17,11 +16,7 @@ import { AddressWithAssetAndAmountMap } from "types";
 import { filterAvailableAssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
-import {
-  isShieldedAddress,
-  isTransparentAddress,
-  parseChainInfo,
-} from "./common";
+import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectChainModal } from "./SelectChainModal";
@@ -37,28 +32,7 @@ import {
   TransferModuleProps,
   ValidationResult,
 } from "./types";
-
-// Check if the provided address is valid for the destination chain and transaction type
-const isValidDestinationAddress = ({
-  customAddress,
-  chain,
-}: {
-  customAddress: string;
-  chain: Chain | undefined;
-}): boolean => {
-  // Skip validation if no custom address or chain provided
-  if (!customAddress || !chain) return true;
-
-  // Check shielded/transparent address requirements for Namada
-  if (chain.bech32_prefix === "nam") {
-    return (
-      isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
-    );
-  }
-
-  // For non-Namada chains, validate using prefix
-  return customAddress.startsWith(chain.bech32_prefix);
-};
+import { isValidDestinationAddress } from "./utils";
 
 export const TransferModule = ({
   source,
@@ -405,7 +379,6 @@ export const TransferModule = ({
           onSubmit={onSubmit}
         >
           <TransferSource
-            isConnected={Boolean(source.connected)}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}
@@ -416,11 +389,6 @@ export const TransferModule = ({
             availableAmountMinusFees={availableAmountMinusFees}
             amount={source.amount}
             openProviderSelector={onChangeWallet(source)}
-            openChainSelector={
-              source.onChangeChain && !isSubmitting ?
-                () => setSourceChainModalOpen(true)
-              : undefined
-            }
             openAssetSelector={
               source.onChangeSelectedAsset && !isSubmitting ?
                 () => setAssetSelectorModalOpen(true)
@@ -455,11 +423,6 @@ export const TransferModule = ({
             openProviderSelector={() =>
               destination.onChangeWallet && destination.wallet ?
                 destination.onChangeWallet(destination.wallet)
-              : undefined
-            }
-            openChainSelector={
-              destination.onChangeChain && !isSubmitting ?
-                () => setDestinationChainModalOpen(true)
               : undefined
             }
             onChangeAddress={destination.onChangeCustomAddress}
