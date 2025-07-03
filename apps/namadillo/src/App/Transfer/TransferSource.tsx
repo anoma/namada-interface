@@ -3,10 +3,9 @@ import { AmountInput } from "@namada/components";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { Address } from "types";
+import { AddressDropdown } from "./AddressDropdown";
 import { AvailableAmountFooter } from "./AvailableAmountFooter";
-import { ConnectProviderButton } from "./ConnectProviderButton";
 import { SelectedAsset } from "./SelectedAsset";
-import { SelectedWallet } from "./SelectedWallet";
 import { TokenAmountCard } from "./TokenAmountCard";
 
 export type TransferSourceProps = {
@@ -15,13 +14,14 @@ export type TransferSourceProps = {
   chain?: Chain;
   asset?: Asset;
   originalAddress?: Address;
-  walletAddress?: string;
+  sourceAddress?: string;
   availableAmount?: BigNumber;
   availableAmountMinusFees?: BigNumber;
   amount?: BigNumber;
   openAssetSelector?: () => void;
   openProviderSelector?: () => void;
   onChangeAmount?: (amount: BigNumber | undefined) => void;
+  onChangeWalletAddress?: (address: string) => void;
 };
 
 const amountMaxDecimalPlaces = (asset?: Asset): number | undefined => {
@@ -41,13 +41,14 @@ export const TransferSource = ({
   chain,
   asset,
   originalAddress,
-  walletAddress,
   availableAmount,
   availableAmountMinusFees,
   amount,
+  sourceAddress,
   openAssetSelector,
   openProviderSelector,
   onChangeAmount,
+  onChangeWalletAddress,
 }: TransferSourceProps): JSX.Element => {
   return (
     <div className="relative bg-neutral-800 rounded-lg px-4 py-5">
@@ -56,16 +57,17 @@ export const TransferSource = ({
         <SelectedAsset
           asset={asset}
           isLoading={isLoadingAssets}
-          isDisabled={!chain || !walletAddress}
+          isDisabled={!chain || !sourceAddress}
           onClick={openAssetSelector}
         />
-        {!walletAddress && (
+        {/* {!sourceAddress && (
           <ConnectProviderButton onClick={openProviderSelector} />
-        )}
-        {walletAddress && (
-          <SelectedWallet
-            address={walletAddress}
+        )} */}
+        {sourceAddress && (
+          <AddressDropdown
+            selectedAddress={sourceAddress}
             onClick={openProviderSelector}
+            onSelectAddress={onChangeWalletAddress}
           />
         )}
       </header>

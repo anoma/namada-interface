@@ -3,6 +3,7 @@ import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
 import { InlineError } from "App/Common/InlineError";
 import { routes } from "App/routes";
+import { allDefaultAccountsAtom } from "atoms/accounts";
 import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -14,7 +15,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AddressWithAssetAndAmountMap } from "types";
 import { filterAvailableAssetsWithBalance } from "utils/assets";
 import { getDisplayGasFee } from "utils/gas";
-import { parseChainInfo } from "./common";
+import { isTransparentAddress, parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
 import { SelectToken } from "./SelectToken";
@@ -52,23 +53,28 @@ export const TransferModule = ({
 }: TransferModuleProps): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
-  const [assetSelectorModalOpen, setAssetSelectorModalOpen] = useState(false);
-  const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
-
   const displayGasFee = useMemo(() => {
     return gasConfig ? getDisplayGasFee(gasConfig, chainAssetsMap) : undefined;
   }, [gasConfig]);
 
+  const { data: accounts } = useAtomValue(allDefaultAccountsAtom);
+  const transparentAddress = accounts?.find((acc) =>
+    isTransparentAddress(acc.address)
+  )?.address;
+  const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
+  const [assetSelectorModalOpen, setAssetSelectorModalOpen] = useState(false);
+  const [sourceAddress, setSourceAddress] = useState<string | undefined>(
+    transparentAddress
+  );
+  const [memo, setMemo] = useState<undefined | string>();
+
   const availableAssets: AddressWithAssetAndAmountMap = useMemo(() => {
     return filterAvailableAssetsWithBalance(source.availableAssets);
   }, [source.availableAssets]);
-
   const firstAvailableAsset = Object.values(availableAssets)[0];
-
   const selectedAsset = mapUndefined(
     (address) => source.availableAssets?.[address],
     source.selectedAssetAddress
@@ -136,26 +142,25 @@ export const TransferModule = ({
     onSubmitTransfer?.(params);
   };
 
-  const getButtonTextFromValidation = (): string => {
-    return getButtonText({
+  const getButtonTextFromValidation = (): string =>
+    getButtonText({
       isSubmitting,
       submittingText,
       validationResult,
       availableAmountMinusFees,
       buttonTextErrors,
     });
-  };
-
-  const buttonColor =
-    destination.isShieldedAddress || source.isShieldedAddress ?
-      "yellow"
-    : "white";
 
   useEffect(() => {
     if (!selectedAsset?.asset && firstAvailableAsset) {
       source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
     }
   }, [firstAvailableAsset]);
+
+  const buttonColor =
+    destination.isShieldedAddress || source.isShieldedAddress ?
+      "yellow"
+    : "white";
 
   return (
     <>
@@ -169,7 +174,7 @@ export const TransferModule = ({
           onSubmit={onSubmit}
         >
           <TransferSource
-            walletAddress={source.walletAddress}
+            sourceAddress={sourceAddress}
             asset={selectedAsset?.asset}
             originalAddress={selectedAsset?.originalAddress}
             isLoadingAssets={source.isLoadingAssets}
@@ -183,6 +188,7 @@ export const TransferModule = ({
               : undefined
             }
             onChangeAmount={source.onChangeAmount}
+            onChangeWalletAddress={setSourceAddress}
             isSubmitting={isSubmitting}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
