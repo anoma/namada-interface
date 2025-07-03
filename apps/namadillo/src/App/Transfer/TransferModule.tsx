@@ -1,4 +1,4 @@
-import { Chain, Chains } from "@chain-registry/types";
+import { Chain } from "@chain-registry/types";
 import { ActionButton, Stack } from "@namada/components";
 import { mapUndefined } from "@namada/utils";
 import { IconTooltip } from "App/Common/IconTooltip";
@@ -8,19 +8,12 @@ import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
-import { TransactionFeeProps } from "hooks/useTransactionFee";
 import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Address,
-  AddressWithAssetAndAmountMap,
-  GasConfig,
-  LedgerAccountInfo,
-  WalletProvider,
-} from "types";
+import { AddressWithAssetAndAmountMap } from "types";
 import { filterAvailableAssetsWithBalance } from "utils/assets";
 import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
@@ -38,91 +31,12 @@ import { SuccessAnimation } from "./SuccessAnimation";
 import { TransferArrow } from "./TransferArrow";
 import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
-
-type TransferModuleConfig = {
-  wallet?: WalletProvider;
-  walletAddress?: string;
-  availableWallets?: WalletProvider[];
-  connected?: boolean;
-  availableChains?: Chains;
-  chain?: Chain;
-  isShieldedAddress?: boolean;
-  onChangeWallet?: (wallet: WalletProvider) => void;
-  onChangeChain?: (chain: Chain) => void;
-  onChangeShielded?: (isShielded: boolean) => void;
-  isSyncingMasp?: boolean;
-  // Additional information if selected account is a ledger
-  ledgerAccountInfo?: LedgerAccountInfo;
-};
-
-export type TransferSourceProps = TransferModuleConfig & {
-  availableAssets?: AddressWithAssetAndAmountMap;
-  isLoadingAssets?: boolean;
-  selectedAssetAddress?: Address;
-  availableAmount?: BigNumber;
-  onChangeSelectedAsset?: (address: Address | undefined) => void;
-  amount?: BigNumber;
-  onChangeAmount?: (amount: BigNumber | undefined) => void;
-};
-
-export type IbcOptions = {
-  sourceChannel: string;
-  onChangeSourceChannel: (channel: string) => void;
-  destinationChannel?: string;
-  onChangeDestinationChannel?: (channel: string) => void;
-};
-
-export type TransferDestinationProps = TransferModuleConfig & {
-  enableCustomAddress?: boolean;
-  customAddress?: Address;
-  onChangeCustomAddress?: (address: Address) => void;
-  onChangeShielded?: (shielded: boolean) => void;
-};
-
-export type OnSubmitTransferParams = {
-  displayAmount: BigNumber;
-  destinationAddress: Address;
-  memo?: string;
-};
-
-export type TransferModuleProps = {
-  source: TransferSourceProps;
-  destination: TransferDestinationProps;
-  onSubmitTransfer?: (params: OnSubmitTransferParams) => void;
-  requiresIbcChannels?: boolean;
-  gasConfig?: GasConfig;
-  feeProps?: TransactionFeeProps;
-  changeFeeEnabled?: boolean;
-  submittingText?: string;
-  isSubmitting?: boolean;
-  errorMessage?: string;
-  currentStatus?: string;
-  currentStatusExplanation?: string;
-  completedAt?: Date;
-  isShieldedTx?: boolean;
-  isSyncingMasp?: boolean;
-  buttonTextErrors?: Partial<Record<ValidationResult, string>>;
-  onComplete?: () => void;
-} & (
-  | { isIbcTransfer?: false; ibcOptions?: undefined }
-  | { isIbcTransfer: true; ibcOptions: IbcOptions }
-);
-
-type ValidationResult =
-  | "NoAmount"
-  | "NoSourceWallet"
-  | "NoSourceChain"
-  | "NoSelectedAsset"
-  | "NoDestinationWallet"
-  | "NoDestinationChain"
-  | "NoTransactionFee"
-  | "NotEnoughBalance"
-  | "NotEnoughBalanceForFees"
-  | "KeychainNotCompatibleWithMasp"
-  | "CustomAddressNotMatchingChain"
-  | "TheSameAddress"
-  | "NoLedgerConnected"
-  | "Ok";
+import {
+  OnSubmitTransferParams,
+  TransferModuleConfig,
+  TransferModuleProps,
+  ValidationResult,
+} from "./types";
 
 // Check if the provided address is valid for the destination chain and transaction type
 const isValidDestinationAddress = ({
@@ -164,7 +78,6 @@ export const TransferModule = ({
   completedAt,
   onComplete,
   buttonTextErrors = {},
-  isSyncingMasp = false,
   isShieldedTx = false,
 }: TransferModuleProps): JSX.Element => {
   const navigate = useNavigate();
@@ -493,7 +406,6 @@ export const TransferModule = ({
         >
           <TransferSource
             isConnected={Boolean(source.connected)}
-            isSyncingMasp={isSyncingMasp}
             wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}
@@ -515,8 +427,6 @@ export const TransferModule = ({
               : undefined
             }
             onChangeAmount={source.onChangeAmount}
-            isShieldedAddress={source.isShieldedAddress}
-            onChangeShielded={source.onChangeShielded}
             isSubmitting={isSubmitting}
           />
           <i className="flex items-center justify-center w-11 mx-auto -my-8 relative z-10">
