@@ -18,37 +18,34 @@ import { TokenAmountCard } from "./TokenAmountCard";
 type TransferDestinationProps = {
   isShieldedAddress?: boolean;
   isShieldedTx?: boolean;
-  onChangeShielded?: (isShielded: boolean) => void;
+  isSubmitting?: boolean;
   chain?: Chain;
   wallet?: WalletProvider;
   walletAddress?: string;
-  className?: string;
   gasDisplayAmount?: BigNumber;
   gasAsset?: Asset;
   feeProps?: TransactionFeeProps;
   changeFeeEnabled?: boolean;
   customAddressActive?: boolean;
-  isSubmitting?: boolean;
   destinationAsset?: Asset;
   amount?: BigNumber;
+  address?: string;
+  memo?: string;
   openProviderSelector?: () => void;
   onToggleCustomAddress?: (isActive: boolean) => void;
   onChangeAddress?: (address: Address) => void;
-  address?: string;
-  memo?: string;
   onChangeMemo?: (address: string) => void;
 };
 
 export const TransferDestination = ({
+  isShieldedAddress,
+  isShieldedTx = false,
+  isSubmitting,
   chain,
   wallet,
   walletAddress,
-  isShieldedAddress,
-  isShieldedTx = false,
-  onChangeShielded,
   gasDisplayAmount,
   gasAsset,
-  isSubmitting,
   feeProps,
   changeFeeEnabled = true,
   customAddressActive,
@@ -72,26 +69,6 @@ export const TransferDestination = ({
     >
       {!isSubmitting && (
         <div>
-          {onChangeShielded && chain?.chain_name === "namada" && (
-            <nav className="mb-6">
-              <TabSelector
-                active={isShieldedAddress ? "shielded" : "transparent"}
-                items={[
-                  {
-                    id: "shielded",
-                    text: "Shielded",
-                    className: "text-yellow",
-                  },
-                  {
-                    id: "transparent",
-                    text: "Transparent",
-                    className: "text-white",
-                  },
-                ]}
-                onChange={() => onChangeShielded(!isShieldedAddress)}
-              />
-            </nav>
-          )}
           {onToggleCustomAddress && (
             <nav className="mb-6">
               <TabSelector

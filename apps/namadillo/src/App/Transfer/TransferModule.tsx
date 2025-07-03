@@ -7,14 +7,12 @@ import { chainAssetsMapAtom } from "atoms/chain";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
-import { wallets } from "integrations";
 import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AddressWithAssetAndAmountMap } from "types";
 import { filterAvailableAssetsWithBalance } from "utils/assets";
-import { checkKeychainCompatibleWithMasp } from "utils/compatibility";
 import { getDisplayGasFee } from "utils/gas";
 import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
@@ -31,7 +29,7 @@ import {
   TransferModuleProps,
   ValidationResult,
 } from "./types";
-import { isValidDestinationAddress } from "./utils";
+import { getButtonText, validateTransferForm } from "./utils";
 
 export const TransferModule = ({
   source,
@@ -111,50 +109,24 @@ export const TransferModule = ({
   }, [source.selectedAssetAddress, source.availableAmount, displayGasFee]);
 
   const validationResult = useMemo((): ValidationResult => {
-    if (!source.wallet) {
-      return "NoSourceWallet";
-    } else if (source.walletAddress === destination.customAddress) {
-      return "TheSameAddress";
-    } else if (
-      !isValidDestinationAddress({
-        customAddress: destination.customAddress ?? "",
-        chain: destination.chain,
-      })
-    ) {
-      return "CustomAddressNotMatchingChain";
-    } else if (
-      (source.isShieldedAddress || destination.isShieldedAddress) &&
-      keychainVersion &&
-      !checkKeychainCompatibleWithMasp(keychainVersion)
-    ) {
-      return "KeychainNotCompatibleWithMasp";
-    } else if (!source.chain) {
-      return "NoSourceChain";
-    } else if (!destination.chain) {
-      return "NoDestinationChain";
-    } else if (!source.selectedAssetAddress) {
-      return "NoSelectedAsset";
-    } else if (!hasEnoughBalanceForFees()) {
-      return "NotEnoughBalanceForFees";
-    } else if (!source.amount || source.amount.eq(0)) {
-      return "NoAmount";
-    } else if (
-      !availableAmountMinusFees ||
-      source.amount.gt(availableAmountMinusFees)
-    ) {
-      return "NotEnoughBalance";
-    } else if (!destination.wallet && !destination.customAddress) {
-      return "NoDestinationWallet";
-    } else if (
-      (source.isShieldedAddress || destination.isShieldedAddress) &&
-      source.ledgerAccountInfo &&
-      !source.ledgerAccountInfo.deviceConnected
-    ) {
-      return "NoLedgerConnected";
-    } else {
-      return "Ok";
-    }
-  }, [source, destination, gasConfig, availableAmountMinusFees]);
+    return validateTransferForm({
+      source,
+      destination,
+      gasConfig,
+      availableAmountMinusFees,
+      keychainVersion,
+      availableAssets,
+      displayGasFeeAmount: displayGasFee?.totalDisplayAmount,
+    });
+  }, [
+    source,
+    destination,
+    gasConfig,
+    availableAmountMinusFees,
+    keychainVersion,
+    availableAssets,
+    displayGasFee,
+  ]);
 
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -180,112 +152,14 @@ export const TransferModule = ({
     onSubmitTransfer?.(params);
   };
 
-  function hasEnoughBalanceForFees(): boolean {
-    // Skip if transaction fees will be handled by another wallet, like Keplr.
-    // (Ex: when users transfer from IBC to Namada)
-    if (source.wallet && source.wallet !== wallets.namada) {
-      return true;
-    }
-
-    if (!availableAssets || !gasConfig || !displayGasFee) {
-      return false;
-    }
-
-    // Find how much the user has in their account for the selected fee token
-    const feeTokenAddress = gasConfig.gasToken;
-
-    if (!availableAssets.hasOwnProperty(feeTokenAddress)) {
-      return false;
-    }
-
-    const assetDisplayAmount = availableAssets[feeTokenAddress].amount;
-    const feeDisplayAmount = displayGasFee?.totalDisplayAmount;
-
-    return assetDisplayAmount.gt(feeDisplayAmount);
-  }
-
-  // const filteredAvailableAssets = useMemo(() => {
-  //   // Get available assets that are accepted by the chain
-  //   return Object.values(availableAssets).filter(({ asset }) => {
-  //     if (!source.chain) return true;
-  //     return chainAssets.some(
-  //       (chainAsset) =>
-  //         chainAsset?.symbol.toLowerCase() === asset?.symbol.toLowerCase()
-  //     );
-  //   });
-  // }, [availableAssets, source.chain, chainAssets]);
-
-  // const sortedAssets = useMemo(() => {
-  //   if (!filteredAvailableAssets.length) {
-  //     return [];
-  //   }
-
-  //   // Sort filtered assets by amount
-  //   return [...filteredAvailableAssets].sort(
-  //     (
-  //       asset1: AddressWithAssetAndAmount,
-  //       asset2: AddressWithAssetAndAmount
-  //     ) => {
-  //       return asset1.amount.gt(asset2.amount) ? -1 : 1;
-  //     }
-  //   );
-  // }, [filteredAvailableAssets]);
-
-  const getButtonTextError = (
-    id: ValidationResult,
-    defaultText: string
-  ): string => {
-    if (buttonTextErrors.hasOwnProperty(id) && buttonTextErrors[id]) {
-      return buttonTextErrors[id];
-    }
-
-    return defaultText;
-  };
-
-  const getButtonText = (): string | JSX.Element => {
-    if (isSubmitting) {
-      return submittingText || "Submitting...";
-    }
-
-    const getText = getButtonTextError.bind(null, validationResult);
-    switch (validationResult) {
-      case "NoSourceWallet":
-        return getText("Select Wallet");
-      case "TheSameAddress":
-        return getText("Source and destination addresses are the same");
-
-      case "NoSourceChain":
-      case "NoDestinationChain":
-        return getText("Select Chain");
-
-      case "NoSelectedAsset":
-        return getText("Select Asset");
-      case "NoDestinationWallet":
-        return getText("Select Destination Wallet");
-
-      case "NoAmount":
-        return getText("Define an amount to transfer");
-
-      case "NoTransactionFee":
-        return getText("No transaction fee is set");
-
-      case "CustomAddressNotMatchingChain":
-        return getText("Custom address does not match chain");
-      case "NotEnoughBalance":
-        return getText("Not enough balance");
-      case "NotEnoughBalanceForFees":
-        return getText("Not enough balance to pay for transaction fees");
-      case "KeychainNotCompatibleWithMasp":
-        return getText("Keychain is not compatible with MASP");
-      case "NoLedgerConnected":
-        return getText("Connect your ledger and open the Namada App");
-    }
-
-    if (!availableAmountMinusFees) {
-      return getText("Wallet amount not available");
-    }
-
-    return "Submit";
+  const getButtonTextFromValidation = (): string => {
+    return getButtonText({
+      isSubmitting,
+      submittingText,
+      validationResult,
+      availableAmountMinusFees,
+      buttonTextErrors,
+    });
   };
 
   const buttonColor =
@@ -381,7 +255,6 @@ export const TransferModule = ({
             )}
             isShieldedAddress={destination.isShieldedAddress}
             isShieldedTx={isShieldedTx}
-            onChangeShielded={destination.onChangeShielded}
             address={destination.customAddress}
             onToggleCustomAddress={
               destination.enableCustomAddress && destination.availableWallets ?
@@ -433,7 +306,7 @@ export const TransferModule = ({
                 textHoverColor={buttonColor}
                 disabled={validationResult !== "Ok" || isSubmitting}
               >
-                {getButtonText()}
+                {getButtonTextFromValidation()}
               </ActionButton>
 
               {validationResult === "NoLedgerConnected" &&
