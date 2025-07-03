@@ -179,10 +179,6 @@ export const IbcTransfer = (): JSX.Element => {
     connectToChainId(defaultChainId);
   };
 
-  const onChangeChain = (chain: Chain): void => {
-    connectToChainId(chain.chain_id);
-  };
-
   return (
     <div className="relative min-h-[600px]">
       <header className="flex flex-col items-center text-center mb-8 gap-6">
@@ -198,7 +194,6 @@ export const IbcTransfer = (): JSX.Element => {
           selectedAssetAddress,
           availableAmount,
           availableChains,
-          onChangeChain,
           chain: registry?.chain,
           availableWallets: [wallets.keplr],
           wallet: wallets.keplr,

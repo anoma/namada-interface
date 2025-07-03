@@ -169,7 +169,6 @@ export const TransferModule = ({
           onSubmit={onSubmit}
         >
           <TransferSource
-            wallet={source.wallet}
             walletAddress={source.walletAddress}
             asset={selectedAsset?.asset}
             originalAddress={selectedAsset?.originalAddress}
@@ -313,19 +312,6 @@ export const TransferModule = ({
             onConnect={source.onChangeWallet}
           />
         )}
-
-      {/* {assetSelectorModalOpen &&
-        source.onChangeSelectedAsset &&
-        source.wallet &&
-        source.walletAddress && (
-          <SelectAssetModal
-            onClose={() => setAssetSelectorModalOpen(false)}
-            assets={sortedAssets}
-            onSelect={source.onChangeSelectedAsset}
-            wallet={source.wallet}
-            walletAddress={source.walletAddress}
-          />
-        )} */}
     </>
   );
 };

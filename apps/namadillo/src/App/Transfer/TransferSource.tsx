@@ -2,7 +2,7 @@ import { Asset, Chain } from "@chain-registry/types";
 import { AmountInput } from "@namada/components";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
-import { Address, WalletProvider } from "types";
+import { Address } from "types";
 import { AvailableAmountFooter } from "./AvailableAmountFooter";
 import { ConnectProviderButton } from "./ConnectProviderButton";
 import { SelectedAsset } from "./SelectedAsset";
@@ -15,7 +15,6 @@ export type TransferSourceProps = {
   chain?: Chain;
   asset?: Asset;
   originalAddress?: Address;
-  wallet?: WalletProvider;
   walletAddress?: string;
   availableAmount?: BigNumber;
   availableAmountMinusFees?: BigNumber;
@@ -42,7 +41,6 @@ export const TransferSource = ({
   chain,
   asset,
   originalAddress,
-  wallet,
   walletAddress,
   availableAmount,
   availableAmountMinusFees,
@@ -64,9 +62,8 @@ export const TransferSource = ({
         {!walletAddress && (
           <ConnectProviderButton onClick={openProviderSelector} />
         )}
-        {walletAddress && wallet && (
+        {walletAddress && (
           <SelectedWallet
-            wallet={wallet}
             address={walletAddress}
             onClick={openProviderSelector}
           />

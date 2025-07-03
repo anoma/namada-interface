@@ -5,7 +5,6 @@ import {
   randomChainMock,
 } from "App/Transfer/__mocks__/chains";
 import { SelectChainModal } from "App/Transfer/SelectChainModal";
-import { walletMock } from "../__mocks__/providers";
 
 describe("Component: SelectChainModal", () => {
   const mockChains = [randomChainMock, namadaChainMock];
@@ -17,7 +16,6 @@ describe("Component: SelectChainModal", () => {
         chains={mockChains as Chains}
         onClose={jest.fn()}
         onSelect={jest.fn()}
-        wallet={walletMock}
         walletAddress={mockAddress}
       />
     );
@@ -50,7 +48,6 @@ describe("Component: SelectChainModal", () => {
         onClose={jest.fn()}
         onSelect={handleSelect}
         chains={mockChains as Chains}
-        wallet={walletMock}
         walletAddress={mockAddress}
       />
     );
@@ -65,7 +62,6 @@ describe("Component: SelectChainModal", () => {
         onClose={jest.fn()}
         onSelect={handleSelect}
         chains={[]}
-        wallet={walletMock}
         walletAddress={mockAddress}
       />
     );

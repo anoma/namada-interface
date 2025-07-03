@@ -5,7 +5,6 @@ import { SelectModal } from "App/Common/SelectModal";
 import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { WalletProvider } from "types";
 import { ChainCard } from "./ChainCard";
 import { ConnectedWalletInfo } from "./ConnectedWalletInfo";
 
@@ -13,14 +12,12 @@ type SelectChainModalProps = {
   onClose: () => void;
   onSelect: (chain: Chain) => void;
   chains: Chains;
-  wallet: WalletProvider;
   walletAddress?: string;
 };
 
 export const SelectChainModal = ({
   onClose,
   onSelect,
-  wallet,
   walletAddress,
   chains,
 }: SelectChainModalProps): JSX.Element => {
@@ -35,9 +32,7 @@ export const SelectChainModal = ({
 
   return (
     <SelectModal title="Select Source Chain" onClose={onClose}>
-      {walletAddress && (
-        <ConnectedWalletInfo wallet={wallet} walletAddress={walletAddress} />
-      )}
+      {walletAddress && <ConnectedWalletInfo walletAddress={walletAddress} />}
       <div className="my-4">
         <Search placeholder="Search chain" onChange={setFilter} />
       </div>
