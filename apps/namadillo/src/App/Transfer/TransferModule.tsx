@@ -28,7 +28,6 @@ import { TransferDestination } from "./TransferDestination";
 import { TransferSource } from "./TransferSource";
 import {
   OnSubmitTransferParams,
-  TransferModuleConfig,
   TransferModuleProps,
   ValidationResult,
 } from "./types";
@@ -179,35 +178,6 @@ export const TransferModule = ({
     };
 
     onSubmitTransfer?.(params);
-  };
-
-  const onChangeWallet = (config: TransferModuleConfig) => (): void => {
-    // No callback available, do nothing
-    if (!config.onChangeWallet) return;
-
-    // User may choose between multiple options
-    if ((config.availableWallets || []).length > 1) {
-      setWalletSelectorModalOpen(true);
-      return;
-    }
-
-    // Fallback to default wallet prop
-    if (!config.availableWallets && config.wallet) {
-      config.onChangeWallet(config.wallet);
-      return;
-    }
-
-    // Do nothing if no alternatives are provided
-    if (!config.availableWallets) {
-      return;
-    }
-
-    // Do nothing if wallet address is set, and no other wallet is available
-    if (config.walletAddress && config.availableWallets.length <= 1) {
-      return;
-    }
-
-    setWalletSelectorModalOpen(true);
   };
 
   function hasEnoughBalanceForFees(): boolean {
@@ -388,7 +358,6 @@ export const TransferModule = ({
             availableAmount={source.availableAmount}
             availableAmountMinusFees={availableAmountMinusFees}
             amount={source.amount}
-            openProviderSelector={onChangeWallet(source)}
             openAssetSelector={
               source.onChangeSelectedAsset && !isSubmitting ?
                 () => setAssetSelectorModalOpen(true)
