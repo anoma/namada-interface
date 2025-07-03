@@ -136,6 +136,7 @@ export const TransferModule = ({
     const params: OnSubmitTransferParams = {
       displayAmount: source.amount,
       destinationAddress: address.trim(),
+      sourceAddress: sourceAddress ?? "",
       memo,
     };
 

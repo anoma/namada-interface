@@ -60,9 +60,6 @@ export const TransferSource = ({
           isDisabled={!chain || !sourceAddress}
           onClick={openAssetSelector}
         />
-        {/* {!sourceAddress && (
-          <ConnectProviderButton onClick={openProviderSelector} />
-        )} */}
         {sourceAddress && (
           <AddressDropdown
             selectedAddress={sourceAddress}

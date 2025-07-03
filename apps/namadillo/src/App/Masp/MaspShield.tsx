@@ -87,6 +87,7 @@ export const MaspShield: React.FC = () => {
   });
 
   const onSubmitTransfer = async ({
+    sourceAddress,
     memo,
   }: OnSubmitTransferParams): Promise<void> => {
     try {
