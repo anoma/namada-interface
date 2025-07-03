@@ -1,6 +1,5 @@
 import { Asset, Chain } from "@chain-registry/types";
 import { Stack } from "@namada/components";
-import { TabSelector } from "App/Common/TabSelector";
 import { TransactionFee } from "App/Common/TransactionFee";
 import { TransactionFeeButton } from "App/Common/TransactionFeeButton";
 import BigNumber from "bignumber.js";
@@ -32,7 +31,6 @@ type TransferDestinationProps = {
   address?: string;
   memo?: string;
   openProviderSelector?: () => void;
-  onToggleCustomAddress?: (isActive: boolean) => void;
   onChangeAddress?: (address: Address) => void;
   onChangeMemo?: (address: string) => void;
 };
@@ -49,14 +47,13 @@ export const TransferDestination = ({
   feeProps,
   changeFeeEnabled = true,
   customAddressActive,
-  onToggleCustomAddress,
-  address,
-  amount,
   destinationAsset,
-  onChangeAddress,
+  amount,
+  address,
   memo,
-  onChangeMemo,
   openProviderSelector,
+  onChangeAddress,
+  onChangeMemo,
 }: TransferDestinationProps): JSX.Element => {
   return (
     <div
@@ -69,26 +66,6 @@ export const TransferDestination = ({
     >
       {!isSubmitting && (
         <div>
-          {onToggleCustomAddress && (
-            <nav className="mb-6">
-              <TabSelector
-                active={customAddressActive ? "custom" : "my-address"}
-                onChange={() => onToggleCustomAddress(!customAddressActive)}
-                items={[
-                  {
-                    id: "my-address",
-                    text: "My Address",
-                    className: "text-white",
-                  },
-                  {
-                    id: "custom",
-                    text: "Custom Address",
-                    className: "text-white",
-                  },
-                ]}
-              />
-            </nav>
-          )}
           {isShieldedAddress && (
             <div className="ml-auto relative w-fit group/tooltip">
               <img
@@ -113,9 +90,6 @@ export const TransferDestination = ({
 
           {customAddressActive && (
             <Stack gap={8}>
-              {onToggleCustomAddress && (
-                <SelectedChain chain={chain} wallet={wallet} iconSize="42px" />
-              )}
               <CustomAddressForm
                 memo={memo}
                 onChangeMemo={onChangeMemo}

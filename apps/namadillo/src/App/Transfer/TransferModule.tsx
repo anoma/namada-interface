@@ -54,9 +54,6 @@ export const TransferModule = ({
   const location = useLocation();
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
   const [assetSelectorModalOpen, setAssetSelectorModalOpen] = useState(false);
-  const [customAddressActive, setCustomAddressActive] = useState(
-    destination.enableCustomAddress && !destination.availableWallets
-  );
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
@@ -205,12 +202,6 @@ export const TransferModule = ({
             isShieldedAddress={destination.isShieldedAddress}
             isShieldedTx={isShieldedTx}
             address={destination.customAddress}
-            onToggleCustomAddress={
-              destination.enableCustomAddress && destination.availableWallets ?
-                setCustomAddressActive
-              : undefined
-            }
-            customAddressActive={customAddressActive}
             openProviderSelector={() =>
               destination.onChangeWallet && destination.wallet ?
                 destination.onChangeWallet(destination.wallet)
