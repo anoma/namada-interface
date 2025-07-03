@@ -8,7 +8,7 @@ import BigNumber from "bignumber.js";
 import clsx from "clsx";
 import { useKeychainVersion } from "hooks/useKeychainVersion";
 import { useAtomValue } from "jotai";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BsQuestionCircleFill } from "react-icons/bs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AddressWithAssetAndAmountMap } from "types";
@@ -17,7 +17,6 @@ import { getDisplayGasFee } from "utils/gas";
 import { parseChainInfo } from "./common";
 import { CurrentStatus } from "./CurrentStatus";
 import { IbcChannels } from "./IbcChannels";
-import { SelectChainModal } from "./SelectChainModal";
 import { SelectToken } from "./SelectToken";
 import { SelectWalletModal } from "./SelectWalletModal";
 import { SuccessAnimation } from "./SuccessAnimation";
@@ -54,9 +53,6 @@ export const TransferModule = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [walletSelectorModalOpen, setWalletSelectorModalOpen] = useState(false);
-  const [sourceChainModalOpen, setSourceChainModalOpen] = useState(false);
-  const [destinationChainModalOpen, setDestinationChainModalOpen] =
-    useState(false);
   const [assetSelectorModalOpen, setAssetSelectorModalOpen] = useState(false);
   const [customAddressActive, setCustomAddressActive] = useState(
     destination.enableCustomAddress && !destination.availableWallets
@@ -64,7 +60,6 @@ export const TransferModule = ({
   const [memo, setMemo] = useState<undefined | string>();
   const keychainVersion = useKeychainVersion();
   const chainAssetsMap = useAtomValue(chainAssetsMapAtom);
-  // const chainAssets = Object.values(chainAssetsMap) ?? [];
   const gasConfig = gasConfigProp ?? feeProps?.gasConfig;
 
   const displayGasFee = useMemo(() => {
@@ -131,17 +126,9 @@ export const TransferModule = ({
   const onSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     const address = destination.customAddress || destination.walletAddress;
-    if (!source.amount) {
-      throw new Error("Amount is not valid");
-    }
-
-    if (!address) {
-      throw new Error("Address is not provided");
-    }
-
-    if (!source.selectedAssetAddress) {
-      throw new Error("Asset is not selected");
-    }
+    if (!source.amount) throw new Error("Amount is not valid");
+    if (!address) throw new Error("Address is not provided");
+    if (!source.selectedAssetAddress) throw new Error("Asset is not selected");
 
     const params: OnSubmitTransferParams = {
       displayAmount: source.amount,
@@ -167,34 +154,6 @@ export const TransferModule = ({
       "yellow"
     : "white";
 
-  const renderLedgerTooltip = useCallback(
-    () => (
-      <IconTooltip
-        className="absolute w-4 h-4 top-0 right-0 mt-4 mr-5"
-        icon={<BsQuestionCircleFill className="w-4 h-4 text-yellow" />}
-        text={
-          <span>
-            If your device is connected and the app is open, please go to{" "}
-            <Link
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(routes.settingsLedger, {
-                  state: { backgroundLocation: location },
-                });
-              }}
-              to={routes.settingsLedger}
-              className="text-yellow"
-            >
-              Settings
-            </Link>{" "}
-            and pair your device with Namadillo.
-          </span>
-        }
-      />
-    ),
-    []
-  );
-
   useEffect(() => {
     if (!selectedAsset?.asset && firstAvailableAsset) {
       source.onChangeSelectedAsset?.(firstAvailableAsset?.originalAddress);
@@ -203,16 +162,6 @@ export const TransferModule = ({
 
   return (
     <>
-      <SelectToken
-        isOpen={assetSelectorModalOpen}
-        onClose={() => setAssetSelectorModalOpen(false)}
-        onSelect={(asset) => {
-          source.onChangeAmount?.(undefined);
-          source.onChangeSelectedAsset?.(asset);
-          setAssetSelectorModalOpen(false);
-        }}
-      />
-
       <section className="max-w-[480px] mx-auto" role="widget">
         <Stack
           className={clsx({
@@ -309,8 +258,33 @@ export const TransferModule = ({
                 {getButtonTextFromValidation()}
               </ActionButton>
 
-              {validationResult === "NoLedgerConnected" &&
-                renderLedgerTooltip()}
+              {validationResult === "NoLedgerConnected" && (
+                <IconTooltip
+                  className="absolute w-4 h-4 top-0 right-0 mt-4 mr-5"
+                  icon={
+                    <BsQuestionCircleFill className="w-4 h-4 text-yellow" />
+                  }
+                  text={
+                    <span>
+                      If your device is connected and the app is open, please go
+                      to{" "}
+                      <Link
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate(routes.settingsLedger, {
+                            state: { backgroundLocation: location },
+                          });
+                        }}
+                        to={routes.settingsLedger}
+                        className="text-yellow"
+                      >
+                        Settings
+                      </Link>{" "}
+                      and pair your device with Namadillo.
+                    </span>
+                  }
+                />
+              )}
             </div>
           )}
           {validationResult === "KeychainNotCompatibleWithMasp" && (
@@ -328,6 +302,16 @@ export const TransferModule = ({
           />
         )}
       </section>
+
+      <SelectToken
+        isOpen={assetSelectorModalOpen}
+        onClose={() => setAssetSelectorModalOpen(false)}
+        onSelect={(asset) => {
+          source.onChangeAmount?.(undefined);
+          source.onChangeSelectedAsset?.(asset);
+          setAssetSelectorModalOpen(false);
+        }}
+      />
 
       {walletSelectorModalOpen &&
         source.onChangeWallet &&
@@ -351,28 +335,6 @@ export const TransferModule = ({
             walletAddress={source.walletAddress}
           />
         )} */}
-
-      {sourceChainModalOpen && source.onChangeChain && source.wallet && (
-        <SelectChainModal
-          onClose={() => setSourceChainModalOpen(false)}
-          chains={source.availableChains || []}
-          onSelect={source.onChangeChain}
-          wallet={source.wallet}
-          walletAddress={source.walletAddress}
-        />
-      )}
-
-      {destinationChainModalOpen &&
-        destination.onChangeChain &&
-        destination.wallet && (
-          <SelectChainModal
-            onClose={() => setDestinationChainModalOpen(false)}
-            chains={destination.availableChains || []}
-            onSelect={destination.onChangeChain}
-            wallet={destination.wallet}
-            walletAddress={destination.walletAddress}
-          />
-        )}
     </>
   );
 };
