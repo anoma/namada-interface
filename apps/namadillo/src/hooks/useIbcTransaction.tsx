@@ -226,6 +226,7 @@ export const useIbcTransaction = ({
       );
 
       onUpdateStatus?.("Waiting for signature...");
+
       const signedMessage = await getSignedMessage(
         stargateClient,
         transferMsg,

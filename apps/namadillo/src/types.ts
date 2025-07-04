@@ -38,6 +38,8 @@ export type GasLimit = BigNumber;
 
 export type GasPrice = BigNumber;
 
+export type DisplayGasPrice = BigNumber;
+
 // For Namada chain, it should be the address. For Ibc, it should be the base denom
 export type GasToken = Address | BaseDenom;
 
@@ -45,7 +47,10 @@ export type AddressBalance = Record<Address, BigNumber>;
 
 export type GasConfig = {
   gasLimit: GasLimit;
-  gasPriceInMinDenom: GasPrice;
+  // TODO: make this consistent in namada
+  // In namada this is the price in base denom for ibc tokens(uatom, uatom, etc.) and denominated for nam
+  // In other ibc chains(deposits) this is the price in base denom for ibc tokens(uatom, uatom, etc.)
+  gasPrice: GasPrice;
   gasToken: GasToken;
 };
 

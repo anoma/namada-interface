@@ -77,6 +77,8 @@ export const useSimulateIbcTransferFee = ({
         throw err;
       }
     },
-    enabled: Boolean(registry && stargateClient && sourceAddress && channel),
+    enabled: Boolean(
+      registry && stargateClient && sourceAddress && channel && selectedAsset
+    ),
   });
 };

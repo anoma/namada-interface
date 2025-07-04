@@ -64,7 +64,7 @@ export const getIbcGasConfig = (
     0;
 
   return {
-    gasPriceInMinDenom: BigNumber(gasPriceInBaseDenom),
+    gasPrice: BigNumber(gasPriceInBaseDenom),
     gasLimit: BigNumber(gasLimit),
     gasToken: feeToken.denom,
   };

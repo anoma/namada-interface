@@ -142,6 +142,7 @@ async function shield(
     props: shieldingProps,
     memo,
   } = payload;
+  console.log("payload", payload.props[0].data[0].amount.toString());
 
   await sdk.masp.loadMaspParams("", chain.chainId);
   const encodedTxData = await buildTx<ShieldingTransferMsgValue>(

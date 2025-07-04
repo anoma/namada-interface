@@ -5,9 +5,7 @@ import { Address, Asset, GasConfig, GasConfigToDisplay } from "types";
 import { unknownAsset } from "./assets";
 
 export const calculateGasFee = (gasConfig: GasConfig): BigNumber => {
-  return BigNumber(gasConfig.gasPriceInMinDenom).multipliedBy(
-    gasConfig.gasLimit
-  );
+  return BigNumber(gasConfig.gasPrice).multipliedBy(gasConfig.gasLimit);
 };
 
 // TODO: we should probably split this into two functions:
@@ -36,7 +34,7 @@ export const getDisplayGasFee = (
 
   const totalDisplayAmount = calculateGasFee(gasConfig);
   return {
-    totalDisplayAmount,
+    totalDisplayAmount: totalDisplayAmount.decimalPlaces(6),
     asset,
   };
 };

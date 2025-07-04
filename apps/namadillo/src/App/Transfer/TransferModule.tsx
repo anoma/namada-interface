@@ -137,7 +137,7 @@ const isValidDestinationAddress = ({
   if (!customAddress || !chain || !chain.bech32_prefix) return true;
 
   // Check shielded/transparent address requirements for Namada
-  if (chain.bech32_prefix === "nam") {
+  if (chain.bech32_prefix === "tnam") {
     return (
       isTransparentAddress(customAddress) || isShieldedAddress(customAddress)
     );

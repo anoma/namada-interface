@@ -142,7 +142,7 @@ export const getSignedMessage = async (
 ): Promise<TxRaw> => {
   const fee: StdFee = calculateFee(
     Math.ceil(gasConfig.gasLimit.toNumber()),
-    `${gasConfig.gasPriceInMinDenom.toString()}${gasConfig.gasToken}`
+    `${gasConfig.gasPrice.toString()}${gasConfig.gasToken}`
   );
   return await client.sign(transferMsg.value.sender!, [transferMsg], fee, "");
 };
