@@ -62,7 +62,7 @@ const getTxProps = (
 
   return {
     token: gasConfig.gasToken,
-    feeAmount: gasConfig.gasPriceInMinDenom,
+    feeAmount: gasConfig.gasPrice,
     gasLimit: gasConfig.gasLimit,
     chainId: chain.chainId,
     publicKey: account.publicKey!,

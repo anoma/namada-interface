@@ -43,9 +43,10 @@ export type GasToken = Address | BaseDenom;
 
 export type AddressBalance = Record<Address, BigNumber>;
 
+// TODO: For IbcDeposits we should use different type, cause it's more convenient to have gasPriceInBaseDenom
 export type GasConfig = {
   gasLimit: GasLimit;
-  gasPriceInMinDenom: GasPrice;
+  gasPrice: GasPrice;
   gasToken: GasToken;
 };
 

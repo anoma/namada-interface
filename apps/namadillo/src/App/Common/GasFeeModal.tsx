@@ -71,12 +71,11 @@ const useBuildGasOption = ({
     const selected =
       !gasConfig.gasLimit.isEqualTo(0) &&
       option.gasLimit.isEqualTo(gasConfig.gasLimit) &&
-      option.gasPriceInMinDenom.isEqualTo(gasConfig.gasPriceInMinDenom) &&
+      option.gasPrice.isEqualTo(gasConfig.gasPrice) &&
       option.gasToken === gasConfig.gasToken;
 
     const disabled =
-      gasConfig.gasLimit.isEqualTo(0) ||
-      gasConfig.gasPriceInMinDenom.isEqualTo(0);
+      gasConfig.gasLimit.isEqualTo(0) || gasConfig.gasPrice.isEqualTo(0);
 
     return {
       option,
@@ -244,7 +243,7 @@ export const GasFeeModal = ({
                   totalInDollars,
                   unitValueInDollars,
                 } = buildGasOption({
-                  gasPriceInMinDenom: item.gasPrice,
+                  gasPrice: item.gasPrice,
                   gasToken: item.token,
                 });
 

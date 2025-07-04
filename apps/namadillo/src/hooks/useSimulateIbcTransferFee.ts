@@ -68,8 +68,12 @@ export const useSimulateIbcTransferFee = ({
 
         const feeToken = registry.chain.fees?.fee_tokens?.[0];
         invariant(feeToken, "Error: fee token is required");
+        const feeAsset = registry.assets.assets.find(
+          (a) => a.base === feeToken.denom
+        );
+        invariant(feeAsset, "Error: fee asset is required");
 
-        const gasConfig = getIbcGasConfig(feeToken, simulatedGas);
+        const gasConfig = getIbcGasConfig(feeAsset, feeToken, simulatedGas);
         invariant(gasConfig, "Error: invalid Gas config");
         return gasConfig;
       } catch (err) {
@@ -77,6 +81,8 @@ export const useSimulateIbcTransferFee = ({
         throw err;
       }
     },
-    enabled: Boolean(registry && stargateClient && sourceAddress && channel),
+    enabled: Boolean(
+      registry && stargateClient && sourceAddress && channel && selectedAsset
+    ),
   });
 };

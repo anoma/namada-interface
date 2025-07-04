@@ -123,7 +123,7 @@ export const useTransactionFee = (
 
   const gasConfig: GasConfig = {
     gasLimit,
-    gasPriceInMinDenom: gasPrice,
+    gasPrice,
     gasToken,
   };
 

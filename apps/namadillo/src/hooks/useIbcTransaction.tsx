@@ -226,10 +226,16 @@ export const useIbcTransaction = ({
       );
 
       onUpdateStatus?.("Waiting for signature...");
+      const gasAsset = registry.assets.assets.find(
+        (a) => a.base === gasConfig.gasToken
+      );
+      invariant(gasAsset, "Gas asset not found in registry");
+
       const signedMessage = await getSignedMessage(
         stargateClient,
         transferMsg,
-        gasConfig
+        gasConfig,
+        gasAsset
       );
 
       onUpdateStatus?.("Broadcasting transaction...");
