@@ -35,7 +35,6 @@ import {
   TransferStep,
   TransferTransactionData,
 } from "types";
-import { toBaseAmount } from "utils";
 import { isError404 } from "utils/http";
 import { getKeplrWallet } from "utils/ibc";
 import { getSdkInstance } from "utils/sdk";
@@ -139,13 +138,11 @@ export const createStargateClient = async (
 export const getSignedMessage = async (
   client: SigningStargateClient,
   transferMsg: MsgTransferEncodeObject,
-  gasConfig: GasConfig,
-  asset: Asset
+  gasConfig: GasConfig
 ): Promise<TxRaw> => {
-  const gasPriceInBaseDenom = toBaseAmount(asset, gasConfig.gasPrice);
   const fee: StdFee = calculateFee(
     Math.ceil(gasConfig.gasLimit.toNumber()),
-    `${gasPriceInBaseDenom.toString()}${gasConfig.gasToken}`
+    `${gasConfig.gasPrice.toString()}${gasConfig.gasToken}`
   );
   return await client.sign(transferMsg.value.sender!, [transferMsg], fee, "");
 };

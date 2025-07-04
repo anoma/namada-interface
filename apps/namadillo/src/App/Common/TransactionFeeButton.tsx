@@ -27,6 +27,7 @@ export const TransactionFeeButton = ({
       return undefined;
     }
 
+    console.log("tfb", feeProps.gasConfig.gasPrice.toString());
     return getDisplayGasFee(feeProps.gasConfig, chainAssetsMap.data);
   }, [feeProps, chainAssetsMap.data]);
 

@@ -8,6 +8,7 @@ import {
   gasPriceTableAtom,
   isPublicKeyRevealedAtom,
 } from "atoms/fees";
+import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import invariant from "invariant";
@@ -15,6 +16,7 @@ import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { GasConfig } from "types";
 import { TxKind } from "types/txKind";
+import { toBaseAmount } from "utils";
 import { findCheapestToken } from "./internal";
 
 export type TransactionFeeProps = {
@@ -51,6 +53,10 @@ export const useTransactionFee = (
     useAtomValue(
       tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
     ).data ?? {};
+
+  const { data: assetsMap, isLoading: isLoadingAssetsMap } = useAtomValue(
+    namadaRegistryChainAssetsMapAtom
+  );
 
   const averageGasLimit = gasEstimate && BigNumber(gasEstimate.avg);
   const gasLimit = gasLimitValue ?? averageGasLimit ?? BigNumber(0);
@@ -118,8 +124,23 @@ export const useTransactionFee = (
   ]);
 
   const gasToken = gasTokenValue ?? availableGasTokenAddress ?? "";
-  const gasPrice =
+  const denominatedGasPrice =
     gasPriceTable?.find((i) => i.token === gasToken)?.gasPrice ?? BigNumber(0);
+
+  const gasPrice =
+    nativeToken === gasToken ? denominatedGasPrice
+    : assetsMap?.[gasToken] ?
+      toBaseAmount(assetsMap[gasToken], denominatedGasPrice)
+    : BigNumber(0);
+
+  const gasPriceTableDenominated =
+    assetsMap &&
+    gasPriceTable?.map((item) => ({
+      token: item.token,
+      gasPrice: toBaseAmount(assetsMap?.[item.token], item.gasPrice),
+    }));
+
+  console.log("Gas Price:", gasToken, gasPrice.toString());
 
   const gasConfig: GasConfig = {
     gasLimit,
@@ -131,13 +152,14 @@ export const useTransactionFee = (
     userTransparentBalances.isLoading ||
     isLoadingNativeToken ||
     isLoadingGasEstimate ||
+    isLoadingAssetsMap ||
     isLoadingGasPriceTable;
 
   return {
     gasConfig,
     isLoading,
     gasEstimate,
-    gasPriceTable,
+    gasPriceTable: gasPriceTableDenominated,
     onChangeGasLimit: setGasLimitValue,
     onChangeGasToken: setGasTokenValue,
   };

@@ -5,7 +5,6 @@ import tokenImage from "App/Common/assets/token.svg";
 import { getRestApiAddressByIndex, getRpcByIndex } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { Asset, ChainId, ChainRegistryEntry, GasConfig } from "types";
-import { toDisplayAmount } from "utils";
 
 type GasPriceStep = {
   low: number;
@@ -52,7 +51,6 @@ export const getAssetImageUrl = (asset?: Asset): string => {
 };
 
 export const getIbcGasConfig = (
-  feeAsset: Asset,
   feeToken: FeeToken,
   gasLimit: number = 222_000
 ): GasConfig | undefined => {
@@ -66,7 +64,7 @@ export const getIbcGasConfig = (
     0;
 
   return {
-    gasPrice: toDisplayAmount(feeAsset, BigNumber(gasPriceInBaseDenom)),
+    gasPrice: BigNumber(gasPriceInBaseDenom),
     gasLimit: BigNumber(gasLimit),
     gasToken: feeToken.denom,
   };
