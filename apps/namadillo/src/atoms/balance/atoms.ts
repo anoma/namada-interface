@@ -20,12 +20,10 @@ import { maspIndexerUrlAtom, rpcUrlAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import { isAxiosError } from "axios";
 import BigNumber from "bignumber.js";
-import * as E from "fp-ts/Either";
 import { sequenceT } from "fp-ts/lib/Apply";
 import { pipe } from "fp-ts/lib/function";
 import * as O from "fp-ts/Option";
 import invariant from "invariant";
-import * as t from "io-ts";
 import { atom, getDefaultStore } from "jotai";
 import { atomWithQuery } from "jotai-tanstack-query";
 import { atomWithStorage } from "jotai/utils";
@@ -111,43 +109,12 @@ export const viewingKeysAtom = atomWithQuery<
   };
 });
 
-const NamadilloShieldedBalanceCodec = t.record(
-  t.string, // Address
-  t.array(
-    t.type({
-      tokenAddress: t.string,
-      amount: t.string,
-    })
-  )
-);
-
 export const storageShieldedBalanceAtom = atomWithStorage<
-  Record<Address, { tokenAddress: Address; amount: string }[]>
->(
-  "namadillo:shieldedBalance",
-  {},
-  {
-    // Invalidation function to ensure the stored data matches the codec
-    getItem(key, initialValue) {
-      const storedValue = localStorage.getItem(key);
-      const maybeValue = NamadilloShieldedBalanceCodec.decode(
-        JSON.parse(storedValue ?? "{}")
-      );
-
-      return E.isRight(maybeValue) ? maybeValue.right : initialValue;
-    },
-    setItem(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    },
-    removeItem(key) {
-      localStorage.removeItem(key);
-    },
-  }
-);
+  Record<Address, { address: Address; minDenomAmount: string }[]>
+>("namadillo:shieldedBalance", {});
 
 export const shieldedSyncProgress = atom(0);
 
-// After changing the stored data type, change the version in the key
 export const lastCompletedShieldedSyncAtom = atomWithStorage<
   Record<Address, Date | undefined>
 >("namadillo:last-shielded-sync", {}, undefined, { getOnInit: true });
@@ -165,13 +132,11 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
   const rpcUrl = get(rpcUrlAtom);
   const maspIndexerUrl = get(maspIndexerUrlAtom);
   const defaultAccount = get(defaultAccountAtom);
-  const assetsMapAtom = get(namadaRegistryChainAssetsMapAtom);
 
   const [viewingKey, allViewingKeys] = viewingKeysQuery.data ?? [];
   const chainTokens = chainTokensQuery.data?.map((t) => t.address);
   const chainId = chainParametersQuery.data?.chainId;
   const namTokenAddress = namTokenAddressQuery.data;
-  const assetsMap = assetsMapAtom.data;
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
@@ -183,8 +148,7 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
         !chainTokens ||
         !chainId ||
         !namTokenAddress ||
-        !rpcUrl ||
-        !assetsMap
+        !rpcUrl
       ) {
         return [];
       }
@@ -204,24 +168,16 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
         chainTokens,
         chainId
       );
-      const shieldedBalance = response
-        // Filter out unknown assets
-        .filter(([address]) => address in assetsMap)
-        .map(([address, amount]) => {
-          const asset = assetsMap[address];
-          return {
-            tokenAddress: address,
-            amount: toDisplayAmount(asset, BigNumber(amount)),
-          };
-        });
+
+      const shieldedBalance = response.map(([address, amount]) => ({
+        address,
+        minDenomAmount: amount,
+      }));
 
       const storage = get(storageShieldedBalanceAtom);
       set(storageShieldedBalanceAtom, {
         ...storage,
-        [viewingKey.key]: shieldedBalance.map((balance) => ({
-          ...balance,
-          amount: balance.amount.toString(),
-        })),
+        [viewingKey.key]: shieldedBalance,
       });
 
       if (defaultAccount.data) {
@@ -242,7 +198,6 @@ export const shieldedBalanceAtom = atomWithQuery((get) => {
       chainTokensQuery,
       chainParametersQuery,
       namTokenAddressQuery,
-      assetsMapAtom,
     ]),
   };
 });
@@ -263,10 +218,8 @@ export const namadaShieldedAssetsAtom = atomWithQuery((get) => {
 
       return mapNamadaAddressesToAssets({
         balances:
-          shieldedBalance?.map((i) => ({
-            ...i,
-            amount: BigNumber(i.amount),
-          })) ?? [],
+          shieldedBalance?.map((i) => ({ ...i, tokenAddress: i.address })) ??
+          [],
         assets: Object.values(chainAssetsMap.data),
       });
     }, [viewingKeysQuery, chainTokensQuery, chainAssetsMap]),

@@ -10,12 +10,10 @@ import {
 } from "atoms/fees";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
-import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { GasConfig } from "types";
 import { TxKind } from "types/txKind";
-import { findCheapestToken } from "./internal";
 
 export type TransactionFeeProps = {
   gasConfig: GasConfig;
@@ -52,8 +50,27 @@ export const useTransactionFee = (
       tokenPricesFamily(gasPriceTable?.map((item) => item.token) ?? [])
     ).data ?? {};
 
-  const averageGasLimit = gasEstimate && BigNumber(gasEstimate.avg);
-  const gasLimit = gasLimitValue ?? averageGasLimit ?? BigNumber(0);
+  const findCheapestToken = (
+    gasPriceTable: GasPriceTable
+  ): string | undefined => {
+    let minPriceInDollars: BigNumber | undefined,
+      cheapestToken: string | undefined;
+
+    for (const gasItem of gasPriceTable) {
+      const price = gasDollarMap[gasItem.token];
+      if (!price) return;
+      const gasPriceInDollars = price.multipliedBy(gasItem.gasPrice);
+      if (
+        typeof minPriceInDollars === "undefined" ||
+        gasPriceInDollars.lt(minPriceInDollars)
+      ) {
+        minPriceInDollars = gasPriceInDollars;
+        cheapestToken = gasItem.token;
+      }
+    }
+
+    return cheapestToken;
+  };
 
   const availableGasTokenAddress = useMemo(() => {
     if (!gasPriceTable) return nativeToken;
@@ -68,34 +85,29 @@ export const useTransactionFee = (
 
     // Separate shielded amount from transparent
     const balances =
-      (isShielded ? userShieldedBalances.data : userTransparentBalances.data) ||
-      [];
+      (isShielded ?
+        // TODO: we need to refactor userShieldedBalances to return Balance[] type instead
+        userShieldedBalances.data?.map((balance) => ({
+          minDenomAmount: balance.minDenomAmount,
+          tokenAddress: balance.address,
+        }))
+      : userTransparentBalances.data) || [];
 
     // Check if user has enough NAM to pay fees
     const nativeAddressBalance = balances.find(
       (balance) => balance.tokenAddress === nativeToken
     );
 
-    if (nativeAddressBalance) {
-      // Find gas price for native token, should be always present
-      const gasPrice = gasPriceTable.find(
-        ({ token }) => token === nativeToken
-      )?.gasPrice;
-      invariant(gasPrice, "Gas price for native token is not found");
-
-      const requiredBalance = BigNumber(gasLimit).times(gasPrice);
-
-      // Check if user has enough native token to pay fees
-      if (BigNumber(nativeAddressBalance.amount).gte(requiredBalance)) {
-        return nativeAddressBalance.tokenAddress;
-      }
+    if (BigNumber(nativeAddressBalance?.minDenomAmount || "0").gt(0)) {
+      return nativeAddressBalance?.tokenAddress;
     }
+
     // Fallback to another token containing balance
     const gas = gasPriceTable.filter((gas) => {
       return !!balances.find(
         (balances) =>
           balances.tokenAddress === gas.token &&
-          BigNumber(balances.amount).gt(0)
+          BigNumber(balances.minDenomAmount).gt(0)
       );
     });
 
@@ -105,18 +117,17 @@ export const useTransactionFee = (
     }
 
     // Search for the cheapest token for fees (in dollars) among the available tokens:
-    return (
-      findCheapestToken(gas, balances, gasLimit, gasDollarMap) || nativeToken
-    );
+    return findCheapestToken(gas) || nativeToken;
   }, [
     userTransparentBalances.data,
     userShieldedBalances.data,
     gasPriceTable,
     gasDollarMap,
     isShielded,
-    gasLimit,
   ]);
 
+  const averageGasLimit = gasEstimate && BigNumber(gasEstimate.avg);
+  const gasLimit = gasLimitValue ?? averageGasLimit ?? BigNumber(0);
   const gasToken = gasTokenValue ?? availableGasTokenAddress ?? "";
   const gasPrice =
     gasPriceTable?.find((i) => i.token === gasToken)?.gasPrice ?? BigNumber(0);

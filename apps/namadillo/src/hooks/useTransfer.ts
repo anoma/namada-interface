@@ -25,7 +25,7 @@ import { TransactionPair } from "lib/query";
 import { useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import { Address, Asset, NamadaTransferTxKind } from "types";
-import { isNamadaAsset } from "utils";
+import { isNamadaAsset, toBaseAmount } from "utils";
 import { useOptimisticTransferUpdate } from "./useOptimisticTransferUpdate";
 
 type useTransferParams = {
@@ -68,7 +68,7 @@ export const useTransfer = ({
   const [txHash, setTxHash] = useState<string | undefined>();
   const navigate = useNavigate();
 
-  const amount = useMemo(() => {
+  const baseDenomAmount = useMemo(() => {
     if (!displayAmount || !asset) {
       return new BigNumber(0);
     }
@@ -77,7 +77,7 @@ export const useTransfer = ({
       return displayAmount;
     }
 
-    return displayAmount;
+    return toBaseAmount(asset, displayAmount);
   }, [displayAmount, asset]);
 
   const commomProps = {
@@ -92,10 +92,10 @@ export const useTransfer = ({
     ...events,
     onBroadcasted: (tx: TransactionPair<unknown>) => {
       if (target === shieldedAccount?.address) {
-        optimisticTransferUpdate(token, amount);
+        optimisticTransferUpdate(token, baseDenomAmount);
       }
       if (source === shieldedAccount?.address) {
-        optimisticTransferUpdate(token, amount.multipliedBy(-1));
+        optimisticTransferUpdate(token, baseDenomAmount.multipliedBy(-1));
       }
       setCompletedAt(new Date());
       setTxHash(tx.encodedTxData.txs[0].hash);
@@ -106,7 +106,7 @@ export const useTransfer = ({
   const transparentTransaction = useTransaction({
     eventType: "TransparentTransfer",
     createTxAtom: createTransparentTransferAtom,
-    params: [{ data: [{ source, target, token, amount }] }],
+    params: [{ data: [{ source, target, token, amount: baseDenomAmount }] }],
     ...commomProps,
   });
 
@@ -115,7 +115,9 @@ export const useTransfer = ({
     createTxAtom: createShieldedTransferAtom,
     params: [
       {
-        data: [{ source: pseudoExtendedKey, target, token, amount }],
+        data: [
+          { source: pseudoExtendedKey, target, token, amount: baseDenomAmount },
+        ],
       },
     ],
     useDisposableSigner: true,
@@ -125,7 +127,7 @@ export const useTransfer = ({
   const shieldingTransaction = useTransaction({
     eventType: "ShieldingTransfer",
     createTxAtom: createShieldingTransferAtom,
-    params: [{ target, data: [{ source, token, amount }] }],
+    params: [{ target, data: [{ source, token, amount: baseDenomAmount }] }],
     onBeforeCreateDisposableSigner: () =>
       onUpdateStatus?.("Creating new disposable signer..."),
     onBeforeBuildTx: () =>
@@ -142,7 +144,7 @@ export const useTransfer = ({
     params: [
       {
         source: pseudoExtendedKey,
-        data: [{ target, token, amount }],
+        data: [{ target, token, amount: baseDenomAmount }],
       },
     ],
     useDisposableSigner: true,

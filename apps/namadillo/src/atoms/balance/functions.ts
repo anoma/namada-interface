@@ -1,3 +1,4 @@
+import { Balance } from "@namada/indexer-client";
 import BigNumber from "bignumber.js";
 import {
   Address,
@@ -5,7 +6,7 @@ import {
   NamadaAssetWithAmount,
   TokenBalance,
 } from "types";
-import { isNamadaAsset } from "utils";
+import { isNamadaAsset, toDisplayAmount } from "utils";
 
 export const getTotalDollar = (list?: TokenBalance[]): BigNumber =>
   (list ?? []).reduce(
@@ -20,16 +21,16 @@ export const mapNamadaAddressesToAssets = ({
   balances,
   assets,
 }: {
-  balances: { tokenAddress: Address; amount: BigNumber }[];
+  balances: Balance[];
   assets: NamadaAsset[];
 }): Record<Address, NamadaAssetWithAmount> => {
   const map: Record<Address, NamadaAssetWithAmount> = {};
-  balances.forEach(({ tokenAddress, amount }) => {
-    const asset = assets.find((asset) => asset.address === tokenAddress);
+  balances.forEach((item) => {
+    const asset = assets.find((asset) => asset.address === item.tokenAddress);
 
     if (asset) {
-      map[tokenAddress] = {
-        amount,
+      map[item.tokenAddress] = {
+        amount: toDisplayAmount(asset, BigNumber(item.minDenomAmount)),
         asset,
       };
     }

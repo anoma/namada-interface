@@ -1,3 +1,4 @@
+import { Balance } from "@namada/indexer-client";
 import {
   AccountType,
   GenDisposableSignerResponse,
@@ -6,15 +7,13 @@ import {
 import { indexerApiAtom } from "atoms/api";
 import { nativeTokenAddressAtom } from "atoms/chain";
 import { shouldUpdateBalanceAtom } from "atoms/etc";
-import { namadaRegistryChainAssetsMapAtom } from "atoms/integrations";
 import { namadaExtensionConnectedAtom } from "atoms/settings";
 import { queryDependentFn } from "atoms/utils";
 import BigNumber from "bignumber.js";
 import { NamadaKeychain } from "hooks/useNamadaKeychain";
 import { atom } from "jotai";
 import { atomWithMutation, atomWithQuery } from "jotai-tanstack-query";
-import { Address } from "types";
-import { toDisplayAmount } from "utils";
+import { namadaAsset, toDisplayAmount } from "utils";
 import {
   fetchAccountBalance,
   fetchAccounts,
@@ -107,9 +106,9 @@ export const accountBalanceAtom = atomWithQuery<BigNumber>((get) => {
     ...queryDependentFn(async (): Promise<BigNumber> => {
       const balance = transparentBalanceQuery.data
         ?.filter(({ tokenAddress: ta }) => ta === tokenAddress.data)
-        .map(({ tokenAddress, amount }) => ({
+        .map(({ tokenAddress, minDenomAmount }) => ({
           token: tokenAddress,
-          amount,
+          amount: toDisplayAmount(namadaAsset(), new BigNumber(minDenomAmount)),
         }))
         .at(0);
       return balance ? BigNumber(balance.amount) : BigNumber(0);
@@ -137,35 +136,18 @@ export const disposableSignerAtom = atomWithQuery<GenDisposableSignerResponse>(
   }
 );
 
-export const transparentBalanceAtom = atomWithQuery<
-  { tokenAddress: Address; amount: BigNumber }[]
->((get) => {
+export const transparentBalanceAtom = atomWithQuery<Balance[]>((get) => {
   const enablePolling = get(shouldUpdateBalanceAtom);
   const api = get(indexerApiAtom);
   const defaultAccountQuery = get(defaultAccountAtom);
-  const assetsMapAtom = get(namadaRegistryChainAssetsMapAtom);
 
   const account = defaultAccountQuery.data;
-  const assetsMap = assetsMapAtom.data;
 
   return {
     refetchInterval: enablePolling ? 1000 : false,
     queryKey: ["transparent-balance", account],
     ...queryDependentFn(async () => {
-      if (!account || !assetsMap) {
-        return [];
-      }
-      const balance = await fetchAccountBalance(api, account);
-
-      return balance
-        .filter((b) => b.tokenAddress in assetsMap)
-        .map((item) => ({
-          tokenAddress: item.tokenAddress,
-          amount: toDisplayAmount(
-            assetsMap[item.tokenAddress],
-            BigNumber(item.minDenomAmount)
-          ),
-        }));
-    }, [defaultAccountQuery, assetsMapAtom]),
+      return account ? fetchAccountBalance(api, account) : [];
+    }, [defaultAccountQuery]),
   };
 });
