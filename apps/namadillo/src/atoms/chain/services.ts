@@ -4,8 +4,10 @@ import {
   NativeToken,
   Parameters,
 } from "@namada/indexer-client";
+import { getDenomFromIbcTrace } from "atoms/integrations";
 import BigNumber from "bignumber.js";
-import { Address, MaspAssetRewards, NamadaAsset } from "types";
+import { MaspAssetRewards, NamadaAsset } from "types";
+import { unknownAsset } from "utils/assets";
 import { getSdkInstance } from "utils/sdk";
 
 export const fetchRpcUrlFromIndexer = async (
@@ -41,16 +43,16 @@ export const clearShieldedContext = async (chainId: string): Promise<void> => {
 };
 
 export const fetchMaspRewards = async (
-  assets: Record<Address, NamadaAsset>
+  assets: NamadaAsset[]
 ): Promise<MaspAssetRewards[]> => {
   const sdk = await getSdkInstance();
   const rewards = await sdk.rpc.globalShieldedRewardForTokens();
-
   const existingRewards: MaspAssetRewards[] = rewards
-    .filter((r) => r.maxRewardRate > 0 && r.address in assets)
+    .filter((r) => r.maxRewardRate > 0)
     .map((r) => {
-      const asset = assets[r.address];
-
+      const denom = getDenomFromIbcTrace(r.name);
+      const asset =
+        assets.find((asset) => asset.base === denom) ?? unknownAsset(denom);
       return {
         asset,
         address: r.address,
