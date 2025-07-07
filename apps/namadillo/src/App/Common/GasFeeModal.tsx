@@ -16,6 +16,7 @@ import { useAtomValue } from "jotai";
 import { IoClose } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
 import { Asset, GasConfig, NamadaAsset } from "types";
+import { toDisplayAmount } from "utils";
 import { getDisplayGasFee } from "utils/gas";
 import { FiatCurrency } from "./FiatCurrency";
 import { TokenCard } from "./TokenCard";
@@ -121,10 +122,17 @@ export const GasFeeModal = ({
 
   const findUserBalanceByTokenAddress = (tokenAddres: string): BigNumber => {
     // TODO: we need to refactor userShieldedBalances to return Balance[] type instead
-    const balances = isShielded ? shieldedAmount.data : transparentAmount.data;
+    const balances =
+      isShielded ?
+        shieldedAmount.data?.map((balance) => ({
+          minDenomAmount: balance.minDenomAmount,
+          tokenAddress: balance.address,
+        }))
+      : transparentAmount.data;
 
-    return BigNumber(
-      balances?.find((b) => b.tokenAddress === tokenAddres)?.amount || "0"
+    return new BigNumber(
+      balances?.find((token) => token.tokenAddress === tokenAddres)
+        ?.minDenomAmount || "0"
     );
   };
 
@@ -248,8 +256,9 @@ export const GasFeeModal = ({
                   gasToken: item.token,
                 });
 
-                const availableAmount = findUserBalanceByTokenAddress(
-                  item.token
+                const availableAmount = toDisplayAmount(
+                  asset,
+                  findUserBalanceByTokenAddress(item.token)
                 );
 
                 return {
