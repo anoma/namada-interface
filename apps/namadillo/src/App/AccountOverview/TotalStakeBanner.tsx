@@ -2,7 +2,6 @@ import { Panel, SkeletonLoading, Stack } from "@namada/components";
 import { FiatCurrency } from "App/Common/FiatCurrency";
 import { NamCurrency } from "App/Common/NamCurrency";
 import { UnclaimedRewardsCard } from "App/Staking/UnclaimedRewardsCard";
-import { namadaTransparentAssetsAtom } from "atoms/balance";
 import { tokenPricesFamily } from "atoms/prices/atoms";
 import BigNumber from "bignumber.js";
 import clsx from "clsx";
@@ -12,14 +11,9 @@ import { namadaAsset } from "utils";
 
 export const TotalStakeBanner = (): JSX.Element => {
   const { bondedAmount, isLoading: bondedAmountIsLoading } = useBalances();
-  const shieldedAssets = useAtomValue(namadaTransparentAssetsAtom);
-  const tokenPrices = useAtomValue(
-    tokenPricesFamily(
-      Object.values(shieldedAssets.data ?? {}).map(({ asset }) => asset.address)
-    )
-  );
-  const namPrice =
-    tokenPrices.data?.[namadaAsset().address ?? ""] ?? BigNumber(0);
+  const nativeAsset = namadaAsset();
+  const tokenPrices = useAtomValue(tokenPricesFamily([nativeAsset.address!]));
+  const namPrice = tokenPrices.data?.[nativeAsset.address!] ?? BigNumber(0);
 
   return (
     <Panel className="py-4 min-w-full">
@@ -45,7 +39,7 @@ export const TotalStakeBanner = (): JSX.Element => {
                     "flex items-center text-2xl leading-none mt-8"
                   )}
                 >
-                  <FiatCurrency amount={namPrice} />
+                  <FiatCurrency amount={bondedAmount.times(namPrice)} />
                 </div>
               )}
             </>
