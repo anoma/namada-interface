@@ -17,6 +17,7 @@ import { fetchGasEstimate, fetchTokensGasPrice } from "./services";
 export type GasPriceTableItem = {
   token: Address;
   gasPrice: BigNumber;
+  gasPriceInMinDenom: BigNumber;
 };
 
 export type GasPriceTable = GasPriceTableItem[];
@@ -77,6 +78,7 @@ export const gasPriceTableAtom = atomWithQuery<GasPriceTable>((get) => {
                 asset && isNamadaAsset(asset) ?
                   toDisplayAmount(asset, baseAmount)
                 : baseAmount,
+              gasPriceInMinDenom: baseAmount,
             };
           })
       );
