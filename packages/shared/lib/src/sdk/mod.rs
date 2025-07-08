@@ -680,6 +680,7 @@ impl Sdk {
         &self,
         unshielding_transfer_msg: &[u8],
         wrapper_tx_msg: &[u8],
+        skip_fee_check: bool,
     ) -> Result<JsValue, JsError> {
         let (mut args, bparams) =
             args::unshielding_transfer_tx_args(unshielding_transfer_msg, wrapper_tx_msg)?;
@@ -700,7 +701,7 @@ impl Sdk {
 
         let ((tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams, skip_fee_check).await?;
                 let masp_signing_data = MaspSigningData::new(
                     bparams
                         .to_stored()
@@ -711,12 +712,19 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams, skip_fee_check).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
             }
         };
+
+    let masp_section = tx
+        .sections
+        .iter()
+        .find_map(|section| section.masp_tx()).unwrap();
+
+        self.namada.shielded_mut().await.pre_cache_transaction(&masp_section).await.unwrap();
 
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }
