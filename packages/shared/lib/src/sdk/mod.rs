@@ -655,7 +655,7 @@ impl Sdk {
 
         let ((tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(
                     bparams
                         .to_stored()
@@ -666,7 +666,7 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
@@ -699,7 +699,7 @@ impl Sdk {
             .map(|s| s.source.to_viewing_key())
             .collect();
 
-        let ((tx, signing_data), masp_signing_data) = match bparams {
+        let ((mut tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
                 let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams, skip_fee_check).await?;
                 let masp_signing_data = MaspSigningData::new(
@@ -781,7 +781,7 @@ impl Sdk {
 
         let ((tx, signing_data, _), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(
                     bparams
                         .to_stored()
@@ -792,7 +792,7 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
