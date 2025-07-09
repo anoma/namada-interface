@@ -105,7 +105,13 @@ impl Query {
             // TODO: for now we just concatenate the v1 api path
             let url = reqwest::Url::parse(&format!("{}/api/v1", url)).unwrap();
 
-            MaspClient::Indexer(IndexerMaspClient::new(client, url, true, 100))
+            MaspClient::Indexer(IndexerMaspClient::new(
+                client,
+                url,
+                true,
+                100,
+                Duration::from_millis(5),
+            ))
         } else {
             MaspClient::Ledger(LedgerMaspClient::new(
                 client.clone(),
@@ -373,7 +379,8 @@ impl Query {
             .shutdown_signal(shutdown_signal_web)
             .block_batch_size(batch_size)
             .wait_for_last_query_height(true)
-            .retry_strategy(RetryStrategy::Times(10))
+            // Total of requests that can be failed before sync is aborted
+            .retry_strategy(RetryStrategy::Times(1000))
             .build();
 
         let env = sync::TaskEnvWeb::new();
