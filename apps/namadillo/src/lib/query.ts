@@ -111,11 +111,10 @@ export const buildTx = async <T>(
     }
   }
 
-  const encodedTxs = await Promise.all(
-    queryProps.map((props) => txFn.apply(sdk.tx, [wrapperTxProps, props]))
-  );
-
-  txs.push(...encodedTxs);
+  for (const props of queryProps) {
+    const tx = await txFn.apply(sdk.tx, [wrapperTxProps, props]);
+    txs.push(tx);
+  }
 
   if (account.type === AccountType.Ledger) {
     txProps.push(...txs);
@@ -249,6 +248,7 @@ export const broadcastTxWithEvents = async <T>(
       data!
     );
 
+    console.log("dispatching event", eventType, status);
     // Notification
     eventType &&
       window.dispatchEvent(
@@ -320,6 +320,7 @@ const parseTxAppliedErrors = <T>(
     });
 
     if (successData?.length) {
+      console.log("partial success");
       return {
         status: "PartialSuccess",
         successData,
@@ -329,6 +330,7 @@ const parseTxAppliedErrors = <T>(
       return { status: "Error", failedData };
     }
   }
+  console.log("success");
 
   return { status: "Success" };
 };
