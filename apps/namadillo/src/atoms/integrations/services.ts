@@ -397,6 +397,8 @@ export const transactionTypeToEventName = (
       return "TransparentTransfer";
 
     case "ShieldedToIbc":
+      return "ShieldedIbcWithdraw";
+
     case "TransparentToIbc":
       return "IbcWithdraw";
 
