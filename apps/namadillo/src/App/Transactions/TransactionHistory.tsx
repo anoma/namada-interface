@@ -27,6 +27,9 @@ export const transferKindOptions = [
   "ibcShieldingTransfer",
   "ibcUnshieldingTransfer",
   "ibcShieldedTransfer",
+  "redelegation",
+  "voteProposal",
+  "withdraw",
   "bond",
   "unbond",
   "received",
@@ -67,6 +70,12 @@ export const TransactionHistory = (): JSX.Element => {
       return transferKindOptions.includes(transactionKind);
     } else if (filter === "received") {
       return transaction.kind === "received";
+    } else if (filter === "redelegation") {
+      return transactionKind === "redelegation";
+    } else if (filter === "vote") {
+      return transactionKind === "voteProposal";
+    } else if (filter === "withdraw") {
+      return transactionKind === "withdraw";
     } else if (filter === "transfer") {
       return [
         "transparentTransfer",
@@ -242,6 +251,21 @@ export const TransactionHistory = (): JSX.Element => {
                     id: "unbond",
                     value: "Unstake",
                     ariaLabel: "Unstake",
+                  },
+                  {
+                    id: "redelegation",
+                    value: "Redelegate",
+                    ariaLabel: "Redelegate",
+                  },
+                  {
+                    id: "voteProposal",
+                    value: "Vote",
+                    ariaLabel: "Vote",
+                  },
+                  {
+                    id: "withdraw",
+                    value: "Withdraw",
+                    ariaLabel: "Withdraw",
                   },
                 ]}
               />
