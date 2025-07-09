@@ -110,6 +110,7 @@ export const MaspUnshield: React.FC = () => {
       invariant(selectedAsset, "No asset is selected");
 
       const txResponse = await performTransfer({ memo });
+      console.log("txResponse", txResponse);
 
       if (txResponse) {
         const txList = createTransferDataFromNamada(
@@ -120,12 +121,15 @@ export const MaspUnshield: React.FC = () => {
           txResponse,
           memo
         );
+        console.log("txList", txList);
 
         // Currently we don't have the option of batching transfer transactions
         if (txList.length === 0) {
           throw "Couldn't create TransferData object";
         }
-        const tx = txList[0];
+        // TODO: We store only the last transaction in the list
+        // storeTransaction should be able to handle multiple transactions
+        const tx = txList.pop()!;
         storeTransaction(tx);
       } else {
         throw "Invalid transaction response";

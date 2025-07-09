@@ -699,7 +699,7 @@ impl Sdk {
             .map(|s| s.source.to_viewing_key())
             .collect();
 
-        let ((tx, signing_data), masp_signing_data) = match bparams {
+        let ((mut tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
                 let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams, skip_fee_check).await?;
                 let masp_signing_data = MaspSigningData::new(
