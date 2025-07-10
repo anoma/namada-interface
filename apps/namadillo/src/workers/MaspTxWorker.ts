@@ -202,7 +202,7 @@ async function ibcTransfer(
   sdk: Sdk,
   payload: IbcTransfer["payload"]
 ): Promise<EncodedTxData<IbcTransferMsgValue>> {
-  const { account, gasConfig, chain, props } = payload;
+  const { account, gasConfig, chain, props, publicKeyRevealed } = payload;
 
   await sdk.masp.loadMaspParams("", chain.chainId);
   const encodedTxData = await buildTx<IbcTransferMsgValue>(
@@ -213,7 +213,7 @@ async function ibcTransfer(
     props,
     sdk.tx.buildIbcTransfer,
     undefined,
-    false
+    !publicKeyRevealed
   );
 
   return encodedTxData;

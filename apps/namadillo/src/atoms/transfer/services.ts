@@ -286,6 +286,7 @@ export const createIbcTx = async (
     rpcUrl,
     nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
+      const publicKeyRevealed = await isPublicKeyRevealed(signerPublicKey);
       const msgValue = new IbcTransferMsgValue({
         ...props[0],
         gasSpendingKey: props[0].gasSpendingKey,
@@ -302,6 +303,7 @@ export const createIbcTx = async (
           props: [msgValue],
           chain,
           memo,
+          publicKeyRevealed,
         },
       };
 

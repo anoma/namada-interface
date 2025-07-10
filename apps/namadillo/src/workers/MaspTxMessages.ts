@@ -69,6 +69,7 @@ type IbcTransferPayload = {
   props: IbcTransferMsgValue[];
   chain: ChainSettings;
   memo?: string;
+  publicKeyRevealed: boolean;
 };
 export type IbcTransfer = WebWorkerMessage<"ibc-transfer", IbcTransferPayload>;
 export type IbcTransferDone = WebWorkerMessage<
