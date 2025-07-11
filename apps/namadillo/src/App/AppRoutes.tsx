@@ -21,7 +21,6 @@ import { SubmitVote } from "./Governance/SubmitVote";
 import { ViewJson } from "./Governance/ViewJson";
 import { IbcLayout } from "./Ibc/IbcLayout";
 import { IbcShieldAll } from "./Ibc/IbcShieldAll";
-import { IbcTransfer } from "./Ibc/IbcTransfer";
 import { IbcTransfersLayout } from "./Ibc/IbcTransfersLayout";
 import { IbcWithdraw } from "./Ibc/IbcWithdraw";
 import { MaspLayout } from "./Masp/MaspLayout";
@@ -46,6 +45,7 @@ import { Unstake } from "./Staking/Unstake";
 import { SwitchAccountPanel } from "./SwitchAccount/SwitchAccountPanel";
 import { TransactionDetails } from "./Transactions/TransactionDetails";
 import { TransactionHistory } from "./Transactions/TransactionHistory";
+import { ReceiveCard } from "./Transfer";
 import { TransferLayout } from "./Transfer/TransferLayout";
 
 export const MainRoutes = (): JSX.Element => {
@@ -82,6 +82,9 @@ export const MainRoutes = (): JSX.Element => {
             element={<ReDelegate />}
           />
 
+          {/* Receive */}
+          <Route path={routes.receive} element={<ReceiveCard />} />
+
           {/* Governance */}
           <Route path={routes.governance} element={<GovernanceOverview />} />
           <Route
@@ -94,7 +97,7 @@ export const MainRoutes = (): JSX.Element => {
           {/* Masp */}
           {features.maspEnabled && (
             <Route element={<MaspLayout />}>
-              <Route path={routes.shield} element={<MaspShield />} />
+              <Route path={routes.maspShield} element={<MaspShield />} />
               <Route path={routes.unshield} element={<MaspUnshield />} />
             </Route>
           )}
@@ -102,7 +105,7 @@ export const MainRoutes = (): JSX.Element => {
           {/* Ibc Transfers */}
           {features.ibcTransfersEnabled && (
             <Route element={<IbcTransfersLayout />}>
-              <Route path={routes.ibc} element={<IbcTransfer />} />
+              {/* <Route path={routes.ibc} element={<IbcTransfer />} /> */}
               <Route path={routes.ibcWithdraw} element={<IbcWithdraw />} />
             </Route>
           )}

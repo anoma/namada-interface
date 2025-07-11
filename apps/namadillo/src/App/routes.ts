@@ -15,8 +15,12 @@ export const routes = {
   governanceSubmitVote: "/governance/submit-vote/:proposalId",
   governanceJson: "/governance/json/:proposalId",
 
-  // Masp
+  // Shield
   shield: "/shield",
+
+  // Masp
+  maspShield: "/masp/shield",
+  maspUnshield: "/masp/unshield",
   unshield: "/unshield",
   shieldAssets: "/shield-assets",
 
