@@ -68,5 +68,7 @@ declare global {
     "IbcTransfer.Error": CustomEvent<TransferTransactionData>;
     "IbcWithdraw.Success": CustomEvent<TransferTransactionData>;
     "IbcWithdraw.Error": CustomEvent<TransferTransactionData>;
+    "ShieldedIbcWithdraw.Success": CustomEvent<TransferTransactionData>;
+    "ShieldedIbcWithdraw.Error": CustomEvent<TransferTransactionData>;
   }
 }

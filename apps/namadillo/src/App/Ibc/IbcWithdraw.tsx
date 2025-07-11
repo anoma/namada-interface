@@ -121,20 +121,26 @@ export const IbcWithdraw = (): JSX.Element => {
     connectToChainId(defaultChainId);
   };
 
-  useTransactionEventListener("IbcWithdraw.Success", async (e) => {
-    if (txHash && e.detail.hash === txHash) {
-      setCompletedAt(new Date());
-      // We are clearing the disposable signer only if the transaction was successful on the target chain
-      if (shielded && refundTarget) {
-        await clearDisposableSigner(refundTarget);
+  useTransactionEventListener(
+    ["IbcWithdraw.Success", "ShieldedIbcWithdraw.Success"],
+    async (e) => {
+      if (txHash && e.detail.hash === txHash) {
+        setCompletedAt(new Date());
+        // We are clearing the disposable signer only if the transaction was successful on the target chain
+        if (shielded && refundTarget) {
+          await clearDisposableSigner(refundTarget);
+        }
+        trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx complete`);
       }
-      trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx complete`);
     }
-  });
+  );
 
-  useTransactionEventListener("IbcWithdraw.Error", () => {
-    trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx error`);
-  });
+  useTransactionEventListener(
+    ["IbcWithdraw.Error", "ShieldedIbcWithdraw.Error"],
+    () => {
+      trackEvent(`${shielded ? "Shielded " : ""}IbcWithdraw: tx error`);
+    }
+  );
 
   const redirectToTimeline = (): void => {
     if (txHash) {
