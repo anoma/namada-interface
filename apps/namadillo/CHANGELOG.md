@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.30.0](https://github.com/namada-net/namada-interface/compare/namadillo@v1.29.0...namadillo@v1.30.0) (2025-07-11)
+
+
+### Features
+
+* Pick fee token with enough balance ([#2217](https://github.com/namada-net/namada-interface/issues/2217)) ([8368fa4](https://github.com/namada-net/namada-interface/commit/8368fa42d83008ff583cd7737e1a6b39b4151eab))
+
+
+### Bug Fixes
+
+* Reveal pk for ibc withdraw ([#2224](https://github.com/namada-net/namada-interface/issues/2224)) ([4965bfc](https://github.com/namada-net/namada-interface/commit/4965bfc59066a10a709d0768aa9600816ccf07d7))
+
 ## [1.29.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.2...namadillo@v1.29.0) (2025-07-07)
 
 
