@@ -163,7 +163,8 @@ export const NamadaTransfer: React.FC = () => {
           throw "Couldn't create TransferData object";
         }
 
-        const tx = txList[0];
+        // We have to use the last element from list in case we revealPK
+        const tx = txList.pop()!;
         storeTransaction(tx);
         trackEvent(
           `${shielded ? "Shielded" : "Transparent"} Transfer: complete`

@@ -10,7 +10,7 @@ import {
 } from "atoms/transactions/atoms";
 import { clsx } from "clsx";
 import { useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { TransferTransactionData } from "types";
 import { LocalStorageTransactionCard } from "./LocalStorageTransactionCard";
@@ -61,63 +61,66 @@ export const TransactionHistory = (): JSX.Element => {
       timestamp: new Date(transaction.updatedAt).getTime() / 1000,
     }));
 
-  const handleFiltering = (transaction: TransactionHistoryType): boolean => {
-    const transactionKind = transaction.tx?.kind ?? "";
-    if (filter.toLowerCase() === "all") {
-      return transferKindOptions.includes(transactionKind);
-    } else if (filter === "received") {
-      return transaction.kind === "received";
-    } else if (filter === "transfer") {
-      return [
-        "transparentTransfer",
-        "shieldingTransfer",
-        "unshieldingTransfer",
-        "shieldedTransfer",
-      ].includes(transactionKind);
-    } else if (filter === "ibc") {
-      return transactionKind.startsWith("ibc");
-    } else return transactionKind === filter;
-  };
+  const handleFiltering = useCallback(
+    (transaction: TransactionHistoryType): boolean => {
+      const transactionKind = transaction.tx?.kind ?? "";
+      if (filter.toLowerCase() === "all") {
+        return transferKindOptions.includes(transactionKind);
+      } else if (filter === "received") {
+        return transaction.kind === "received";
+      } else if (filter === "transfer") {
+        return [
+          "transparentTransfer",
+          "shieldingTransfer",
+          "unshieldingTransfer",
+          "shieldedTransfer",
+        ].includes(transactionKind);
+      } else if (filter === "ibc") {
+        return transactionKind.startsWith("ibc");
+      } else return transactionKind === filter;
+    },
+    []
+  );
 
-  const filterDuplicateTransactions = (
-    transactions: TransactionHistoryType[]
-  ): TransactionHistoryType[] => {
-    const seen = new Set();
-    return transactions.filter((tx) => {
-      // We only need to filter received transactions for the 5-6 repeat txns
-      // For IBC -> Transparent transactions
-      if (tx.kind !== "received") return true;
-      try {
-        const data =
-          tx.tx?.data?.startsWith("[") ?
-            JSON.parse(tx.tx.data)[1] || JSON.parse(tx.tx.data)[0]
-          : JSON.parse(tx.tx?.data ?? "{}");
-        const key = JSON.stringify({
-          blockHeight: tx.block_height,
-          target: tx.target,
-          sources: (data.sources || [])
-            .map((s: Record<string, string>) => ({
-              owner: s.owner,
-              token: s.token,
-              amount: s.amount,
-              type: s.type,
-            }))
-            .sort(),
-          targets: (data.targets || [])
-            .map((t: Record<string, string>) => ({
-              owner: t.owner,
-              token: t.token,
-              amount: t.amount,
-              type: t.type,
-            }))
-            .sort(),
-        });
-        return seen.has(key) ? false : seen.add(key);
-      } catch {
+  const JSONstringifyOrder = useCallback((obj: unknown): string => {
+    const allKeys = new Set<string>();
+    JSON.stringify(obj, (key, value) => (allKeys.add(key), value));
+    return JSON.stringify(obj, Array.from(allKeys).sort());
+  }, []);
+
+  // TODO: This one is not 100% reliable, we probably need to compare ibcMsgTransfer data
+  const filterDuplicateTransactions = useCallback(
+    (transactions: TransactionHistoryType[]): TransactionHistoryType[] => {
+      const seen = new Set();
+      return transactions.filter((tx) => {
+        // We only need to filter received transactions for the 5-6 repeat txns
+        // For IBC -> Transparent transactions
+        if (tx.kind !== "received") return true;
+
+        const dataStr = tx.tx?.data;
+        let data;
+        try {
+          // Or empty string because we want to return false if dataStr is undefined
+          data = JSON.parse(dataStr || "");
+        } catch {
+          // If parsing fails, we assume the data is not valid JSON
+          return false;
+        }
+
+        // TODO: fix swagger in indexer to return blockHeight
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const key = JSONstringifyOrder(data) + (tx as any).blockHeight;
+
+        if (seen.has(key)) {
+          return false; // Skip if this key has been seen
+        }
+
+        seen.add(key);
         return true;
-      }
-    });
-  };
+      });
+    },
+    []
+  );
   // Only show historical transactions that are in the transferKindOptions array
   const filteredTransactions =
     transactions?.results?.filter((transaction) =>

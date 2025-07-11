@@ -119,7 +119,8 @@ export const MaspShield: React.FC = () => {
         if (txList.length === 0) {
           throw "Couldn't create TransferData object";
         }
-        const tx = txList[0];
+        // We have to use the last element from list in case we revealPK
+        const tx = txList.pop()!;
         storeTransaction(tx);
       } else {
         throw "Invalid transaction response";

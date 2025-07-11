@@ -212,6 +212,22 @@ export const broadcastTransaction = async <T>(
   return response;
 };
 
+// We use this to prevent dispatching events for transfer events
+// as they are handled by useTransactionWatcher
+export const isTransferEventType = (
+  eventType?: TransactionEventsClasses
+): boolean => {
+  return eventType ?
+      [
+        "IbcTransfer",
+        "ShieldedTransfer",
+        "TransparentTransfer",
+        "ShieldedTransfer",
+        "UnshieldingTransfer",
+      ].includes(eventType)
+    : false;
+};
+
 export const broadcastTxWithEvents = async <T>(
   encodedTx: EncodedTxData<T>,
   signedTxs: Uint8Array[],
@@ -222,7 +238,7 @@ export const broadcastTxWithEvents = async <T>(
     throw new Error("Did not receive enough signatures!");
   }
 
-  eventType &&
+  !isTransferEventType(eventType) &&
     window.dispatchEvent(
       new CustomEvent(`${eventType}.Pending`, {
         detail: { tx: encodedTx.txs, data },
@@ -250,7 +266,7 @@ export const broadcastTxWithEvents = async <T>(
     );
 
     // Notification
-    eventType &&
+    !isTransferEventType(eventType) &&
       window.dispatchEvent(
         new CustomEvent(`${eventType}.${status}`, {
           detail: {
@@ -262,15 +278,16 @@ export const broadcastTxWithEvents = async <T>(
         })
       );
   } catch (error) {
-    window.dispatchEvent(
-      new CustomEvent(`${eventType}.Error`, {
-        detail: {
-          tx: encodedTx.txs,
-          data,
-          error,
-        },
-      })
-    );
+    !isTransferEventType &&
+      window.dispatchEvent(
+        new CustomEvent(`${eventType}.Error`, {
+          detail: {
+            tx: encodedTx.txs,
+            data,
+            error,
+          },
+        })
+      );
     throw error;
   }
 };
