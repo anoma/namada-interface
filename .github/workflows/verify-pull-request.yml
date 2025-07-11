@@ -64,6 +64,10 @@ jobs:
         with:
           cache-name: unit-tests-js
 
+      - name: Apt update
+        run: sudo apt update
+        shell: bash
+
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
@@ -92,6 +96,10 @@ jobs:
 
       - name: Install yarn dependencies
         uses: ./.github/actions/yarn-cache
+
+      - name: Apt update
+        run: sudo apt update
+        shell: bash
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
@@ -122,6 +130,10 @@ jobs:
         with:
           cache-name: build
 
+      - name: Apt update
+        run: sudo apt update
+        shell: bash
+
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
 
@@ -151,6 +163,10 @@ jobs:
         uses: ./.github/actions/rust-cache
         with:
           cache-name: build-multicore
+
+      - name: Apt update
+        run: sudo apt update
+        shell: bash
 
       - name: Install protoc
         run: sudo apt-get install -y protobuf-compiler
