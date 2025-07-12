@@ -93,9 +93,8 @@ export const IbcTransfer = (): JSX.Element => {
         asset,
         chainRegistry.assets.assets
       );
-
       // Include if asset has a corresponding Namada asset, and it's either native or native for namada
-      if (namadaAsset && (!asset.traces || !namadaAsset.traces)) {
+      if (namadaAsset) {
         output[key] = { ...userAssets[key] };
       }
     });
