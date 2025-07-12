@@ -224,7 +224,10 @@ export const getNamadaAssetByIbcAsset = (
       // Match native token(unam)
       counterpartyBaseDenom === namadaAsset.base ||
       // Match any other token
-      counterpartyBaseDenom === namadaAsset.traces?.[0].counterparty.base_denom
+      counterpartyBaseDenom ===
+        namadaAsset.traces?.[0].counterparty.base_denom ||
+      // For usdc
+      namadaAsset.traces?.[0].counterparty.base_denom === asset.base
     );
   });
 
