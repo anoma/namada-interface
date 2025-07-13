@@ -26,13 +26,32 @@ import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import { AssetWithAmount, BaseDenom } from "types";
+import { Asset, AssetWithAmount, BaseDenom } from "types";
 import { useTransactionEventListener } from "utils";
 import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const keplr = new KeplrWalletManager();
 const defaultChainId = "cosmoshub-4";
+
+// Only lets in assets that are:
+// - Native to the chain
+// - Additional mintage on Noble (USDC)
+// - Native on Osmosis (NAM)
+const isNativeOrAdditionalToken = (
+  asset: Asset,
+  chainName: string
+): boolean => {
+  // Check if it's native to its chain (no traces means native)
+  if (!asset.traces || asset.traces.length === 0) return true;
+  // Make sure we can USDC on Noble
+  if (asset.traces[0].type === "additional-mintage" && chainName === "noble")
+    return true;
+  // Make sure we can NAM on Osmosis
+  if (asset.symbol === "NAM" && chainName === "osmosis") return true;
+
+  return false;
+};
 
 export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
@@ -93,14 +112,18 @@ export const IbcTransfer = (): JSX.Element => {
         asset,
         chainRegistry.assets.assets
       );
-      // Include if asset has a corresponding Namada asset, and it's either native or native for namada
-      if (namadaAsset) {
+
+      // Include only if asset has a corresponding Namada asset AND is either native or NAM on Osmosis
+      if (
+        namadaAsset &&
+        isNativeOrAdditionalToken(asset, registry?.chain?.chain_name ?? "")
+      ) {
         output[key] = { ...userAssets[key] };
       }
     });
 
     return output;
-  }, [Object.keys(userAssets || {}).join(""), chainRegistry?.chain.chain_id]);
+  }, [Object.keys(userAssets || {}).join(""), registry?.chain.chain_name]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
