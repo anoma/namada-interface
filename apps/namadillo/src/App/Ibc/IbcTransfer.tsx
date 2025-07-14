@@ -10,9 +10,9 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   getAvailableChains,
-  getNamadaAssetByIbcAsset,
   ibcChannelsFamily,
   namadaChainRegistryAtom,
+  SUPPORTED_ASSETS_MAP,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useFathomTracker } from "hooks/useFathomTracker";
@@ -26,32 +26,13 @@ import invariant from "invariant";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
-import { Asset, AssetWithAmount, BaseDenom } from "types";
+import { AssetWithAmount, BaseDenom } from "types";
 import { useTransactionEventListener } from "utils";
 import { IbcTabNavigation } from "./IbcTabNavigation";
 import { IbcTopHeader } from "./IbcTopHeader";
 
 const keplr = new KeplrWalletManager();
 const defaultChainId = "cosmoshub-4";
-
-// Only lets in assets that are:
-// - Native to the chain
-// - Additional mintage on Noble (USDC)
-// - Native on Osmosis (NAM)
-const isNativeOrAdditionalToken = (
-  asset: Asset,
-  chainName: string
-): boolean => {
-  // Check if it's native to its chain (no traces means native)
-  if (!asset.traces || asset.traces.length === 0) return true;
-  // Make sure we can USDC on Noble
-  if (asset.traces[0].type === "additional-mintage" && chainName === "noble")
-    return true;
-  // Make sure we can NAM on Osmosis
-  if (asset.symbol === "NAM" && chainName === "osmosis") return true;
-
-  return false;
-};
 
 export const IbcTransfer = (): JSX.Element => {
   const navigate = useNavigate();
@@ -103,20 +84,15 @@ export const IbcTransfer = (): JSX.Element => {
     selectedAssetBase ? userAssets?.[selectedAssetBase]?.asset : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!userAssets || !chainRegistry) return undefined;
+    if (!userAssets || !registry) return undefined;
 
     const output: Record<BaseDenom, AssetWithAmount> = {};
 
     Object.entries(userAssets).forEach(([key, { asset }]) => {
-      const namadaAsset = getNamadaAssetByIbcAsset(
-        asset,
-        chainRegistry.assets.assets
-      );
-
-      // Include only if asset has a corresponding Namada asset AND is either native or NAM on Osmosis
       if (
-        namadaAsset &&
-        isNativeOrAdditionalToken(asset, registry?.chain?.chain_name ?? "")
+        SUPPORTED_ASSETS_MAP.get(registry.chain.chain_name)?.includes(
+          asset.symbol
+        )
       ) {
         output[key] = { ...userAssets[key] };
       }
