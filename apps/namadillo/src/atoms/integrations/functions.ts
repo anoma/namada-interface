@@ -105,6 +105,18 @@ const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
   })
 );
 
+export const SUPPORTED_ASSETS_MAP = new Map<string, string[]>(
+  Object.entries({
+    osmosis: ["NAM", "OSMO"],
+    cosmoshub: ["ATOM"],
+    celestia: ["TIA"],
+    nyx: ["NYX"],
+    stride: ["stOSMO", "stATOM", "stTIA"],
+    neutron: ["NTRN"],
+    noble: ["USDC"],
+  })
+);
+
 export const getRpcByIndex = (chain: Chain, index = 0): RpcStorage => {
   const availableRpcs = chain.apis?.rpc;
   if (!availableRpcs) {
@@ -209,26 +221,6 @@ export const getIbcAssetByNamadaAsset = (
     }
   });
   return ibcAsset;
-};
-
-export const getNamadaAssetByIbcAsset = (
-  asset: Asset,
-  namadaAssets: NamadaAsset[]
-): NamadaAsset | undefined => {
-  // Returns base denom for provided asset(e.g. "uosmo", "uatom", "unam")
-  const counterpartyBaseDenom =
-    asset.traces?.[0].counterparty.base_denom || asset.base;
-
-  const namadaAsset = namadaAssets.find((namadaAsset) => {
-    return (
-      // Match native token(unam)
-      counterpartyBaseDenom === namadaAsset.base ||
-      // Match any other token
-      counterpartyBaseDenom === namadaAsset.traces?.[0].counterparty.base_denom
-    );
-  });
-
-  return namadaAsset;
 };
 
 export const getNamadaIbcInfo = (isHousefire: boolean): IBCInfo[] => {

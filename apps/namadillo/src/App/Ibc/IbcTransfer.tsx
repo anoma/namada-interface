@@ -10,9 +10,9 @@ import { allDefaultAccountsAtom } from "atoms/accounts";
 import {
   assetBalanceAtomFamily,
   getAvailableChains,
-  getNamadaAssetByIbcAsset,
   ibcChannelsFamily,
   namadaChainRegistryAtom,
+  SUPPORTED_ASSETS_MAP,
 } from "atoms/integrations";
 import BigNumber from "bignumber.js";
 import { useFathomTracker } from "hooks/useFathomTracker";
@@ -84,24 +84,22 @@ export const IbcTransfer = (): JSX.Element => {
     selectedAssetBase ? userAssets?.[selectedAssetBase]?.asset : undefined;
 
   const availableAssets = useMemo(() => {
-    if (!userAssets || !chainRegistry) return undefined;
+    if (!userAssets || !registry) return undefined;
 
     const output: Record<BaseDenom, AssetWithAmount> = {};
 
     Object.entries(userAssets).forEach(([key, { asset }]) => {
-      const namadaAsset = getNamadaAssetByIbcAsset(
-        asset,
-        chainRegistry.assets.assets
-      );
-
-      // Include if asset has a corresponding Namada asset, and it's either native or native for namada
-      if (namadaAsset && (!asset.traces || !namadaAsset.traces)) {
+      if (
+        SUPPORTED_ASSETS_MAP.get(registry.chain.chain_name)?.includes(
+          asset.symbol
+        )
+      ) {
         output[key] = { ...userAssets[key] };
       }
     });
 
     return output;
-  }, [Object.keys(userAssets || {}).join(""), chainRegistry?.chain.chain_id]);
+  }, [Object.keys(userAssets || {}).join(""), registry?.chain.chain_name]);
 
   // Manage the history of transactions
   const { storeTransaction } = useTransactionActions();
