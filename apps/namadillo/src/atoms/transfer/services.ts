@@ -221,7 +221,8 @@ export const createUnshieldingTransferTx = async (
   disposableSigner: GenDisposableSignerResponse,
   memo?: string
 ): Promise<EncodedTxData<UnshieldingTransferProps> | undefined> => {
-  const { publicKey: signerPublicKey } = disposableSigner;
+  const { publicKey: signerPublicKey, address: signerAddress } =
+    disposableSigner;
 
   const source = props[0]?.source;
   const destination = props[0]?.data[0]?.target;
@@ -241,11 +242,23 @@ export const createUnshieldingTransferTx = async (
     rpcUrl,
     nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
+      const feePaymentMsgValue = new UnshieldingTransferMsgValue({
+        source,
+        data: [
+          {
+            target: signerAddress,
+            token,
+            amount: gasConfig.gasPriceInMinDenom.times(gasConfig.gasLimit),
+          },
+        ],
+        bparams,
+        skipFeeCheck: true,
+      });
       const msgValue = new UnshieldingTransferMsgValue({
         source,
-        gasSpendingKey: source,
         data: [{ target: destination, token, amount }],
         bparams,
+        skipFeeCheck: true,
       });
       const msg: Unshield = {
         type: "unshield",
@@ -255,7 +268,7 @@ export const createUnshieldingTransferTx = async (
             publicKey: signerPublicKey,
           },
           gasConfig,
-          props: [msgValue],
+          props: [feePaymentMsgValue, msgValue],
           chain,
           memo,
         },
