@@ -72,6 +72,7 @@ export const useTransactionCallback = (): void => {
   useTransactionEventListener("UnshieldingTransfer.Success", onTransferSuccess);
   useTransactionEventListener("IbcTransfer.Success", onTransferSuccess);
   useTransactionEventListener("IbcWithdraw.Success", onTransferSuccess);
+  useTransactionEventListener("ShieldedIbcWithdraw.Success", onTransferSuccess);
 
   useTransactionEventListener("TransparentTransfer.Error", onTransferError);
   useTransactionEventListener("ShieldedTransfer.Error", onTransferError);
@@ -79,4 +80,5 @@ export const useTransactionCallback = (): void => {
   useTransactionEventListener("UnshieldingTransfer.Error", onTransferError);
   useTransactionEventListener("IbcTransfer.Error", onTransferError);
   useTransactionEventListener("IbcWithdraw.Error", onTransferError);
+  useTransactionEventListener("ShieldedIbcWithdraw.Error", onTransferError);
 };
