@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.30.0](https://github.com/namada-net/namada-interface/compare/namadillo@v1.29.0...namadillo@v1.30.0) (2025-07-14)
+
+
+### Features
+
+* Pick fee token with enough balance ([#2217](https://github.com/namada-net/namada-interface/issues/2217)) ([8368fa4](https://github.com/namada-net/namada-interface/commit/8368fa42d83008ff583cd7737e1a6b39b4151eab))
+
+
+### Bug Fixes
+
+* Add usdc back to select chain modal ([#2229](https://github.com/namada-net/namada-interface/issues/2229)) ([be68d95](https://github.com/namada-net/namada-interface/commit/be68d95b163514d4c0cb4ed56666e844b1944bc9))
+* Do not display refund target error for transparent ibc withdrawals ([#2220](https://github.com/namada-net/namada-interface/issues/2220)) ([7b78563](https://github.com/namada-net/namada-interface/commit/7b7856393526624a33e1ae3682485da4e171eded))
+* Reveal pk for ibc withdraw ([#2224](https://github.com/namada-net/namada-interface/issues/2224)) ([4965bfc](https://github.com/namada-net/namada-interface/commit/4965bfc59066a10a709d0768aa9600816ccf07d7))
+
 ## [1.29.0](https://github.com/anoma/namada-interface/compare/namadillo@v1.28.2...namadillo@v1.29.0) (2025-07-07)
 
 
