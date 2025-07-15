@@ -40,6 +40,26 @@ export type WorkerTransferParams = {
   gasConfig: GasConfig;
 };
 
+const test = async (): Promise<void> => {
+  maspTxRegisterTransferHandlers();
+  const worker = new MaspTxWorker();
+  const workerLink = Comlink.wrap<MaspTxWorkerApi>(worker);
+  await workerLink.init({
+    type: "init",
+    payload: {
+      rpcUrl: "https://namada-rpc.emberstake.xyz",
+      token: "tnam1q9gr66cvu4hrzm0sd5kmlnjje82gs3xlfg3v6nu7",
+      maspIndexerUrl: "",
+    },
+  });
+  await workerLink.asd();
+
+  worker.terminate();
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).test2 = test; // Expose for testing purposes
+
 const workerBuildTxPair = async <T>({
   rpcUrl,
   nativeToken,

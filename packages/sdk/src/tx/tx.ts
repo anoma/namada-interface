@@ -529,4 +529,12 @@ export class Tx {
   getInnerTxHashes(bytes: Uint8Array): string[] {
     return get_inner_tx_hashes(bytes);
   }
+
+  /**
+   * Asd
+   * @async
+   */
+  async test_kappa(): Promise<void> {
+    await this.sdk.build_and_sign_ibc_transfer();
+  }
 }

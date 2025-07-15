@@ -794,6 +794,138 @@ impl Sdk {
         self.serialize_tx_result(tx, wrapper_tx_msg, signing_data, Some(masp_signing_data))
     }
 
+    // answer moon pony stomach kiss obscure odor fuel oppose rent report gossip
+    pub async fn build_and_sign_ibc_transfer(
+        &self,
+    ) -> Result<(), JsError> {
+
+        // This has to be done in secure environment to not expose xsk
+        // {
+        let xsk_str = "zsknam1qwkg258pqqqqpqypad9vytjs2j70eqak3fmuexhay8q3j560wjy0f6y5xe0zqlx5wkzzxnuk4y3pjyv0sexcrtevfldms9xy3mmq9erfmd7p5k85ddjs5nn7c3xg0e9mj3dkxt82sqjyuun7tvh8y3w0arup9mwwe4qugpsvlm995y49ej0gvs5ps7q2sdpru2vcjqdzzg2g6sx0cj6c789adffv2hz2l5xfjpvzlfqa55s3d4807chkjdq0vsllckyx4vnjd3ysmtg0mtuex";
+        let xsk = namada_sdk::ExtendedSpendingKey::from_str(xsk_str).expect("Extended spending key to be valid");
+        let mut pxk = namada_sdk::masp_primitives::zip32::PseudoExtendedKey::from(namada_sdk::masp_primitives::zip32::ExtendedSpendingKey::from(xsk));
+        // }
+
+        // This step is important as we replace spend authorizing key with a fake one.
+        pxk.augment_spend_authorizing_key_unchecked(namada_sdk::masp_primitives::sapling::redjubjub::PrivateKey(
+                namada_sdk::masp_primitives::jubjub::Fr::default(),
+        ));
+
+        // Ledger address is not used in the SDK.
+        // We can leave it as whatever as long as it's valid url.
+        let ledger_address = namada_sdk::tendermint_rpc::Url::from_str("http://notinuse:13337").unwrap();
+
+        // Balance of of the account corresponding to the public key below has to be enough to pay for
+        // fees. If not, sdk will try to unshield to pay fees.
+        // What namadillo does atm is to generate disposable keypair(with no balance) and use it as a
+        // one time fee payer/tx signer.
+        let fee_payer = namada_sdk::key::common::PublicKey::from_str("tpknam1qrefwp7rd4avzrtv2dvpxkygn4kffw2uwl6x8qek9crjest3ke9wznatnh6").expect("Public key to be valid");
+
+        let signing_keys: Vec<namada_sdk::key::common::PublicKey> = vec![
+            fee_payer.clone(),
+        ];
+        let tx_args = namada_sdk::args::Tx::<namada_sdk::args::SdkTypes> {
+            dry_run: false,
+            dry_run_wrapper: false,
+            dump_tx: false,
+            dump_wrapper_tx: false,
+            force: false,
+            broadcast_only: false,
+            ledger_address,
+            wallet_alias_force: false,
+            initialized_account_alias: None,
+            // Fee amount is a gas price, tweak as wish
+            fee_amount: Some(namada_sdk::args::InputAmount::Unvalidated(namada_sdk::token::DenominatedAmount::new(
+                namada_sdk::token::Amount::from_u64(1),
+                6u8.into(),
+            ))),
+
+            // just used mainnet nam here
+            fee_token: namada_sdk::address::Address::from_str("tnam1q9gr66cvu4hrzm0sd5kmlnjje82gs3xlfg3v6nu7").expect("Fee token to be valid"),
+            gas_limit: namada_sdk::tx::data::GasLimit::from_str("100000").expect("Gas limit to be valid"),
+            wrapper_fee_payer: Some(fee_payer),
+            output_folder: None,
+            expiration: TxExpiration::Default,
+            chain_id: Some(namada_sdk::chain::ChainId("namada.5f5de2dd1b88cba30586420".to_string())),
+            signing_keys,
+            tx_reveal_code_path: std::path::PathBuf::from("tx_reveal_pk.wasm"),
+            use_device: false,
+            password: None,
+            memo: None,
+            device_transport: Default::default(),
+        };
+        let source = namada_sdk::TransferSource::ExtendedKey(pxk);
+        // Some osmo address
+        let receiver = "osmo18st0wqx84av8y6xdlss9d6m2nepyqwj6n3q7js".to_string();
+        // Osmo on main namada
+        let token = namada_sdk::address::Address::from_str("tnam1p5z8ruwyu7ha8urhq2l0dhpk2f5dv3ts7uyf2n75").expect("Token address to be valid");
+        let amount = InputAmount::Validated(DenominatedAmount::new(Amount::from_string_precise("1").expect("Amount to be valid."), 0u8.into()));
+
+        let port_id = namada_sdk::ibc::core::host::types::identifiers::PortId::from_str("transfer").expect("Port ID to be valid");
+        let channel_id = namada_sdk::ibc::core::host::types::identifiers::ChannelId::from_str("channel-1").expect("Channel ID to be valid");
+
+        // Address to which we will refund the transfer in case of ibc timeout, this one should also be
+        // disposable to prevent privacy leaks
+        let refund_target = TransferTarget::Address(namada_sdk::address::Address::from_str("tnam1qzxjfnz6m5dhfyddnw9qvrapuqv9vxmrncckdy9l").expect("Refund target to be valid"));
+
+        let args = namada_sdk::args::TxIbcTransfer {
+            tx: tx_args,
+            ibc_memo: None,
+            ibc_shielding_data: None,
+            source,
+            receiver,
+            token,
+            amount,
+            port_id,
+            channel_id,
+            timeout_height: None,
+            timeout_sec_offset: None,
+            tx_code_path: std::path::PathBuf::from("tx_ibc.wasm"),
+            refund_target: Some(refund_target),
+            gas_spending_key: Some(pxk),
+        };
+
+        let mut bparams = namada_sdk::masp_primitives::transaction::components::sapling::builder::RngBuildParams::new(rand::rngs::OsRng);
+
+        // You gave to store and load shielded context somehow
+        let _ = &self.namada.shielded_mut().await.load().await?;
+
+        web_sys::console::log_1(&"Building IBC transfer...".into());
+        let (mut tx, signing_data, _) = build_ibc_transfer(&self.namada, &args, &mut bparams).await.expect("Failed to build IBC transfer");
+        web_sys::console::log_1(&"IBC transfer built successfully".into());
+
+        // Up to this point, except for pxk derivation everyhing can be done in non secure
+        // environment
+
+        // This happens in secure environment, I did not want to copy whole fn, you can find it in
+        // repo
+        web_sys::console::log_1(&"Signing IBC transfer...".into());
+        masp_sign(&mut tx, &signing_data, bparams, xsk).await?;
+        // secret key generated from mnemonic
+        let signing_keys = vec![common::SecretKey::from_str("00b43cfa6290e7d3c5e651cdd8f385b8fb1178bcc03bbea4b030ac03e17ced359c").expect("Private key to be valid")];
+
+        if let Some(account_public_keys_map) = signing_data.account_public_keys_map.clone() {
+            tx.sign_raw(
+                signing_keys.clone(),
+                account_public_keys_map,
+                signing_data.owner.clone(),
+
+            );
+        };
+
+        // Sign the fee header
+        tx.sign_wrapper(signing_keys[0].clone());
+        web_sys::console::log_1(&"IBC transfer signed successfully".into());
+
+
+        let response = self.namada.client().broadcast_tx_sync(tx.to_bytes()).await;
+        web_sys::console::log_1(&format!("Response: {:?}", response).into());
+
+
+        Ok(())
+
+    }
+
     pub async fn build_eth_bridge_transfer(
         &self,
         eth_bridge_transfer_msg: &[u8],

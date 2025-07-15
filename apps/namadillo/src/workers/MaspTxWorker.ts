@@ -42,6 +42,16 @@ export class Worker {
     return { type: "init-done", payload: null };
   }
 
+  async asd(): Promise<void> {
+    if (!this.sdk) {
+      throw new Error("SDK is not initialized");
+    }
+    // THis part is important, we need to load masp params before any masp tx can be build
+    await this.sdk.masp.loadMaspParams("", "namada.5f5de2dd1b88cba30586420");
+
+    await this.sdk.tx.test_kappa();
+  }
+
   async shield(m: Shield): Promise<ShieldDone> {
     if (!this.sdk) {
       throw new Error("SDK is not initialized");
