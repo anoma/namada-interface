@@ -286,12 +286,17 @@ export const createIbcTx = async (
     rpcUrl,
     nativeToken: chain.nativeTokenAddress,
     buildTxFn: async (workerLink) => {
-      const publicKeyRevealed = await isPublicKeyRevealed(signerPublicKey);
       const msgValue = new IbcTransferMsgValue({
         ...props[0],
         gasSpendingKey: props[0].gasSpendingKey,
         bparams,
       });
+
+      // We only check if we need to reveal the public key if the gas spending key is not provided
+      const publicKeyRevealed =
+        Boolean(msgValue.gasSpendingKey) ||
+        (await isPublicKeyRevealed(account.address));
+
       const msg: IbcTransfer = {
         type: "ibc-transfer",
         payload: {
