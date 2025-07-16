@@ -278,7 +278,7 @@ export const broadcastTxWithEvents = async <T>(
         })
       );
   } catch (error) {
-    !isTransferEventType &&
+    !isTransferEventType(eventType) &&
       window.dispatchEvent(
         new CustomEvent(`${eventType}.Error`, {
           detail: {
