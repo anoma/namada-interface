@@ -182,10 +182,7 @@ export const getChainRegistryByChainId = (
 export const getChainRegistryByChainName = (
   chainName: string
 ): ChainRegistryEntry | undefined => {
-  return (
-    SUPPORTED_IBC_CHAINS_MAP.get(chainName) ??
-    SUPPORTED_NAM_CHAINS_MAP.get(chainName)
-  );
+  return SUPPORTED_IBC_CHAINS_MAP.get(chainName);
 };
 
 export const getAvailableChains = (): Chain[] => {
