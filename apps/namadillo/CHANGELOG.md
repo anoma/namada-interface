@@ -7,6 +7,13 @@
 
 * Update registry url to enable shielded rewards ([#2243](https://github.com/namada-net/namada-interface/issues/2243)) ([60d991f](https://github.com/namada-net/namada-interface/commit/60d991f73fc83f97cabb4b062e26ac20d5934076))
 
+## [1.31.1](https://github.com/namada-net/namada-interface/compare/namadillo@v1.31.0...namadillo@v1.31.1) (2025-07-16)
+
+
+### Bug Fixes
+
+* Update registry url to enable shielded rewards ([#2243](https://github.com/namada-net/namada-interface/issues/2243)) ([60d991f](https://github.com/namada-net/namada-interface/commit/60d991f73fc83f97cabb4b062e26ac20d5934076))
+
 ## [1.31.0](https://github.com/namada-net/namada-interface/compare/namadillo@v1.30.0...namadillo@v1.31.0) (2025-07-16)
 
 
