@@ -50,9 +50,9 @@ export const fetchMaspRewards = async (
   const existingRewards: MaspAssetRewards[] = rewards
     .filter((r) => r.maxRewardRate > 0)
     .map((r) => {
-      const denom = getDenomFromIbcTrace(r.name);
       const asset =
-        assets.find((asset) => asset.base === denom) ?? unknownAsset(denom);
+        assets.find((asset) => asset.address === r.address) ??
+        unknownAsset(getDenomFromIbcTrace(r.name));
       return {
         asset,
         address: r.address,
