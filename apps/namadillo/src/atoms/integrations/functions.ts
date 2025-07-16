@@ -92,7 +92,7 @@ const cosmosisForHousefire = {
 // ---- Housefire Chain Registry Section End ----
 
 // Whitelist of supported chains
-const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
+const SUPPORTED_IBC_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
   Object.entries({
     osmosis: osmosis,
     "osmosis-housefire": cosmosisForHousefire,
@@ -102,6 +102,13 @@ const SUPPORTED_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
     stride: stride,
     neutron: neutron,
     noble: noble,
+  })
+);
+
+const SUPPORTED_NAM_CHAINS_MAP = new Map<string, ChainRegistryEntry>(
+  Object.entries({
+    namada: namada,
+    "namada-housefire": housefire,
   })
 );
 
@@ -166,25 +173,20 @@ export const getChannelFromIbcInfo = (
 export const getChainRegistryByChainId = (
   chainId: string
 ): ChainRegistryEntry | undefined => {
-  const namadaChainId = namada.chain.chain_id;
-  const housefireChainId = housefire.chain.chain_id;
-  // NAM chains
-  if (chainId === namadaChainId) return namada;
-  if (chainId === housefireChainId) return housefire;
-  // IBC Chains
-  return SUPPORTED_CHAINS_MAP.values().find(
-    (registry) => registry.chain.chain_id === chainId
-  );
+  return [
+    ...SUPPORTED_IBC_CHAINS_MAP.values(),
+    ...SUPPORTED_NAM_CHAINS_MAP.values(),
+  ].find((registry) => registry.chain.chain_id === chainId);
 };
 
 export const getChainRegistryByChainName = (
   chainName: string
 ): ChainRegistryEntry | undefined => {
-  return SUPPORTED_CHAINS_MAP.get(chainName);
+  return SUPPORTED_IBC_CHAINS_MAP.get(chainName);
 };
 
 export const getAvailableChains = (): Chain[] => {
-  return SUPPORTED_CHAINS_MAP.entries()
+  return SUPPORTED_IBC_CHAINS_MAP.entries()
     .filter(([key]) => !key.includes("housefire"))
     .map(([_, entry]) => entry.chain)
     .toArray();
