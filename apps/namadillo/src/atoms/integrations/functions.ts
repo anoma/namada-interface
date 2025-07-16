@@ -166,6 +166,12 @@ export const getChannelFromIbcInfo = (
 export const getChainRegistryByChainId = (
   chainId: string
 ): ChainRegistryEntry | undefined => {
+  const namadaChainId = namada.chain.chain_id;
+  const housefireChainId = housefire.chain.chain_id;
+  // NAM chains
+  if (chainId === namadaChainId) return namada;
+  if (chainId === housefireChainId) return housefire;
+  // IBC Chains
   return SUPPORTED_CHAINS_MAP.values().find(
     (registry) => registry.chain.chain_id === chainId
   );
