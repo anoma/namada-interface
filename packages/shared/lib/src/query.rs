@@ -14,7 +14,7 @@ use namada_sdk::hash::Hash;
 use namada_sdk::masp::shielded_wallet::ShieldedApi;
 use namada_sdk::masp::utils::MaspClient as NamadaMaspClient;
 use namada_sdk::masp::utils::RetryStrategy;
-use namada_sdk::masp::{IndexerMaspClient, LedgerMaspClient};
+use namada_sdk::masp::{IndexerMaspClient, LedgerMaspClient, LinearBackoffSleepMaspClient};
 use namada_sdk::masp::{ShieldedContext, ShieldedSyncConfig};
 use namada_sdk::masp_primitives::asset_type::AssetType;
 use namada_sdk::masp_primitives::sapling::ViewingKey;
@@ -82,8 +82,8 @@ impl ProgressBarNames {
 }
 
 enum MaspClient {
-    Ledger(LedgerMaspClient<HttpClient>),
-    Indexer(IndexerMaspClient),
+    Ledger(LinearBackoffSleepMaspClient<LedgerMaspClient<HttpClient>>),
+    Indexer(LinearBackoffSleepMaspClient<IndexerMaspClient>),
 }
 
 #[wasm_bindgen]
@@ -105,18 +105,17 @@ impl Query {
             // TODO: for now we just concatenate the v1 api path
             let url = reqwest::Url::parse(&format!("{}/api/v1", url)).unwrap();
 
-            MaspClient::Indexer(IndexerMaspClient::new(
-                client,
-                url,
-                true,
-                100,
+            MaspClient::Indexer(LinearBackoffSleepMaspClient::new(
+                IndexerMaspClient::new(client, url, true, 100),
                 Duration::from_millis(5),
             ))
         } else {
-            MaspClient::Ledger(LedgerMaspClient::new(
-                client.clone(),
-                // Using one does not break the progress indicators
-                1,
+            MaspClient::Ledger(LinearBackoffSleepMaspClient::new(
+                LedgerMaspClient::new(
+                    client.clone(),
+                    // Using one does not break the progress indicators
+                    1,
+                ),
                 Duration::from_millis(5),
             ))
         };
@@ -412,7 +411,8 @@ impl Query {
         // We are recreating shielded context to avoid multiple mutable borrows
         let mut shielded: ShieldedContext<JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        // TODO: pass handler
+        shielded.try_load(async |_| {}).await;
         shielded
             .precompute_asset_types(&self.client, tokens.iter().collect())
             .await

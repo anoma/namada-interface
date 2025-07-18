@@ -1,7 +1,9 @@
 use async_trait::async_trait;
 use gloo_utils::format::JsValueSerdeExt;
 use namada_sdk::borsh::{BorshDeserialize, BorshSerialize};
-use namada_sdk::masp::{ContextSyncStatus, DispatcherCache, ShieldedUtils};
+use namada_sdk::masp::{
+    v0, ContextSyncStatus, DispatcherCache, ShieldedUtils, VersionedWallet, VersionedWalletRef,
+};
 use namada_sdk::masp_proofs::prover::LocalTxProver;
 use namada_sdk::ShieldedWallet;
 use rexie::{Error, ObjectStore, Rexie, TransactionMode};
@@ -190,7 +192,14 @@ impl ShieldedUtils for WebShieldedUtils {
         let context: ShieldedWallet<U> = if stored_ctx_bytes.is_empty() {
             ShieldedWallet::default()
         } else {
-            ShieldedWallet::deserialize(&mut &stored_ctx_bytes[..])?
+            match VersionedWallet::<U>::deserialize(&mut &stored_ctx_bytes[..]) {
+                Ok(w) => w,
+                Err(_) => VersionedWallet::V0(v0::ShieldedWallet::<U>::deserialize(
+                    &mut &stored_ctx_bytes[..],
+                )?),
+            }
+            .migrate()
+            .map_err(std::io::Error::other)?
         };
 
         *ctx = ShieldedWallet {
@@ -201,7 +210,11 @@ impl ShieldedUtils for WebShieldedUtils {
         Ok(())
     }
 
-    async fn save<U: ShieldedUtils>(&self, ctx: &ShieldedWallet<U>) -> std::io::Result<()> {
+    async fn save<'a, U: ShieldedUtils>(
+        &'a self,
+        ctx: VersionedWalletRef<'a, U>,
+        sync_status: ContextSyncStatus,
+    ) -> std::io::Result<()> {
         let mut bytes = Vec::new();
         ctx.serialize(&mut bytes)
             .expect("cannot serialize shielded context");
@@ -209,7 +222,7 @@ impl ShieldedUtils for WebShieldedUtils {
         let db = Self::build_database(&self.chain_id)
             .await
             .map_err(Self::to_io_err)?;
-        let confirmed = get_confirmed(&ctx.sync_status);
+        let confirmed = get_confirmed(&sync_status);
 
         Self::set_context(
             &db,
@@ -221,7 +234,7 @@ impl ShieldedUtils for WebShieldedUtils {
         .await
         .map_err(Self::to_io_err)?;
 
-        if let ContextSyncStatus::Confirmed = ctx.sync_status {
+        if let ContextSyncStatus::Confirmed = sync_status {
             Self::remove_speculative_context(&db, &self.chain_id)
                 .await
                 .map_err(Self::to_io_err)?;
