@@ -12,7 +12,7 @@ const { VITE_PROXY } = import.meta.env;
 const namadaChainRegistryUrl =
   VITE_PROXY ?
     "http://localhost:8010/proxy"
-  : "https://raw.githubusercontent.com/anoma/namada-chain-registry/refs/heads/main";
+  : "https://raw.githubusercontent.com/namada-net/namada-chain-registry/refs/heads/main";
 
 const namadaChainRegistryMap = new Map<string, string>([
   ["namada.5f5de2dd1b88cba30586420", "namada"],
