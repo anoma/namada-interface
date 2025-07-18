@@ -10,7 +10,6 @@ import {
 } from "App/Transfer/__mocks__/chains";
 import { TransferDestination } from "App/Transfer/TransferDestination";
 import { namadaAsset } from "utils";
-import { walletMock } from "../__mocks__/providers";
 import { parseChainInfo } from "../common";
 
 describe("Component: TransferDestination", () => {
@@ -20,17 +19,10 @@ describe("Component: TransferDestination", () => {
     expect(chainButton).not.toBeInTheDocument();
   });
 
-  it("should render the component with chain selectable", () => {
-    render(<TransferDestination openChainSelector={jest.fn()} />);
-    const chainButton = screen.getByText(/select chain/i);
-    expect(chainButton).toBeInTheDocument();
-  });
-
   it("should render the TabSelector for shielded/transparent when onChangeShielded is provided", () => {
     render(
       <TransferDestination
         isShieldedAddress={true}
-        onChangeShielded={jest.fn()}
         chain={parseChainInfo(namadaChainMock as Chain, true)}
       />
     );
@@ -50,7 +42,6 @@ describe("Component: TransferDestination", () => {
       <TransferDestination
         isShieldedAddress={true}
         chain={parseChainInfo(randomChainMock as Chain, true)}
-        onChangeShielded={jest.fn()}
       />
     );
     expect(screen.queryByText(/shielded/i)).not.toBeInTheDocument();
@@ -61,7 +52,6 @@ describe("Component: TransferDestination", () => {
       <TransferDestination
         isShieldedAddress={true}
         chain={parseChainInfo(namadaChainMock as Chain, true)}
-        wallet={walletMock}
       />
     );
     expect(screen.getByText(/namada shielded/i)).toBeInTheDocument();
@@ -72,7 +62,6 @@ describe("Component: TransferDestination", () => {
       <TransferDestination
         isShieldedAddress={false}
         chain={parseChainInfo(namadaChainMock as Chain, false)}
-        wallet={walletMock}
       />
     );
     expect(screen.getByText(/namada transparent/i)).toBeInTheDocument();
@@ -84,7 +73,6 @@ describe("Component: TransferDestination", () => {
       <TransferDestination
         isShieldedAddress={true}
         chain={parseChainInfo(namadaChainMock as Chain, true)}
-        onChangeShielded={onChangeShieldedMock}
       />
     );
     const transparentButton = screen.getByText("Transparent");
@@ -94,12 +82,7 @@ describe("Component: TransferDestination", () => {
 
   it("should toggle between custom and my address when onToggleCustomAddress is provided", () => {
     const onToggleCustomAddressMock = jest.fn();
-    render(
-      <TransferDestination
-        customAddressActive={false}
-        onToggleCustomAddress={onToggleCustomAddressMock}
-      />
-    );
+    render(<TransferDestination customAddressActive={false} />);
     const customAddressButton = screen.getByText("Custom Address");
     fireEvent.click(customAddressButton);
     expect(onToggleCustomAddressMock).toHaveBeenCalledWith(true);
