@@ -51,13 +51,12 @@ import {
 } from "utils";
 import { IbcTopHeader } from "./IbcTopHeader";
 
-const keplr = new KeplrWalletManager();
-
 interface IbcWithdrawProps {
   sourceAddress: string | undefined;
   setSourceAddress: (address: string | undefined) => void;
   destinationAddress: string | undefined;
   setDestinationAddress: (address: string | undefined) => void;
+  keplrWalletManager: KeplrWalletManager;
 }
 
 export const IbcWithdraw = ({
@@ -65,6 +64,7 @@ export const IbcWithdraw = ({
   setSourceAddress,
   destinationAddress,
   setDestinationAddress,
+  keplrWalletManager,
 }: IbcWithdrawProps): JSX.Element => {
   //  COMPONENT STATE
   const [selectedAssetWithAmount, setSelectedAssetWithAmount] = useState<
@@ -88,7 +88,7 @@ export const IbcWithdraw = ({
     connectToChainId,
     chainId,
     loadWalletAddress,
-  } = useWalletManager(keplr);
+  } = useWalletManager(keplrWalletManager);
   const transparentAccount = useAtomValue(defaultAccountAtom);
   const namadaChain = useAtomValue(chainAtom);
   const [ledgerStatus, setLedgerStatusStop] = useAtom(ledgerStatusDataAtom);
@@ -372,13 +372,13 @@ export const IbcWithdraw = ({
       <TransferModule
         source={{
           address: sourceAddress,
-          onChangeAddress: setSourceAddress,
           availableAmount,
           selectedAssetWithAmount,
-          onChangeSelectedAsset: setSelectedAssetWithAmount,
           amount,
-          onChangeAmount: setAmount,
           ledgerAccountInfo,
+          onChangeAddress: setSourceAddress,
+          onChangeSelectedAsset: setSelectedAssetWithAmount,
+          onChangeAmount: setAmount,
         }}
         destination={{
           customAddress,
@@ -405,6 +405,7 @@ export const IbcWithdraw = ({
         feeProps={feeProps}
         onComplete={redirectToTimeline}
         completedAt={completedAt}
+        keplrWalletManager={keplrWalletManager}
       />
     </div>
   );
