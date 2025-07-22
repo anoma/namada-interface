@@ -11,6 +11,7 @@ import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
 import { params, routes } from "App/routes";
 import { transparentTokensAtom } from "atoms/balance/atoms";
+import { tokenPricesFamily } from "atoms/prices/atoms";
 import { applicationFeaturesAtom } from "atoms/settings";
 import { useBalances } from "hooks/useBalances";
 import { useAtomValue } from "jotai";
@@ -34,6 +35,14 @@ const TransparentTokensTable = ({
   const [page, setPage] = useState(initialPage);
   const { namTransfersEnabled } = useAtomValue(applicationFeaturesAtom);
   const { bondedAmount } = useBalances();
+
+  // Get token prices for calculating staked balance dollar amounts
+  const tokenAddresses = useMemo(
+    () => data.map((item) => item.address),
+    [data]
+  );
+  const tokenPricesQuery = useAtomValue(tokenPricesFamily(tokenAddresses));
+
   const headers = [
     "Token",
     { children: "Balance", className: "text-right" },
@@ -48,6 +57,12 @@ const TransparentTokensTable = ({
   }: TokenBalance): TableRow => {
     const isNam = isNamadaAsset(asset);
     const namTransferLocked = isNam && !namTransfersEnabled;
+
+    // Calculate the dollar amount for staked balance
+    const tokenPrice = tokenPricesQuery.data?.[address];
+    const stakedDollar =
+      tokenPrice && isNam ? bondedAmount.multipliedBy(tokenPrice) : undefined;
+
     return {
       cells: [
         <TokenCard key={`token-${address}`} address={address} asset={asset} />,
@@ -64,16 +79,16 @@ const TransparentTokensTable = ({
           )}
         </div>,
         <div
-          key={`balance-${address}`}
+          key={`staked-balance-${address}`}
           className="flex flex-col text-right leading-tight"
         >
           {isNam ?
             <>
               <TokenCurrency symbol={asset.symbol} amount={bondedAmount} />
-              {dollar && (
+              {stakedDollar && (
                 <FiatCurrency
                   className="text-neutral-600 text-sm"
-                  amount={dollar}
+                  amount={stakedDollar}
                 />
               )}
             </>
