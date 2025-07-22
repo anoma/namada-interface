@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.2](https://github.com/namada-net/namada-interface/compare/namadillo@v1.31.1...namadillo@v1.31.2) (2025-07-22)
+
+
+### Bug Fixes
+
+* Update proper staked balance ([#2252](https://github.com/namada-net/namada-interface/issues/2252)) ([f974f0c](https://github.com/namada-net/namada-interface/commit/f974f0c69408daaf06050369069ecb52e5a7fc39))
+
 ## [1.31.1](https://github.com/namada-net/namada-interface/compare/namadillo@v1.31.0...namadillo@v1.31.1) (2025-07-16)
 
 
