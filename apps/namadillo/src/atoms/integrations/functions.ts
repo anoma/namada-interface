@@ -117,7 +117,7 @@ export const SUPPORTED_ASSETS_MAP = new Map<string, string[]>(
     osmosis: ["NAM", "OSMO"],
     cosmoshub: ["ATOM"],
     celestia: ["TIA"],
-    nyx: ["NYX"],
+    nyx: ["NYM"],
     stride: ["stOSMO", "stATOM", "stTIA"],
     neutron: ["NTRN"],
     noble: ["USDC"],
