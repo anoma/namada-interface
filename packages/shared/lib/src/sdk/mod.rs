@@ -645,7 +645,13 @@ impl Sdk {
             generate_rng_build_params()
         };
 
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        // TODO: pass handler
+        let _ = &self
+            .namada
+            .shielded_mut()
+            .await
+            .try_load(async |_| {})
+            .await;
 
         let xfvks = args
             .sources
@@ -655,7 +661,8 @@ impl Sdk {
 
         let ((tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx =
+                    build_shielded_transfer(&self.namada, &mut args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(
                     bparams
                         .to_stored()
@@ -666,7 +673,8 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_shielded_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx =
+                    build_shielded_transfer(&self.namada, &mut args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
@@ -690,7 +698,13 @@ impl Sdk {
             generate_rng_build_params()
         };
 
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        // TODO: pass handler
+        let _ = &self
+            .namada
+            .shielded_mut()
+            .await
+            .try_load(async |_| {})
+            .await;
 
         let xfvks = args
             .sources
@@ -700,7 +714,8 @@ impl Sdk {
 
         let ((tx, signing_data), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams, false)
+                    .await?;
                 let masp_signing_data = MaspSigningData::new(
                     bparams
                         .to_stored()
@@ -711,7 +726,8 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams).await?;
+                let tx = build_unshielding_transfer(&self.namada, &mut args, &mut bparams, false)
+                    .await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
@@ -733,7 +749,13 @@ impl Sdk {
         } else {
             generate_rng_build_params()
         };
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        // TODO: pass handler
+        let _ = &self
+            .namada
+            .shielded_mut()
+            .await
+            .try_load(async |_| {})
+            .await;
 
         let (tx, signing_data, _) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
@@ -764,7 +786,13 @@ impl Sdk {
             generate_rng_build_params()
         };
 
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        // TODO: pass handler
+        let _ = &self
+            .namada
+            .shielded_mut()
+            .await
+            .try_load(async |_| {})
+            .await;
 
         let xfvks = match args.source {
             TransferSource::Address(_) => vec![],
@@ -773,7 +801,7 @@ impl Sdk {
 
         let ((tx, signing_data, _), masp_signing_data) = match bparams {
             BuildParams::RngBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(
                     bparams
                         .to_stored()
@@ -784,7 +812,7 @@ impl Sdk {
                 (tx, masp_signing_data)
             }
             BuildParams::StoredBuildParams(mut bparams) => {
-                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams).await?;
+                let tx = build_ibc_transfer(&self.namada, &args, &mut bparams, false).await?;
                 let masp_signing_data = MaspSigningData::new(bparams, xfvks);
 
                 (tx, masp_signing_data)
@@ -907,7 +935,13 @@ impl Sdk {
         amount: &str,
         channel_id: &str,
     ) -> Result<JsValue, JsError> {
-        let _ = &self.namada.shielded_mut().await.load().await?;
+        // TODO: pass handler
+        let _ = &self
+            .namada
+            .shielded_mut()
+            .await
+            .try_load(async |_| {})
+            .await;
 
         let ledger_address = Url::from_str(&self.rpc_url).expect("RPC URL is a valid URL");
         let target = TransferTarget::PaymentAddress(
@@ -958,7 +992,8 @@ impl Sdk {
     ) -> Result<JsValue, JsError> {
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        // TODO: pass handler
+        shielded.try_load(async |_| {}).await;
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
         let raw_balance = shielded
@@ -1034,7 +1069,8 @@ impl Sdk {
 
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        // TODO: pass handler
+        shielded.try_load(async |_| {}).await;
 
         let xvk = ExtendedViewingKey::from_str(&owner)?;
         let raw_balance = self
@@ -1071,7 +1107,8 @@ impl Sdk {
 
         let mut shielded: ShieldedContext<masp::JSShieldedUtils> = ShieldedContext::default();
         shielded.utils.chain_id = chain_id.clone();
-        shielded.load().await?;
+        // TODO: pass handler
+        shielded.try_load(async |_| {}).await;
 
         let epoch = rpc::query_masp_epoch(self.namada.client()).await?;
 
