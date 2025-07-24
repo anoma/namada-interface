@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use namada_sdk::{
     borsh::{BorshDeserialize, BorshSerialize},
-    masp::{ContextSyncStatus, DispatcherCache, ShieldedUtils},
+    masp::{ContextSyncStatus, DispatcherCache, ShieldedUtils, VersionedWalletRef},
     masp_proofs::prover::LocalTxProver,
     ShieldedWallet,
 };
@@ -110,8 +110,8 @@ impl ShieldedUtils for NodeShieldedUtils {
         };
 
         let path = path_buf_to_js_value(self.context_dir.join(file_name));
-        //TODO: change to_bytes to sth more descripive, add "from_bytes"
-        let bytes = to_bytes(read_file_sync(path).unwrap().into());
+        //TODO: change to_bytes to sth more descripive, add "from_bytes", unwrap
+        let bytes = to_bytes(read_file_sync(path).unwrap());
 
         *ctx = ShieldedWallet {
             utils: ctx.utils.clone(),
@@ -120,8 +120,12 @@ impl ShieldedUtils for NodeShieldedUtils {
         Ok(())
     }
 
-    async fn save<U: ShieldedUtils>(&self, ctx: &ShieldedWallet<U>) -> std::io::Result<()> {
-        let (tmp_file_name, file_name) = match ctx.sync_status {
+    async fn save<'a, U: ShieldedUtils>(
+        &'a self,
+        ctx: VersionedWalletRef<'a, U>,
+        sync_status: ContextSyncStatus,
+    ) -> std::io::Result<()> {
+        let (tmp_file_name, file_name) = match sync_status {
             ContextSyncStatus::Confirmed => (TMP_FILE_NAME, FILE_NAME),
             ContextSyncStatus::Speculative => (SPECULATIVE_TMP_FILE_NAME, SPECULATIVE_FILE_NAME),
         };
@@ -139,10 +143,11 @@ impl ShieldedUtils for NodeShieldedUtils {
         let new_path = path_buf_to_js_value(self.context_dir.join(file_name));
         renameSync(tmp_path, new_path).unwrap();
 
-        if let ContextSyncStatus::Confirmed = ctx.sync_status {
+        if let ContextSyncStatus::Confirmed = sync_status {
             unlinkSync(path_buf_to_js_value(
                 self.context_dir.join(SPECULATIVE_FILE_NAME),
             ))
+            // TODO: unwrap
             .unwrap();
         }
 
