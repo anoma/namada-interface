@@ -92,6 +92,7 @@ export const ShieldedFungibleTable = ({
           className="text-right leading-tight relative"
         >
           {shieldingRewardsEnabled &&
+            REWARD_THRESHOLDS[asset.symbol.toLowerCase()] &&
             (reward ?
               <div className="flex items-center justify-end gap-2">
                 <TokenCurrency
