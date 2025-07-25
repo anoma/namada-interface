@@ -6,6 +6,7 @@ import {
 } from "@namada/components";
 import { sortedTableData } from "App/AccountOverview/common";
 import { FiatCurrency } from "App/Common/FiatCurrency";
+import { IconTooltip } from "App/Common/IconTooltip";
 import { TableWithPaginator } from "App/Common/TableWithPaginator";
 import { TokenCard } from "App/Common/TokenCard";
 import { TokenCurrency } from "App/Common/TokenCurrency";
@@ -14,6 +15,7 @@ import { applicationFeaturesAtom } from "atoms/settings/atoms";
 import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
+import { FaExclamation } from "react-icons/fa6";
 import { IoSwapHorizontal } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -22,6 +24,26 @@ import { namadaAsset } from "utils";
 
 const resultsPerPage = 100;
 const initialPage = 0;
+
+// Minimum thresholds to earn rewards for each asset
+const REWARD_THRESHOLDS: Record<string, BigNumber> = {
+  statom: new BigNumber(10),
+  stosmo: new BigNumber(100),
+  sttia: new BigNumber(20),
+  osmo: new BigNumber(100),
+  atom: new BigNumber(10),
+  tia: new BigNumber(20),
+  usdc: new BigNumber(50),
+};
+
+// Check if amount is below the minimum threshold to earn rewards
+const isBelowRewardThreshold = (
+  assetSymbol: string,
+  amount: BigNumber
+): boolean => {
+  const threshold = REWARD_THRESHOLDS[assetSymbol.toLowerCase()];
+  return threshold ? amount.lt(threshold) : false;
+};
 
 export const ShieldedFungibleTable = ({
   data,
@@ -49,7 +71,7 @@ export const ShieldedFungibleTable = ({
     dollar,
   }: TokenBalance): TableRow => {
     const reward = rewards?.[address];
-
+    const belowThreshold = isBelowRewardThreshold(asset.symbol, amount);
     return {
       cells: [
         <TokenCard key={`token-${address}`} address={address} asset={asset} />,
@@ -65,15 +87,30 @@ export const ShieldedFungibleTable = ({
             />
           )}
         </div>,
-        <div key={`ssr-rate-${address}`} className="text-right leading-tight ">
+        <div
+          key={`ssr-rate-${address}`}
+          className="text-right leading-tight relative"
+        >
           {shieldingRewardsEnabled &&
+            REWARD_THRESHOLDS[asset.symbol.toLowerCase()] &&
             (reward ?
-              <TokenCurrency
-                symbol={namadaAsset().symbol}
-                amount={reward}
-                className="text-yellow"
-                decimalPlaces={reward.isZero() ? 0 : 3}
-              />
+              <div className="flex items-center justify-end gap-2">
+                <TokenCurrency
+                  symbol={namadaAsset().symbol}
+                  amount={reward}
+                  className="text-yellow"
+                  decimalPlaces={reward.isZero() ? 0 : 3}
+                />
+                {belowThreshold && (
+                  <IconTooltip
+                    className="bg-yellow text-black"
+                    icon={<FaExclamation />}
+                    text={`${REWARD_THRESHOLDS[asset.symbol.toLowerCase()]} ${asset.symbol} required to earn rewards`}
+                    tooltipClassName="w-fit px-2 py-1 -mr-2"
+                    tooltipPosition="right"
+                  />
+                )}
+              </div>
             : <SkeletonLoading
                 width="120px"
                 height="20px"
