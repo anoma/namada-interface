@@ -103,7 +103,7 @@ export const ShieldedFungibleTable = ({
                 />
                 {belowThreshold && (
                   <IconTooltip
-                    className="bg-fail text-black"
+                    className="bg-yellow text-black"
                     icon={<FaExclamation />}
                     text={`${REWARD_THRESHOLDS[asset.symbol.toLowerCase()]} ${asset.symbol} required to earn rewards`}
                     tooltipClassName="w-fit px-2 py-1 -mr-2"
