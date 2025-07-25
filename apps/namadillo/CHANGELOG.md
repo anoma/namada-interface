@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.31.2](https://github.com/namada-net/namada-interface/compare/namadillo@v1.31.1...namadillo@v1.31.2) (2025-07-25)
+
+
+### Bug Fixes
+
+* Changed supported asset from NYX to NYM ([#2257](https://github.com/namada-net/namada-interface/issues/2257)) ([da0d851](https://github.com/namada-net/namada-interface/commit/da0d8514e7344d59d97f96a1549f491774875348))
+* Threshold fix ([#2258](https://github.com/namada-net/namada-interface/issues/2258)) ([12fdcef](https://github.com/namada-net/namada-interface/commit/12fdcefcd03463b7585591e5e244e5632882687f))
+* Update proper staked balance ([#2252](https://github.com/namada-net/namada-interface/issues/2252)) ([f974f0c](https://github.com/namada-net/namada-interface/commit/f974f0c69408daaf06050369069ecb52e5a7fc39))
+
 ## [1.31.2](https://github.com/namada-net/namada-interface/compare/namadillo@v1.31.1...namadillo@v1.31.2) (2025-07-22)
 
 
