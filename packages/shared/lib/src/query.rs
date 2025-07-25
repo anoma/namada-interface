@@ -813,10 +813,24 @@ impl Query {
         // For now, we'll return a placeholder structure
 
         // The actual implementation should look something like:
-        // let next_epoch_info = rpc::query_next_epoch_info(&self.client).await?;
+        let current_epoch = query_epoch(&self.client).await?;
+        let (this_epoch_first_height, epoch_duration) =
+            rpc::query_next_epoch_info(&self.client).await?;
+        let this_epoch_first_height_header =
+            rpc::query_block_header(&self.client, this_epoch_first_height)
+                .await?
+                .unwrap();
+
+        let first_block_time = this_epoch_first_height_header.time;
+        let next_epoch_time = first_block_time + epoch_duration.min_duration;
+        let next_epoch_block = this_epoch_first_height.0 + epoch_duration.min_num_of_blocks;
+        let next_epoch = current_epoch.next();
+
+        let result: (Epoch, u64, String) =
+            (next_epoch, next_epoch_block, next_epoch_time.to_rfc3339());
 
         // For now, return an error indicating this needs to be implemented
-        Err(JsError::new("query_next_epoch_info is not yet implemented in the Namada SDK. Please implement rpc::query_next_epoch_info first."))
+        // Err(JsError::new("query_next_epoch_info is not yet implemented in the Namada SDK. Please implement rpc::query_next_epoch_info first."))
 
         // Expected return structure when implemented:
         // let result = json!({
@@ -824,7 +838,7 @@ impl Query {
         //     "min_block_height": next_epoch_info.min_block_height,
         //     "next_epoch_time": next_epoch_info.next_epoch_time.to_rfc3339(),
         // });
-        // to_js_result(result)
+        to_js_result(result)
     }
 
     /// Gets block header information for a specific height
